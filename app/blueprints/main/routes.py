@@ -5,8 +5,9 @@ import math
 import logging
 import resource
 import time
+from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
-from flask import Blueprint, render_template, redirect, url_for, current_app, request, jsonify, session
+from flask import Blueprint, render_template, redirect, url_for, current_app, request, jsonify, session, abort, send_from_directory
 from flask_login import current_user, login_required
 from ...extensions import db
 from ...models import BroadcastMessage, BroadcastMessageRead, JobQueue, JobRun, LogEvent, User, UserMessage, now_utc
@@ -24,6 +25,10 @@ log = logging.getLogger(__name__)
 
 
 _LAST_CPU_SAMPLE: tuple[float, int] | None = None  # (total_jiffies, idle_jiffies)
+
+
+def _ui_template_root() -> Path:
+    return Path(current_app.root_path).parent / "ui_template"
 
 
 def _cpu_usage_pct() -> float | None:
@@ -659,6 +664,31 @@ def privacy():
     if current_user.is_authenticated:
         return render_template("main/privacy.html", now=now_utc())
     return render_template("main/privacy_public.html", now=now_utc())
+
+
+@bp.get("/ui_template")
+def ui_template_root_redirect():
+    return redirect(url_for("main.ui_template_page", filename="index.html"))
+
+
+@bp.get("/ui_template/")
+@bp.get("/ui_template/<path:filename>")
+def ui_template_page(filename: str = "index.html"):
+    root = _ui_template_root()
+    requested = str(filename or "index.html").strip("/") or "index.html"
+    if requested.startswith("."):
+        abort(404)
+    if "/" not in requested and "." not in requested:
+        requested = f"{requested}.html"
+    if requested.startswith("static/"):
+        static_root = root / "static"
+        asset_name = requested[len("static/"):].strip("/")
+        if not asset_name:
+            abort(404)
+        return send_from_directory(static_root, asset_name)
+    if Path(requested).suffix.lower() != ".html":
+        abort(404)
+    return send_from_directory(root, requested)
 
 
 @bp.get("/runtime/client-state")

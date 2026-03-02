@@ -6,6 +6,7 @@ on:
     paths:
       - "ui_template/**"
       - ".github/workflows/pages.yml"
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -18,22 +19,28 @@ concurrency:
 
 jobs:
   deploy:
+    runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Sanity check
+        run: |
+          test -f ui_template/index.html
+          echo "Found ui_template/index.html"
+
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload ui_template
+      - name: Upload ui_template as Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
           path: ui_template
 
-      - name: Deploy
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4

@@ -21,8 +21,9 @@
     el.setAttribute("role", "alert");
     el.innerHTML = `<div class="d-flex"><div class="toast-body d-flex align-items-center gap-2">
       <i class="bi bi-${icon}"></i>${escapeHtml(msg)}</div>
-      <button type="button" class="btn-close btn-close-white me-2 m-auto" onclick="this.closest('.toast').remove()"></button></div>`;
+      <button type="button" class="btn-close btn-close-white me-2 m-auto js-toast-close"></button></div>`;
     stack.appendChild(el);
+    el.querySelector(".js-toast-close")?.addEventListener("click", () => el.remove());
     setTimeout(() => el.remove && el.remove(), duration);
   }
 

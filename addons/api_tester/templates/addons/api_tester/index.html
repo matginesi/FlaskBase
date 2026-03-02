@@ -1,0 +1,313 @@
+{% extends "base.html" %}
+{% block title %} · API Tester{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-breadcrumb"><i class="bi bi-plug me-1"></i> Add-on</div>
+  <h1>API Tester</h1>
+  <p>Tester leggero per provare gli endpoint FastAPI reali senza proxy interno. Inserisci un bearer token tuo oppure genera un token temporaneo dedicato.</p>
+</div>
+
+<div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+  <span class="badge bg-primary-subtle text-primary-emphasis">api_tester</span>
+  <span class="badge {% if view_mode == 'admin' %}bg-warning-subtle text-warning-emphasis{% else %}bg-success-subtle text-success-emphasis{% endif %}">{{ view_mode or 'user' }}</span>
+  <span class="badge bg-light text-dark">{{ user_tokens|length }} key personali riutilizzabili</span>
+  {% if current_user.is_admin() %}
+  <a href="{{ user_url }}" class="btn btn-sm {% if view_mode != 'admin' %}btn-primary{% else %}btn-outline-primary{% endif %}">Vista user</a>
+  <a href="{{ admin_url }}" class="btn btn-sm {% if view_mode == 'admin' %}btn-warning{% else %}btn-outline-warning{% endif %}">Vista admin</a>
+  {% endif %}
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-12 col-lg-4">
+    <div class="stat-card success">
+      <div class="stat-val">{{ api_status.timeout_sec }}s</div>
+      <div class="stat-lbl">Timeout guida</div>
+      <div class="stat-icon"><i class="bi bi-stopwatch"></i></div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-4">
+    <div class="stat-card">
+      <div class="stat-val">{{ api_status.max_response_kb }}KB</div>
+      <div class="stat-lbl">Risposta consigliata max</div>
+      <div class="stat-icon"><i class="bi bi-file-earmark-code"></i></div>
+    </div>
+  </div>
+  <div class="col-12 col-lg-4">
+    <div class="stat-card">
+      <div class="stat-val">{{ api_status.minted_scopes|length }}</div>
+      <div class="stat-lbl">Scope tester</div>
+      <div class="stat-icon"><i class="bi bi-key"></i></div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-xl-4">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-key me-2 text-primary"></i>Workspace token</div>
+      <div class="card-body d-grid gap-2">
+        <div>
+          <label class="form-label mb-1">Base URL pubblica</label>
+          <input class="form-control form-control-sm font-monospace" value="{{ api_status.api_public_base_url or request.url_root.rstrip('/') }}" readonly>
+        </div>
+        <div class="d-grid gap-2">
+          <button class="btn btn-outline-primary btn-sm" id="mintTokenBtn" type="button">
+            <i class="bi bi-plus-circle me-1"></i>Genera token tester 8h
+          </button>
+          <a class="btn btn-outline-secondary btn-sm" href="/auth/settings">
+            <i class="bi bi-sliders me-1"></i>Gestisci key account
+          </a>
+        </div>
+        <div>
+          <label class="form-label mb-1">Bearer token</label>
+          <textarea class="form-control form-control-sm font-monospace" id="tokenInput" rows="6" placeholder="Incolla una key completa oppure genera il token tester qui">{{ latest_tester_token }}</textarea>
+          <div class="form-text">Serve la chiave completa. Il tester accetta solo token validi del tuo utente.</div>
+        </div>
+        <div class="rounded border p-2 bg-light-subtle">
+          <div class="fw-semibold fs-sm mb-1">Scope token tester</div>
+          <div class="small text-muted">{{ api_status.minted_scopes|join(', ') }}</div>
+        </div>
+        <div class="rounded border p-2 bg-light-subtle">
+          <div class="fw-semibold fs-sm mb-1">Key personali disponibili</div>
+          {% if user_tokens %}
+          <div class="d-grid gap-2">
+            {% for token in user_tokens %}
+            <button type="button" class="btn btn-sm btn-light text-start border js-token-prefix" data-prefix="{{ token.prefix }}">
+              <div class="fw-semibold">{{ token.name }}</div>
+              <div class="small text-muted">{{ token.prefix }}... · {{ token.scopes|join(', ') if token.scopes else 'nessuno scope' }}</div>
+            </button>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="small text-muted">Nessuna key personale attiva. Creane una da Impostazioni account.</div>
+          {% endif %}
+        </div>
+        <div class="small text-muted">Percorsi consentiti: <code>/v1/*</code> e <code>/openapi.json</code>.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-8">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-send-check me-2 text-primary"></i>Request builder</div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-12 col-md-3">
+            <label class="form-label">Method</label>
+            <select class="form-select form-select-sm" id="requestMethod">
+              <option>GET</option>
+              <option>POST</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-9">
+            <label class="form-label">Endpoint</label>
+            <select class="form-select form-select-sm" id="endpointSelect">
+              {% for item in api_catalog %}
+              <option value="{{ item.path }}" data-methods="{{ item.methods|join(',') }}">{{ item.path }} · {{ item.auth_mode }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">JSON payload</label>
+            <textarea class="form-control form-control-sm font-monospace" id="payloadInput" rows="8">{"source":"api_tester","mode":"browser-direct"}</textarea>
+          </div>
+          <div class="col-12 d-flex flex-wrap gap-2">
+            <button class="btn btn-primary btn-sm" id="runRequestBtn" type="button"><i class="bi bi-play-fill me-1"></i>Esegui</button>
+            <button class="btn btn-outline-secondary btn-sm" id="healthBtn" type="button"><i class="bi bi-heart-pulse me-1"></i>Health</button>
+            <button class="btn btn-outline-secondary btn-sm" id="routesBtn" type="button"><i class="bi bi-diagram-3 me-1"></i>Routes</button>
+            <button class="btn btn-outline-secondary btn-sm" id="whoAmIBtn" type="button"><i class="bi bi-person-check me-1"></i>Who am I</button>
+            <button class="btn btn-outline-secondary btn-sm" id="openApiBtn" type="button"><i class="bi bi-box-arrow-up-right me-1"></i>OpenAPI</button>
+          </div>
+          <div class="col-12">
+            <div class="small text-muted">Le richieste partono dal browser verso gli endpoint reali del progetto. Nessun proxy aggiuntivo, quindi gli errori che vedi sono quelli veri.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-5">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-diagram-3 me-2 text-primary"></i>Endpoint pubblicati</span>
+        <span class="badge bg-secondary">{{ api_catalog|length }}</span>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Path</th>
+                <th>Metodi</th>
+                <th>Auth</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in api_catalog %}
+              <tr>
+                <td>
+                  <div class="font-monospace fs-xs">{{ item.path }}</div>
+                  <div class="text-muted fs-xs">{{ item.summary }}</div>
+                </td>
+                <td class="fs-xs">{{ item.methods|join(', ') }}</td>
+                <td class="fs-xs">{{ item.auth_mode }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-7">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-braces me-2 text-primary"></i>Risposta</span>
+        <span class="badge bg-secondary" id="responseStatus">idle</span>
+      </div>
+      <div class="card-body d-grid gap-2">
+        <pre class="mb-0 rounded p-3 small" id="responseOutput" style="min-height:320px;background:#0f1923;color:#dbe7f3;border:1px solid #24364a;overflow:auto;">Esegui una richiesta per vedere la risposta reale della FastAPI.</pre>
+        <div class="small text-muted" id="responseMeta"></div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  (function () {
+    "use strict";
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+    const output = document.getElementById("responseOutput");
+    const status = document.getElementById("responseStatus");
+    const meta = document.getElementById("responseMeta");
+    const tokenInput = document.getElementById("tokenInput");
+    const payloadInput = document.getElementById("payloadInput");
+    const endpointSelect = document.getElementById("endpointSelect");
+    const methodSelect = document.getElementById("requestMethod");
+    const prettyJson = {{ 'true' if pretty_json else 'false' }};
+
+    function setStatus(text, tone) {
+      status.textContent = text;
+      status.className = "badge";
+      status.classList.add(tone || "bg-secondary");
+    }
+
+    function renderOutput(data) {
+      output.textContent = prettyJson ? JSON.stringify(data, null, 2) : JSON.stringify(data);
+    }
+
+    function safeJsonParse(text) {
+      try {
+        return JSON.parse(text);
+      } catch (_error) {
+        return { raw: text };
+      }
+    }
+
+    function allowedPath(path) {
+      const clean = `/${String(path || "").trim().replace(/^\/+/, "")}`;
+      if (clean === "/openapi.json" || clean.startsWith("/v1/")) {
+        return clean;
+      }
+      return null;
+    }
+
+    async function runRequest(pathOverride, methodOverride) {
+      const path = allowedPath(pathOverride || endpointSelect.value);
+      const method = String(methodOverride || methodSelect.value || "GET").toUpperCase();
+      if (!path) {
+        setStatus("blocked", "bg-danger");
+        renderOutput({ ok: false, error: "Percorso non consentito" });
+        return;
+      }
+      const headers = { "Accept": "application/json" };
+      const token = tokenInput.value.trim();
+      if (token) headers.Authorization = `Bearer ${token}`;
+      let body;
+      if (method !== "GET") {
+        headers["Content-Type"] = "application/json";
+        try {
+          body = JSON.stringify(JSON.parse(payloadInput.value || "{}"));
+        } catch (error) {
+          setStatus("invalid json", "bg-danger");
+          renderOutput({ ok: false, error: "Payload JSON non valido", detail: String(error) });
+          return;
+        }
+      }
+      setStatus("loading", "bg-info");
+      meta.textContent = "";
+      try {
+        const response = await fetch(path, { method, headers, body });
+        const text = await response.text();
+        const parsed = safeJsonParse(text);
+        renderOutput(parsed);
+        setStatus(String(response.status), response.ok ? "bg-success" : "bg-warning");
+        meta.textContent = `${method} ${path}`;
+      } catch (error) {
+        setStatus("error", "bg-danger");
+        renderOutput({ ok: false, error: String(error) });
+      }
+    }
+
+    async function mintTesterToken() {
+      setStatus("minting", "bg-info");
+      try {
+        const response = await fetch("/addons/api_tester/api/mint-token", {
+          method: "POST",
+          headers: { "X-CSRFToken": csrfToken }
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok || !data.token) {
+          throw new Error(data.error || "Token generation failed");
+        }
+        tokenInput.value = data.token;
+        renderOutput(data);
+        setStatus("token ready", "bg-success");
+        meta.textContent = "Token tester generato";
+        if (window.showToast) window.showToast("Token tester generato", "success");
+      } catch (error) {
+        setStatus("error", "bg-danger");
+        renderOutput({ ok: false, error: String(error.message || error) });
+        if (window.showToast) window.showToast(String(error.message || error), "danger");
+      }
+    }
+
+    document.getElementById("runRequestBtn").addEventListener("click", function () {
+      runRequest();
+    });
+    document.getElementById("healthBtn").addEventListener("click", function () {
+      runRequest("/v1/health", "GET");
+    });
+    document.getElementById("routesBtn").addEventListener("click", function () {
+      runRequest("/v1/meta/routes", "GET");
+    });
+    document.getElementById("whoAmIBtn").addEventListener("click", function () {
+      runRequest("/v1/auth/me", "GET");
+    });
+    document.getElementById("openApiBtn").addEventListener("click", function () {
+      runRequest("/openapi.json", "GET");
+    });
+    document.getElementById("mintTokenBtn").addEventListener("click", mintTesterToken);
+
+    endpointSelect.addEventListener("change", function () {
+      const option = endpointSelect.selectedOptions[0];
+      const methods = String(option?.dataset.methods || "GET").split(",");
+      if (!methods.includes(methodSelect.value)) {
+        methodSelect.value = methods[0] || "GET";
+      }
+    });
+
+    document.querySelectorAll(".js-token-prefix").forEach(function (button) {
+      button.addEventListener("click", function () {
+        const prefix = button.getAttribute("data-prefix") || "";
+        if (window.showToast) {
+          window.showToast(`Serve la key completa. Prefisso selezionato: ${prefix}...`, "info");
+        }
+      });
+    });
+  })();
+</script>
+{% endblock %}

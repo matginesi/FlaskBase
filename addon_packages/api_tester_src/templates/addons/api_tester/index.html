@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+{% block title %} · API Tester{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-breadcrumb"><i class="bi bi-plug me-1"></i> Add-on</div>
+  <h1>API Tester</h1>
+  <p>{% if view_mode == 'admin' %}Admin workspace for validating the external FastAPI surface and user tokens.{% else %}Use this add-on to probe the published FastAPI routes with safe user-owned bearer tokens.{% endif %}</p>
+</div>
+
+<div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+  <span class="badge bg-primary-subtle text-primary-emphasis">api_tester</span>
+  <span class="badge {% if view_mode == 'admin' %}bg-warning-subtle text-warning-emphasis{% else %}bg-success-subtle text-success-emphasis{% endif %}">{{ view_mode or 'user' }}</span>
+  <span class="badge bg-light text-dark">{{ user_tokens|length }} active token{{ '' if user_tokens|length == 1 else 's' }}</span>
+  {% if current_user.is_admin() %}
+  <a href="{{ user_url }}" class="btn btn-sm {% if view_mode != 'admin' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+    <i class="bi bi-person me-1"></i>User page
+  </a>
+  <a href="{{ admin_url }}" class="btn btn-sm {% if view_mode == 'admin' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+    <i class="bi bi-shield-lock me-1"></i>Admin page
+  </a>
+  {% endif %}
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-12 col-lg-4">
+    <div class="stat-card {% if api_status.api_reachable %}success{% else %}warning{% endif %}">
+      <div class="stat-val">{{ "UP" if api_status.api_reachable else "DOWN" }}</div>
+      <div class="stat-lbl">FastAPI reachability</div>
+      <div class="stat-icon"><i class="bi bi-broadcast-pin"></i></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4">
+    <div class="stat-card">
+      <div class="stat-val">{{ api_status.timeout_sec }}s</div>
+      <div class="stat-lbl">Proxy timeout</div>
+      <div class="stat-icon"><i class="bi bi-stopwatch"></i></div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-4">
+    <div class="stat-card">
+      <div class="stat-val">{{ api_status.max_response_kb }}KB</div>
+      <div class="stat-lbl">Response cap</div>
+      <div class="stat-icon"><i class="bi bi-file-earmark-code"></i></div>
+    </div>
+  </div>
+</div>
+
+{% if not api_status.api_configured %}
+<div class="alert alert-warning">
+  <i class="bi bi-exclamation-triangle me-2"></i>
+  <div class="fw-semibold mb-1">FastAPI public base URL is missing.</div>
+  <div class="small mb-2">Set it in <strong>Config WebApp → API platform</strong> before using this tester.</div>
+  <div class="small">Suggested command: <code>{{ api_status.start_command }}</code></div>
+</div>
+{% elif not api_status.api_reachable %}
+<div class="alert alert-warning">
+  <div class="d-flex align-items-start gap-2">
+    <i class="bi bi-plug mt-1"></i>
+    <div>
+      <div class="fw-semibold mb-1">FastAPI is down or unreachable.</div>
+      <div class="small mb-1">Configured base URL: <code>{{ api_public_base_url }}</code></div>
+      <div class="small mb-1">Suggested command: <code>{{ api_status.start_command }}</code></div>
+      {% if api_status.health_detail %}
+      <div class="small text-muted">Health check detail: {{ api_status.health_detail }}</div>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-12 col-xl-4">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-key me-2 text-primary"></i>Token workspace</div>
+      <div class="card-body d-grid gap-2">
+        <div>
+          <label class="form-label mb-1">API public base URL</label>
+          <input class="form-control form-control-sm font-monospace" value="{{ api_public_base_url or 'Not configured' }}" readonly>
+        </div>
+        <div>
+          <label class="form-label mb-1">Available tokens</label>
+          <select class="form-select form-select-sm" id="tokenPreset">
+            <option value="">Manual / none</option>
+            {% for token in user_tokens %}
+            <option value="{{ token.prefix }}">{{ token.name }} · {{ token.prefix }}…{% if token.restricted %} · restricted{% endif %}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <button class="btn btn-outline-primary btn-sm" id="mintTokenBtn" type="button">
+          <i class="bi bi-plus-circle me-1"></i>Mint tester token
+        </button>
+        <div class="form-text">Minted tester tokens are not bound to a single add-on and inherit the scopes needed for the published add-on APIs.</div>
+        <div>
+          <label class="form-label mb-1">Bearer token</label>
+          <textarea class="form-control form-control-sm font-monospace" id="tokenInput" rows="5" placeholder="Paste a token owned by the current user"></textarea>
+          <div class="form-text">The proxy rejects tokens owned by another user.</div>
+        </div>
+        <div class="small text-muted">
+          Allowed paths:
+          <code>/v1/*</code>,
+          <code>/docs</code>,
+          <code>/openapi.json</code>,
+          <code>/redoc</code>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-8">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-send-check me-2 text-primary"></i>FastAPI request builder</div>
+      <div class="card-body">
+        <div class="row g-2">
+          <div class="col-12 col-md-3">
+            <label class="form-label">Method</label>
+            <select class="form-select form-select-sm" id="requestMethod">
+              <option>GET</option>
+              <option>POST</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-9">
+            <label class="form-label">Endpoint</label>
+            <select class="form-select form-select-sm" id="endpointSelect">
+              {% for item in api_catalog %}
+              <option value="{{ item.path }}" data-methods="{{ item.methods|join(',') }}">{{ item.path }} · {{ item.auth_mode }}</option>
+              {% endfor %}
+            </select>
+          </div>
+          <div class="col-12">
+            <label class="form-label">JSON payload</label>
+            <textarea class="form-control form-control-sm font-monospace" id="payloadInput" rows="7">{"source":"api_tester","mode":"proxy"}</textarea>
+          </div>
+          <div class="col-12 d-flex flex-wrap gap-2">
+            <button class="btn btn-primary btn-sm" id="runRequestBtn" type="button"><i class="bi bi-play-fill me-1"></i>Run request</button>
+            <button class="btn btn-outline-secondary btn-sm" id="loadStatusBtn" type="button"><i class="bi bi-heart-pulse me-1"></i>API status</button>
+            <button class="btn btn-outline-secondary btn-sm" id="loadRoutesBtn" type="button"><i class="bi bi-diagram-3 me-1"></i>Route catalog</button>
+            <button class="btn btn-outline-primary btn-sm" id="whoAmIBtn" type="button"><i class="bi bi-person-check me-1"></i>Who am I</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-5">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-diagram-3 me-2 text-primary"></i>Published APIs</span>
+        <span class="badge bg-secondary">{{ api_catalog|length }}</span>
+      </div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-sm align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Path</th>
+                <th>Methods</th>
+                <th>Auth</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for item in api_catalog %}
+              <tr>
+                <td>
+                  <div class="font-monospace fs-xs">{{ item.path }}</div>
+                  <div class="text-muted fs-xs">{{ item.summary }}</div>
+                </td>
+                <td class="fs-xs">{{ item.methods|join(', ') }}</td>
+                <td class="fs-xs">{{ item.auth_mode }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-7">
+    <div class="card h-100">
+      <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="bi bi-braces me-2 text-primary"></i>Response</span>
+        <span class="badge bg-secondary" id="responseStatus">idle</span>
+      </div>
+      <div class="card-body">
+        <pre class="mb-0 rounded p-3 small" id="responseOutput" style="min-height:360px;background:#0f1923;color:#dbe7f3;border:1px solid #24364a;overflow:auto;">Run a request to inspect the FastAPI response.</pre>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  (function () {
+    "use strict";
+
+    const output = document.getElementById("responseOutput");
+    const status = document.getElementById("responseStatus");
+    const tokenPreset = document.getElementById("tokenPreset");
+    const tokenInput = document.getElementById("tokenInput");
+    const payloadInput = document.getElementById("payloadInput");
+    const endpointSelect = document.getElementById("endpointSelect");
+    const methodSelect = document.getElementById("requestMethod");
+    const prettyJson = {{ 'true' if pretty_json else 'false' }};
+
+    function setStatus(text, tone) {
+      status.textContent = text;
+      status.className = "badge";
+      status.classList.add(tone || "bg-secondary");
+    }
+
+    function renderOutput(data) {
+      if (prettyJson) {
+        output.textContent = JSON.stringify(data, null, 2);
+        return;
+      }
+      output.textContent = JSON.stringify(data);
+    }
+
+    async function requestJson(path, payload, method) {
+      setStatus("loading", "bg-info");
+      try {
+        const response = await fetch(path, {
+          method: method || "POST",
+          headers: { "Content-Type": "application/json" },
+          body: method === "GET" ? undefined : JSON.stringify(payload || {})
+        });
+        const data = await response.json();
+        renderOutput(data);
+        setStatus(String(response.status), response.ok ? "bg-success" : "bg-warning");
+        if (window.showToast) {
+          window.showToast("Request completed", response.ok ? "success" : "warning");
+        }
+        return data;
+      } catch (err) {
+        output.textContent = String(err);
+        setStatus("error", "bg-danger");
+        if (window.showToast) {
+          window.showToast("Request failed", "danger");
+        }
+        return null;
+      }
+    }
+
+    async function runManualRequest(pathOverride, methodOverride) {
+      let payload = {};
+      try {
+        payload = JSON.parse(payloadInput.value || "{}");
+      } catch (err) {
+        payload = { raw: payloadInput.value, parse_error: String(err) };
+      }
+      return await requestJson("/addons/api_tester/api/run", {
+        path: pathOverride || endpointSelect.value,
+        method: methodOverride || methodSelect.value,
+        token: tokenInput.value.trim(),
+        payload: payload
+      }, "POST");
+    }
+
+    document.getElementById("runRequestBtn").addEventListener("click", function () {
+      runManualRequest();
+    });
+
+    document.getElementById("loadStatusBtn").addEventListener("click", function () {
+      requestJson("/addons/api_tester/api/status", {}, "GET");
+    });
+
+    document.getElementById("loadRoutesBtn").addEventListener("click", function () {
+      runManualRequest("/v1/meta/routes", "GET");
+    });
+
+    document.getElementById("whoAmIBtn").addEventListener("click", function () {
+      runManualRequest("/v1/auth/me", "GET");
+    });
+
+    document.getElementById("mintTokenBtn").addEventListener("click", async function () {
+      const data = await requestJson("/addons/api_tester/api/mint-token", {}, "POST");
+      if (data && data.token) {
+        tokenInput.value = data.token;
+      }
+    });
+
+    tokenPreset.addEventListener("change", function () {
+      if (tokenPreset.value && !tokenInput.value.trim()) {
+        renderOutput({
+          info: "Selected existing token prefix.",
+          prefix: tokenPreset.value,
+          note: "Paste the full raw token if you want to issue bearer-authenticated requests."
+        });
+        setStatus("token", "bg-secondary");
+      }
+    });
+
+    endpointSelect.addEventListener("change", function () {
+      const option = endpointSelect.selectedOptions[0];
+      const methods = String(option?.dataset.methods || "GET").split(",");
+      if (!methods.includes(methodSelect.value)) {
+        methodSelect.value = methods[0] || "GET";
+      }
+    });
+  })();
+</script>
+{% endblock %}

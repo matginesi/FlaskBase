@@ -1,0 +1,15 @@
+{# Usage: include with level, title, body. Render as bottom toast (no inline banners). #}
+{% set lv = (level or 'info')|lower %}
+{% if lv == 'error' %}{% set lv = 'danger' %}{% endif %}
+{% set t = (title or '')|string %}
+{% set b = (body or '')|string %}
+{% set msg = (t ~ (' — ' if t and b else '') ~ b) %}
+<script nonce="{{ g.csp_nonce }}">
+(function(){
+  try{
+    if(window.showToast){
+      window.showToast({{ msg|tojson }}, {{ lv|tojson }});
+    }
+  }catch(e){}
+})();
+</script>

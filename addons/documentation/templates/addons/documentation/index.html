@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% block title %} · Documentazione{% endblock %}
+
+{% block head %}
+<style nonce="{{ g.csp_nonce }}">
+/* Documentation add-on — responsive + UI-consistent */
+.docs-nav-card .list-group-item{
+  border-color: var(--card-border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  font-size: .86rem;
+  display:flex;
+  align-items:center;
+  gap:.55rem;
+}
+.docs-nav-card .list-group-item:hover{
+  background: rgba(37,99,235,.08);
+  color: var(--text-color);
+}
+.docs-nav-card .list-group-item.active{
+  background: rgba(37,99,235,.12);
+  border-left: 3px solid var(--accent);
+  color: var(--accent);
+  font-weight: 800;
+}
+.docs-nav-card .list-group-item .bi{opacity:.8}
+
+/* Markdown reading typography (serif for body) */
+.docs-md{
+  font-family: ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  color: var(--text-color);
+  line-height: 1.78;
+  font-size: 1.02rem;
+}
+.docs-md h1,.docs-md h2,.docs-md h3,.docs-md h4,.docs-md h5,.docs-md h6{
+  font-family: system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  scroll-margin-top: calc(var(--topbar-h,56px) + 1rem);
+}
+.docs-md h1{font-size:1.55rem;margin:0 0 .85rem;font-weight:900;border-bottom:2px solid var(--card-border);padding-bottom:.45rem}
+.docs-md h2{font-size:1.22rem;margin:1.6rem 0 .6rem;font-weight:900;border-bottom:1px solid var(--card-border);padding-bottom:.3rem}
+.docs-md h3{font-size:1.06rem;margin:1.25rem 0 .45rem;font-weight:800}
+.docs-md h4{font-size:.98rem;margin:1rem 0 .35rem;font-weight:800}
+.docs-md p{margin:0 0 1rem}
+.docs-md a{color:var(--accent);text-decoration:none}
+.docs-md a:hover{text-decoration:underline}
+.docs-md ul,.docs-md ol{margin:0 0 1rem;padding-left:1.4rem}
+.docs-md li{margin:.28rem 0;line-height:1.6}
+.docs-md hr{border:none;border-top:1px solid var(--card-border);margin:1.6rem 0}
+
+/* Code blocks + inline code — UI palette (no brown) */
+.docs-md code{
+  font-family: ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  font-size: .92em;
+  background: rgba(148,163,184,.12);
+  border: 1px solid rgba(148,163,184,.22);
+  padding: .08rem .35rem;
+  border-radius: .45rem;
+  color: var(--text-color);
+}
+.docs-md pre{
+  background: rgba(15,25,35,.04);
+  border: 1px solid var(--card-border);
+  border-radius: .9rem;
+  padding: 1rem 1.1rem;
+  overflow-x: auto;
+  margin: 0 0 1.1rem;
+  line-height: 1.6;
+}
+.docs-md pre code{
+  background: none !important;
+  border: none !important;
+  padding: 0 !important;
+  font-size: .92rem;
+  white-space: pre;
+}
+
+/* Tables */
+.docs-md table{width:100%;border-collapse:collapse;margin:0 0 1.1rem;font-size:.96rem}
+.docs-md th{
+  background: rgba(148,163,184,.10);
+  font-size:.74rem;font-weight:900;text-transform:uppercase;letter-spacing:.07em;
+  color: var(--text-muted);
+  padding:.55rem .75rem;
+  border:1px solid var(--card-border);
+  text-align:left;
+  font-family: system-ui,-apple-system,sans-serif;
+}
+.docs-md td{padding:.5rem .75rem;border:1px solid rgba(148,163,184,.20);vertical-align:top}
+.docs-md tr:nth-child(even) td{background:rgba(148,163,184,.04)}
+
+/* TOC */
+.docs-toc a{
+  display:block;
+  padding:.42rem .6rem;
+  font-size:.82rem;
+  text-decoration:none;
+  color: var(--text-muted);
+  border-radius:.55rem;
+}
+.docs-toc a:hover{background: rgba(37,99,235,.08); color: var(--text-color);}
+.docs-toc a.lvl-3{padding-left:1.2rem;font-size:.80rem}
+.docs-toc a.lvl-4{padding-left:1.8rem;font-size:.79rem}
+.docs-toc a.lvl-5{padding-left:2.4rem;font-size:.78rem}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <div class="page-breadcrumb"><i class="bi bi-journal-text me-1"></i>Add-on</div>
+  <h1>Documentazione</h1>
+  <p class="text-muted" style="font-size:.84rem;">I documenti sono <code>Markdown</code> renderizzati in HTML (sola lettura). Il testo è in serif per lettura lunga; titoli e UI seguono lo stile dell’app.</p>
+</div>
+
+{# Mobile offcanvas nav #}
+<div class="d-flex d-lg-none align-items-center justify-content-between mb-2">
+  <button class="btn btn-outline-secondary btn-sm" type="button" data-bs-toggle="offcanvas" data-bs-target="#docsNavMobile" aria-controls="docsNavMobile">
+    <i class="bi bi-list me-1"></i>Documenti
+  </button>
+  <a class="btn btn-outline-secondary btn-sm" href="{{ request.path }}{% if request.query_string %}?{{ request.query_string.decode('utf-8') }}{% endif %}">
+    <i class="bi bi-arrow-clockwise me-1"></i>Ricarica
+  </a>
+</div>
+
+<div class="offcanvas offcanvas-start" tabindex="-1" id="docsNavMobile" aria-labelledby="docsNavMobileLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="docsNavMobileLabel"><i class="bi bi-journal-text me-2"></i>Documenti</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <div class="card docs-nav-card">
+      <div class="card-header">
+        <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;">Navigazione</span>
+      </div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item {{ 'active' if active_kind == 'readme' else '' }}" href="/addons/documentation/readme">
+          <i class="bi bi-house-fill"></i> README
+        </a>
+        {% for f in md_files %}
+          <a class="list-group-item {{ 'active' if active_kind == 'doc' and active_file == f else '' }}" href="/addons/documentation/docs/{{ f }}">
+            <i class="bi bi-markdown"></i> {{ f }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-2 align-items-start">
+  {# Desktop left nav #}
+  <div class="col-lg-3 d-none d-lg-block">
+    <div class="card docs-nav-card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;">Documenti</span>
+        <span class="badge text-bg-light">MD</span>
+      </div>
+      <div class="list-group list-group-flush">
+        <a class="list-group-item {{ 'active' if active_kind == 'readme' else '' }}" href="/addons/documentation/readme">
+          <i class="bi bi-house-fill"></i> README
+        </a>
+        {% for f in md_files %}
+          <a class="list-group-item {{ 'active' if active_kind == 'doc' and active_file == f else '' }}" href="/addons/documentation/docs/{{ f }}">
+            <i class="bi bi-markdown"></i> {{ f }}
+          </a>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  {# Main content #}
+  <div class="col-12 col-lg-9 col-xl-7">
+    <div class="card">
+      <div class="card-header d-flex align-items-start justify-content-between gap-2">
+        <div>
+          <div class="fw-bold"><i class="bi bi-book me-2 text-info"></i>{{ doc_title }}</div>
+          <div class="small text-muted">Add-on: <code>documentation</code> · sola lettura</div>
+        </div>
+        <div class="d-none d-lg-flex align-items-center gap-2">
+          <a class="btn btn-outline-secondary btn-sm" href="{{ request.path }}{% if request.query_string %}?{{ request.query_string.decode('utf-8') }}{% endif %}">
+            <i class="bi bi-arrow-clockwise me-1"></i>Ricarica
+          </a>
+        </div>
+      </div>
+      <div class="card-body">
+        {% if doc_html %}
+          <div class="docs-md">{{ doc_html|safe }}</div>
+        {% else %}
+          <div class="text-muted small fst-italic">Nessun contenuto disponibile.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  {# Right TOC (only XL) #}
+  <div class="col-xl-2 d-none d-xl-block">
+    {% if toc and toc|length %}
+      <div class="card">
+        <div class="card-header">
+          <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;"><i class="bi bi-list-ul me-1"></i>Indice</span>
+        </div>
+        <div class="card-body docs-toc">
+          {% for item in toc %}
+            <a class="lvl-{{ item.level }}" href="#{{ item.slug }}">{{ item.title }}</a>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+{% endblock %}

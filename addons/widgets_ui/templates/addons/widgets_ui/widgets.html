@@ -1,0 +1,1450 @@
+{% extends "base.html" %}
+{% block title %} · Widget & UI{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-breadcrumb"><i class="bi bi-grid-3x3-gap me-1"></i> Add-on</div>
+  <h1>Widget & UI</h1>
+  <p>Showcase completo di componenti Bootstrap 5. {% if view_mode == 'admin' %}Vista admin per QA visuale, review e governance del design system.{% else %}Vista utente come reference pronta da riusare.{% endif %}</p>
+</div>
+
+<div class="d-flex align-items-center gap-2 mb-3">
+  <span class="badge bg-primary-subtle text-primary-emphasis">widgets_ui</span>
+  <span class="badge {% if view_mode == 'admin' %}bg-warning-subtle text-warning-emphasis{% else %}bg-success-subtle text-success-emphasis{% endif %}">{{ view_mode or 'user' }}</span>
+</div>
+
+{% if current_user.is_admin() %}
+<div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+  <a href="{{ user_url }}" class="btn btn-sm {% if view_mode != 'admin' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+    <i class="bi bi-person me-1"></i>User page
+  </a>
+  <a href="{{ admin_url }}" class="btn btn-sm {% if view_mode == 'admin' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+    <i class="bi bi-shield-lock me-1"></i>Admin page
+  </a>
+</div>
+{% endif %}
+
+<!-- Tab nav -->
+<ul class="nav nav-tabs-segment" id="widgetTabs" role="tablist">
+  {% for tid, label, icon in [
+      ('alerts','Alert & Toast','bell'),
+      ('modals','Modal','window'),
+      ('forms','Form & Input','ui-checks'),
+      ('typography','Tipografia','type'),
+      ('tables','Tabelle & Liste','table'),
+      ('media','Media','image'),
+      ('progress','Progress','bar-chart-line'),
+      ('insights','Chart & Graph','diagram-3'),
+      ('tabs','Tab & Nav','layout-text-window'),
+      ('layout','Layout & Card','grid')
+  ] %}
+  <li class="nav-item" role="presentation">
+    <button class="nav-link {% if loop.first %}active{% endif %}"
+            data-bs-toggle="tab" data-bs-target="#tab{{ tid }}" role="tab" type="button">
+      <i class="bi bi-{{ icon }} me-1"></i>{{ label }}
+    </button>
+  </li>
+  {% endfor %}
+</ul>
+<div class="tab-content tab-content-surface" id="widgetTabsContent">
+
+  <!-- ── ALERTS & TOAST ── -->
+  <div class="tab-pane fade show active" id="tabalerts" role="tabpanel">
+    <div class="row g-4">
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs letter-spacing mb-3">Alert statici</h6>
+        <div class="d-flex flex-column gap-2">
+        <div class="d-flex flex-column gap-2">
+          <div class="text-muted small">
+            Gli “totem” in pagina sono stati dismessi: usa i <strong>toast</strong> (in basso a destra) per feedback utente.
+          </div>
+          <div class="row g-2">
+            {% for lbl, typ, icon in [('Success','success','check-circle-fill'),('Danger','danger','exclamation-triangle-fill'),('Warning','warning','exclamation-circle-fill'),('Info','info','info-circle-fill')] %}
+            <div class="col-6">
+              <button class="btn btn-outline-{{ typ }} w-100 btn-sm" data-toast-msg="Esempio {{ lbl }} (toast)." data-toast-type="{{ typ }}">
+                <i class="bi bi-{{ icon }} me-2"></i>{{ lbl }}
+              </button>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Toast interattivi</h6>
+        <div class="row g-2 mb-4">
+          {% for lbl, typ, icon in [('Success','success','check-circle-fill'),('Danger','danger','exclamation-triangle-fill'),('Warning','warning','exclamation-circle-fill'),('Info','info','info-circle-fill')] %}
+          <div class="col-6">
+            <button class="btn btn-{{ typ }} w-100" data-toast-msg="Toast {{ lbl }}! Messaggio di esempio." data-toast-type="{{ typ }}">
+              <i class="bi bi-{{ icon }} me-2"></i>{{ lbl }}
+            </button>
+          </div>
+          {% endfor %}
+        </div>
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Badge & Pill</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <span class="badge bg-primary">Primary</span>
+          <span class="badge bg-success">Success</span>
+          <span class="badge bg-danger">Danger</span>
+          <span class="badge bg-warning text-dark">Warning</span>
+          <span class="badge bg-info text-white">Info</span>
+          <span class="badge bg-secondary">Secondary</span>
+          <span class="badge rounded-pill bg-primary">Pill</span>
+          <span class="log-badge INFO">INFO</span>
+          <span class="log-badge WARNING">WARN</span>
+          <span class="log-badge ERROR">ERROR</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MODALS ── -->
+  <div class="tab-pane fade" id="tabmodals" role="tabpanel">
+    <div class="row g-3">
+      <div class="col-12 col-lg-5">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Tipi di modal</h6>
+        <div class="d-flex flex-column gap-2">
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalInfo">
+            <i class="bi bi-info-circle me-2"></i>Modal informativo
+          </button>
+          <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalConfirm">
+            <i class="bi bi-trash me-2"></i>Modal conferma eliminazione
+          </button>
+          <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalForm">
+            <i class="bi bi-pencil me-2"></i>Modal con form
+          </button>
+          <button class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalLg">
+            <i class="bi bi-arrows-fullscreen me-2"></i>Modal grande (lg)
+          </button>
+        </div>
+      </div>
+      <div class="col-12 col-lg-7">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Accordion / Collapsible</h6>
+        <div class="accordion" id="demoAccordion">
+          {% for i, title, text in [
+            (1,'Sezione uno — clicca per espandere','Contenuto del primo pannello accordion. Utile per FAQ, dettagli, documentazione.'),
+            (2,'Sezione due','Secondo pannello. Può contenere qualsiasi elemento HTML.'),
+            (3,'Sezione tre','Terzo pannello con testo di esempio.')
+          ] %}
+          <div class="accordion-item">
+            <h2 class="accordion-header">
+              <button class="accordion-button {% if i > 1 %}collapsed{% endif %} fs-sm" type="button"
+                      data-bs-toggle="collapse" data-bs-target="#acc{{ i }}">{{ title }}</button>
+            </h2>
+            <div id="acc{{ i }}" class="accordion-collapse collapse {% if i == 1 %}show{% endif %}" data-bs-parent="#demoAccordion">
+              <div class="accordion-body fs-sm text-muted">{{ text }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── FORMS ── -->
+  <div class="tab-pane fade" id="tabforms" role="tabpanel">
+    <div class="row g-4">
+      <div class="col-12 col-lg-7">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Form completo</h6>
+        <div class="row g-3">
+          <div class="col-6">
+            <label class="form-label">Nome</label>
+            <input type="text" class="form-control" placeholder="Mario">
+          </div>
+          <div class="col-6">
+            <label class="form-label">Cognome</label>
+            <input type="text" class="form-control" placeholder="Rossi">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Email</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+              <input type="email" class="form-control" placeholder="mario@esempio.it">
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Ruolo</label>
+            <select class="form-select">
+              <option>User</option><option>Admin</option><option>Viewer</option>
+            </select>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Data</label>
+            <input type="date" class="form-control">
+          </div>
+          <div class="col-12">
+            <label class="form-label">Note</label>
+            <textarea class="form-control" rows="3" placeholder="Testo libero..."></textarea>
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label">Range: <span id="rval">50</span></label>
+            <input type="range" class="form-range" min="0" max="100" value="50"
+                   oninput="document.getElementById('rval').textContent=this.value">
+          </div>
+          <div class="col-12 col-md-6">
+            <label class="form-label d-block">Checkbox & Switch</label>
+            <div class="d-flex gap-3 mt-1">
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="chk1" checked>
+                <label class="form-check-label" for="chk1">Opzione A</label>
+              </div>
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" id="sw1" checked>
+                <label class="form-check-label" for="sw1">Switch</label>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 d-flex gap-2">
+            <button type="button" class="btn btn-primary" onclick="showToast('Form inviato!','success')">
+              <i class="bi bi-send me-1"></i>Invia
+            </button>
+            <button type="reset" class="btn btn-outline-secondary">Reset</button>
+          </div>
+        </div>
+      </div>
+      <div class="col-12 col-lg-5">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Input states</h6>
+        <div class="d-flex flex-column gap-2 mb-4">
+          <input type="text" class="form-control is-valid" value="Valore valido" readonly>
+          <div class="valid-feedback d-block">Perfetto!</div>
+          <input type="text" class="form-control is-invalid" value="Valore errato">
+          <div class="invalid-feedback">Campo non valido.</div>
+          <input type="text" class="form-control" placeholder="Normale" disabled>
+          <div class="input-group">
+            <span class="input-group-text"><i class="bi bi-search"></i></span>
+            <input type="text" class="form-control" placeholder="Cerca...">
+            <button class="btn btn-outline-secondary">Go</button>
+          </div>
+          <div class="input-group">
+            <span class="input-group-text">€</span>
+            <input type="number" class="form-control" placeholder="0.00">
+            <span class="input-group-text">.00</span>
+          </div>
+        </div>
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Radio buttons</h6>
+        <div class="d-flex flex-column gap-1">
+          {% for opt in ['Opzione Alpha','Opzione Beta','Opzione Gamma'] %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="radioDemo" id="radio{{ loop.index }}" {% if loop.first %}checked{% endif %}>
+            <label class="form-check-label" for="radio{{ loop.index }}">{{ opt }}</label>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TYPOGRAPHY ── -->
+  <div class="tab-pane fade" id="tabtypography" role="tabpanel">
+    <div class="row g-3 mx-0 mt-0">
+      <div class="col-12 col-lg-5">
+        <div class="card h-100">
+          <div class="card-header"><i class="bi bi-type me-2 text-primary"></i>Type Scale</div>
+          <div class="card-body p-0">
+            {% for token, px, wt, sample in [
+              ('display','26px','800','Dashboard Metrics'),
+              ('title','20px','700','Stato Infrastruttura'),
+              ('section','17px','700','Queue operative'),
+              ('card-title','15px','600','Job #1291 in esecuzione'),
+              ('body','14px','400','Contenuto principale, leggibile e compatto per pannelli operativi.'),
+              ('meta','12px','600','ULTIMO UPDATE · 12:42 UTC')
+            ] %}
+            <div class="px-3 py-2 {% if not loop.last %}border-bottom{% endif %}">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <code class="fs-xs">{{ token }}</code>
+                <span class="text-muted fs-xs">{{ px }} / {{ wt }}</span>
+              </div>
+              <div class="{% if token == 'meta' %}text-muted text-uppercase{% endif %}"
+                   style="font-size:{{ px }};font-weight:{{ wt }};letter-spacing:{% if token == 'meta' %}.05em{% else %}normal{% endif %};line-height:1.28;">
+                {{ sample }}
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-7">
+        <div class="card h-100">
+          <div class="card-header"><i class="bi bi-journal-text me-2 text-primary"></i>Editorial Preview</div>
+          <div class="card-body">
+            <div class="text-muted text-uppercase fs-xs fw-600 mb-1">System bulletin</div>
+            <h4 class="mb-1">Rilascio 2.4: hardening e telemetria</h4>
+            <div class="d-flex flex-wrap gap-3 mb-3">
+              <span class="text-muted fs-xs">Pubblicato 22 Feb 2026</span>
+              <span class="text-muted fs-xs">Tempo lettura 3 min</span>
+              <a href="#" onclick="return false;" class="fs-xs">Apri changelog</a>
+            </div>
+            <p class="mb-2 fs-sm">
+              Questo blocco simula il contenuto reale di una pagina admin: un titolo forte, micro metadata e testo
+              secondario per contesto rapido.
+            </p>
+            <p class="mb-2 fs-sm">
+              Usa <strong>grassetto</strong> per evidenziare dati chiave, <em>corsivo</em> per note di tono e
+              <code>inline code</code> per riferimenti tecnici.
+            </p>
+            <div class="p-2 rounded fs-sm" style="background:#f8fafc;border:1px solid var(--card-border);">
+              “La gerarchia tipografica deve rendere ovvio cosa leggere prima, senza aumentare il rumore visivo.”
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-ui-checks-grid me-2 text-primary"></i>Esempi su componenti</span>
+            <span class="badge bg-primary-subtle text-primary-emphasis">compact</span>
+          </div>
+          <div class="card-body d-grid gap-3">
+            <div>
+              <div class="card-title mb-1">Sincronizzazione completata</div>
+              <div class="card-subtitle mb-2">Ultima esecuzione 12:40 · durata 1.8s</div>
+              <div class="fs-sm text-muted">Descrizione breve: cosa è successo e qual è lo stato corrente.</div>
+            </div>
+            <div class="p-2 rounded" style="border:1px solid var(--card-border);background:#f8fafc;">
+              <div class="fw-600 fs-sm mb-1">Messaggio toast</div>
+              <div class="fs-sm text-muted">Backup completato con successo. Nessun intervento richiesto.</div>
+            </div>
+            <div class="d-flex gap-2">
+              <button class="btn btn-primary btn-sm">Azione primaria</button>
+              <button class="btn btn-outline-secondary btn-sm">Azione secondaria</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-header"><i class="bi bi-fonts me-2 text-primary"></i>Utility & Tone</div>
+          <div class="card-body d-grid gap-2 fs-sm">
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-uppercase fw-600">priorita alta</span>
+              <code class="fs-xs">text-uppercase + fw-600</code>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-capitalize">stato servizio attivo</span>
+              <code class="fs-xs">text-capitalize</code>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted">metadata secondari e contesto</span>
+              <code class="fs-xs">text-muted</code>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-semibold">peso semibold per etichette</span>
+              <code class="fs-xs">fw-semibold</code>
+            </div>
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="fw-bold">bold solo per KPI/titoli</span>
+              <code class="fs-xs">fw-bold</code>
+            </div>
+            <div class="pt-2 mt-1 border-top d-flex flex-wrap gap-2 align-items-center">
+              <span class="badge bg-secondary">badge</span>
+              <span class="badge bg-success">success</span>
+              <span class="badge bg-warning text-dark">warning</span>
+              <span class="ms-auto text-muted fs-xs">tone coerente e compatto</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABLES & LISTS ── -->
+  <div class="tab-pane fade" id="tabtables" role="tabpanel">
+    <div class="row g-4">
+      <div class="col-12 col-lg-8">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Tabella dati compatta</h6>
+        <div class="table-responsive">
+          <table class="table table-compact table-hover mb-0" style="border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;">
+            <thead style="background:#f8fafc;">
+              <tr>
+                <th>ID</th><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th>Data</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for i in range(1,8) %}
+              <tr>
+                <td class="text-muted">#{{ 100+i }}</td>
+                <td class="fw-500">Utente {{ i }}</td>
+                <td class="text-muted">utente{{ i }}@demo.it</td>
+                <td>
+                  <span class="badge {% if i==1 %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+                    {{ 'admin' if i==1 else 'user' }}
+                  </span>
+                </td>
+                <td>
+                  <span class="badge {% if i % 4 != 0 %}bg-success{% else %}bg-danger{% endif %}">
+                    {{ 'Attivo' if i % 4 != 0 else 'Disab.' }}
+                  </span>
+                </td>
+                <td class="text-muted fs-xs">{{ '0%d' % i }}/01/2025</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-12 col-lg-4">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Lista compatta</h6>
+        <div class="list-group list-group-flush" style="border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;">
+          {% for item, icon in [('Dashboard','house'),('Impostazioni','gear'),('Utenti','people'),('Log eventi','journal'),('API','code-slash'),('Chat','chat-dots')] %}
+          <div class="list-group-item d-flex align-items-center gap-2 py-2 px-3">
+            <i class="bi bi-{{ icon }} text-primary" style="width:16px;"></i>
+            <span class="fs-sm">{{ item }}</span>
+            <i class="bi bi-chevron-right ms-auto text-muted" style="font-size:.7rem;"></i>
+          </div>
+          {% endfor %}
+        </div>
+
+        <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Paginazione</h6>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item disabled"><a class="page-link" href="#">«</a></li>
+            {% for p in range(1,6) %}
+            <li class="page-item {% if p==2 %}active{% endif %}"><a class="page-link" href="#">{{ p }}</a></li>
+            {% endfor %}
+            <li class="page-item"><a class="page-link" href="#">»</a></li>
+          </ul>
+        </nav>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── MEDIA ── -->
+  <div class="tab-pane fade" id="tabmedia" role="tabpanel">
+    <div class="row g-4">
+      <!-- Carousel -->
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Carousel</h6>
+        <div id="carouselDemo" class="carousel slide rounded overflow-hidden" data-bs-ride="carousel" style="border:1px solid var(--card-border);">
+          <div class="carousel-indicators">
+            {% for i in range(3) %}
+            <button type="button" data-bs-target="#carouselDemo" data-bs-slide-to="{{ i }}" {% if i==0 %}class="active"{% endif %}></button>
+            {% endfor %}
+          </div>
+          <div class="carousel-inner">
+            {% for n, bg, lbl in [(1,'#1d4ed8','Slide Alpha'),(2,'#15803d','Slide Beta'),(3,'#9f1239','Slide Gamma')] %}
+            <div class="carousel-item {% if n==1 %}active{% endif %}">
+              <div style="height:200px;background:{{ bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">
+                <div style="font-size:2rem;font-weight:800;">{{ n }}</div>
+                <div style="font-size:.9rem;opacity:.8;">{{ lbl }}</div>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#carouselDemo" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#carouselDemo" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Progress + Spinners -->
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Spinners & Placeholders</h6>
+        <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
+          <div class="spinner-border spinner-border-sm text-primary"></div>
+          <div class="spinner-border spinner-border-sm text-success"></div>
+          <div class="spinner-border spinner-border-sm text-danger"></div>
+          <div class="spinner-grow spinner-grow-sm text-warning"></div>
+        </div>
+        <p class="placeholder-glow">
+          <span class="placeholder col-7"></span>
+          <span class="placeholder col-4"></span>
+          <span class="placeholder col-4"></span>
+          <span class="placeholder col-6"></span>
+        </p>
+
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Audio player</h6>
+        <audio controls class="w-100" style="border-radius:.4rem;height:36px;">
+          <source src="" type="audio/mpeg">
+          <span class="text-muted fs-sm">Browser non supporta audio HTML5.</span>
+        </audio>
+      </div>
+
+      <!-- Tooltip & Popover -->
+      <div class="col-12">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Tooltip & Popover</h6>
+        <div class="d-flex gap-3 flex-wrap">
+          <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Questo è un tooltip su in alto" data-bs-placement="top">
+            Tooltip top
+          </button>
+          <button class="btn btn-outline-secondary btn-sm" data-bs-toggle="tooltip" title="Tooltip in basso" data-bs-placement="bottom">
+            Tooltip bottom
+          </button>
+          <button class="btn btn-outline-primary btn-sm" data-bs-toggle="popover"
+                  data-bs-title="Popover titolo" data-bs-content="Contenuto del popover con testo più lungo." data-bs-placement="top">
+            Popover
+          </button>
+          <button class="btn btn-outline-success btn-sm" data-bs-toggle="popover" data-bs-html="true"
+                  data-bs-title="HTML Popover" data-bs-content="<strong>Grassetto</strong> e <em>corsivo</em>." data-bs-placement="top">
+            Popover HTML
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── PROGRESS ── -->
+  <div class="tab-pane fade" id="tabprogress" role="tabpanel">
+    <div class="row g-4">
+
+      <!-- Basic progress bars -->
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Progress bar statiche</h6>
+        <div class="d-flex flex-column gap-3">
+          {% for lbl, val, col, h in [
+            ('Successo','85','success',8),
+            ('In corso','55','primary',8),
+            ('Attenzione','30','warning',8),
+            ('Critico','12','danger',8),
+            ('Striped animata','65','info',10)
+          ] %}
+          <div>
+            <div class="d-flex justify-content-between fs-xs mb-1">
+              <span class="text-muted fw-600">{{ lbl }}</span>
+              <span class="fw-700">{{ val }}%</span>
+            </div>
+            <div class="progress" style="height:{{ h }}px;border-radius:{{ h }}px;">
+              <div class="progress-bar bg-{{ col }}
+                {% if 'Striped' in lbl %}progress-bar-striped progress-bar-animated{% endif %}"
+                   role="progressbar" style="width:{{ val }}%;"
+                   aria-valuenow="{{ val }}" aria-valuemin="0" aria-valuemax="100">
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+
+        <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Multi-segment</h6>
+        <div class="progress" style="height:18px;border-radius:9px;">
+          <div class="progress-bar bg-success" style="width:40%;" title="Completato 40%">40%</div>
+          <div class="progress-bar bg-warning" style="width:25%;" title="In corso 25%">25%</div>
+          <div class="progress-bar bg-danger" style="width:15%;" title="Errori 15%">15%</div>
+        </div>
+        <div class="d-flex gap-3 mt-2 fs-xs text-muted">
+          <span><span class="badge bg-success me-1"> </span>Completato 40%</span>
+          <span><span class="badge bg-warning me-1"> </span>In corso 25%</span>
+          <span><span class="badge bg-danger me-1"> </span>Errori 15%</span>
+        </div>
+      </div>
+
+      <!-- Interactive progress bar -->
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Progress bar interattiva</h6>
+        <div class="p-3 rounded" style="background:#f8fafc;border:1px solid var(--card-border);">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="fs-sm fw-600">Avanzamento operazione</span>
+            <span class="fw-700 fs-sm" id="liveProgressLabel">0%</span>
+          </div>
+          <div class="progress mb-3" style="height:12px;border-radius:12px;">
+            <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
+                 id="liveProgressBar" role="progressbar" style="width:0%;" aria-valuenow="0"
+                 aria-valuemin="0" aria-valuemax="100"></div>
+          </div>
+          <div class="d-flex gap-2">
+            <button class="btn btn-primary btn-sm" onclick="startProgress()">
+              <i class="bi bi-play-fill me-1"></i>Avvia
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" onclick="resetProgress()">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+            </button>
+          </div>
+          <div class="text-muted fs-xs mt-2" id="liveProgressStatus">Premi Avvia per simulare un'operazione.</div>
+        </div>
+
+        <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Dimensioni</h6>
+        <div class="d-flex flex-column gap-2">
+          {% for h, lbl in [(4,'Sottile (4px)'),(8,'Normale (8px)'),(16,'Spessa (16px)'),(24,'Molto spessa (24px)')] %}
+          <div class="d-flex align-items-center gap-3">
+            <span class="text-muted fs-xs" style="width:130px;">{{ lbl }}</span>
+            <div class="progress flex-grow-1" style="height:{{ h }}px;border-radius:{{ h }}px;">
+              <div class="progress-bar bg-primary" style="width:65%;"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- Modal with progress -->
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Modal con progress bar</h6>
+        <div class="d-flex flex-column gap-2">
+          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUpload">
+            <i class="bi bi-cloud-upload me-2"></i>Simula upload file
+          </button>
+          <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalInstall">
+            <i class="bi bi-download me-2"></i>Simula installazione
+          </button>
+        </div>
+      </div>
+
+      <!-- Toast with progress -->
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Toast con progress bar (auto-dismiss)</h6>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-success btn-sm" onclick="showProgressToast('Backup completato!', 'success', 4000)">
+            <i class="bi bi-check-circle me-1"></i>Success toast
+          </button>
+          <button class="btn btn-primary btn-sm" onclick="showProgressToast('Sincronizzazione in corso...', 'primary', 6000)">
+            <i class="bi bi-arrow-repeat me-1"></i>Info toast
+          </button>
+          <button class="btn btn-warning btn-sm text-dark" onclick="showProgressToast('Attenzione: sessione in scadenza', 'warning', 8000)">
+            <i class="bi bi-exclamation-triangle me-1"></i>Warning toast
+          </button>
+          <button class="btn btn-danger btn-sm" onclick="showProgressToast('Errore di connessione', 'danger', 5000)">
+            <i class="bi bi-x-circle me-1"></i>Error toast
+          </button>
+        </div>
+        <div class="text-muted fs-xs mt-3">
+          I toast con progress bar mostrano visivamente il tempo rimasto prima del dismiss automatico.
+        </div>
+      </div>
+
+      <!-- Circular / custom progress -->
+      <div class="col-12">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Progress circolari (SVG)</h6>
+        <div class="d-flex flex-wrap gap-4 align-items-center">
+          {% for val, col, lbl in [(75,'#2563eb','75%'),(45,'#16a34a','45%'),(90,'#d97706','90%'),(20,'#dc2626','20%')] %}
+          <div class="text-center">
+            <svg width="80" height="80" viewBox="0 0 80 80">
+              <circle cx="40" cy="40" r="32" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+              <circle cx="40" cy="40" r="32" fill="none" stroke="{{ col }}" stroke-width="8"
+                      stroke-dasharray="{{ (val / 100 * 201.06) | round(2) }} 201.06"
+                      stroke-dashoffset="50.265" stroke-linecap="round"
+                      transform="rotate(-90 40 40)"/>
+              <text x="40" y="45" text-anchor="middle" font-size="14" font-weight="700" fill="{{ col }}">{{ lbl }}</text>
+            </svg>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── CHARTS & GRAPH ── -->
+  <div class="tab-pane fade" id="tabinsights" role="tabpanel">
+    <div class="row g-4">
+      <div class="col-12 col-xl-8">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Trend operativo</span>
+            <div class="d-flex gap-2">
+              <span class="badge bg-success-subtle text-success-emphasis">24h</span>
+              <span class="badge bg-primary-subtle text-primary-emphasis">live mock</span>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row g-3 mb-3">
+              {% for label, value, delta, tone in [
+                ('Throughput','18.4k req','+12%','success'),
+                ('Error ratio','0.42%','-0.08%','success'),
+                ('P95 latency','284 ms','+16 ms','warning')
+              ] %}
+              <div class="col-12 col-md-4">
+                <div class="rounded p-3 h-100" style="background:#f8fafc;border:1px solid var(--card-border);">
+                  <div class="text-muted text-uppercase fs-xs fw-600 mb-1">{{ label }}</div>
+                  <div class="fw-700" style="font-size:1.35rem;">{{ value }}</div>
+                  <div class="fs-xs {% if tone == 'success' %}text-success{% elif tone == 'warning' %}text-warning{% else %}text-danger{% endif %}">
+                    {{ delta }} vs ieri
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+            <div class="chart-shell">
+              <svg viewBox="0 0 760 260" class="w-100" aria-label="Trend line chart">
+                <defs>
+                  <linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#2563eb" stop-opacity="0.18"/>
+                    <stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"/>
+                  </linearGradient>
+                </defs>
+                {% for y in [30,80,130,180,230] %}
+                <line x1="48" y1="{{ y }}" x2="728" y2="{{ y }}" stroke="#dbe4ee" stroke-width="1"/>
+                {% endfor %}
+                <path d="M48 205 L105 186 L162 168 L219 173 L276 146 L333 139 L390 127 L447 118 L504 95 L561 106 L618 82 L675 71 L728 54 L728 230 L48 230 Z"
+                      fill="url(#trendFill)"/>
+                <polyline points="48,205 105,186 162,168 219,173 276,146 333,139 390,127 447,118 504,95 561,106 618,82 675,71 728,54"
+                          fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                {% for x, y, lbl in [
+                  (48,205,'00'),(162,168,'04'),(276,146,'08'),(390,127,'12'),
+                  (504,95,'16'),(618,82,'20'),(728,54,'23')
+                ] %}
+                <circle cx="{{ x }}" cy="{{ y }}" r="5" fill="#ffffff" stroke="#2563eb" stroke-width="3"/>
+                <text x="{{ x }}" y="248" text-anchor="middle" font-size="11" fill="#6b7a8d">{{ lbl }}</text>
+                {% endfor %}
+                <text x="18" y="34" font-size="11" fill="#6b7a8d">90</text>
+                <text x="18" y="84" font-size="11" fill="#6b7a8d">70</text>
+                <text x="18" y="134" font-size="11" fill="#6b7a8d">50</text>
+                <text x="18" y="184" font-size="11" fill="#6b7a8d">30</text>
+                <text x="18" y="234" font-size="11" fill="#6b7a8d">10</text>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-4">
+        <div class="card h-100">
+          <div class="card-header"><i class="bi bi-pie-chart me-2 text-primary"></i>Ripartizione workload</div>
+          <div class="card-body">
+            <div class="d-flex justify-content-center mb-3">
+              <svg width="220" height="220" viewBox="0 0 220 220" aria-label="Donut chart">
+                <circle cx="110" cy="110" r="72" fill="none" stroke="#e2e8f0" stroke-width="26"/>
+                <circle cx="110" cy="110" r="72" fill="none" stroke="#2563eb" stroke-width="26"
+                        stroke-linecap="round" stroke-dasharray="158 452" transform="rotate(-90 110 110)"/>
+                <circle cx="110" cy="110" r="72" fill="none" stroke="#16a34a" stroke-width="26"
+                        stroke-linecap="round" stroke-dasharray="120 452" stroke-dashoffset="-165" transform="rotate(-90 110 110)"/>
+                <circle cx="110" cy="110" r="72" fill="none" stroke="#d97706" stroke-width="26"
+                        stroke-linecap="round" stroke-dasharray="82 452" stroke-dashoffset="-293" transform="rotate(-90 110 110)"/>
+                <circle cx="110" cy="110" r="72" fill="none" stroke="#dc2626" stroke-width="26"
+                        stroke-linecap="round" stroke-dasharray="54 452" stroke-dashoffset="-383" transform="rotate(-90 110 110)"/>
+                <circle cx="110" cy="110" r="44" fill="#ffffff"/>
+                <text x="110" y="104" text-anchor="middle" font-size="14" fill="#6b7a8d">Totale</text>
+                <text x="110" y="124" text-anchor="middle" font-size="24" font-weight="700" fill="#1e293b">2.8k</text>
+              </svg>
+            </div>
+            <div class="d-grid gap-2 fs-sm">
+              {% for label, value, color in [
+                ('UI requests','35%','#2563eb'),
+                ('Background jobs','27%','#16a34a'),
+                ('Addon hooks','18%','#d97706'),
+                ('Errors / retry','12%','#dc2626')
+              ] %}
+              <div class="d-flex align-items-center justify-content-between rounded px-2 py-1" style="background:#f8fafc;border:1px solid var(--card-border);">
+                <span class="d-flex align-items-center gap-2">
+                  <span class="rounded-circle" style="width:10px;height:10px;background:{{ color }};"></span>
+                  {{ label }}
+                </span>
+                <strong>{{ value }}</strong>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-6">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-bar-chart-steps me-2 text-primary"></i>Capacita per addon</span>
+            <span class="badge bg-secondary">stacked bars</span>
+          </div>
+          <div class="card-body d-grid gap-3">
+            {% for name, total, live, queue, cache in [
+              ('hello_world',92,46,28,18),
+              ('widgets_ui',84,34,30,20),
+              ('documentation',71,29,22,20),
+              ('billing_mock',58,21,18,19)
+            ] %}
+            <div>
+              <div class="d-flex justify-content-between align-items-center fs-sm mb-1">
+                <span class="fw-600">{{ name }}</span>
+                <span class="text-muted">{{ total }}%</span>
+              </div>
+              <div class="d-flex rounded overflow-hidden" style="height:14px;border:1px solid var(--card-border);background:#eef2f7;">
+                <div style="width:{{ live }}%;background:#2563eb;"></div>
+                <div style="width:{{ queue }}%;background:#16a34a;"></div>
+                <div style="width:{{ cache }}%;background:#d97706;"></div>
+              </div>
+            </div>
+            {% endfor %}
+            <div class="d-flex flex-wrap gap-3 fs-xs text-muted pt-2 border-top">
+              <span><span class="badge" style="background:#2563eb;">&nbsp;</span> Live</span>
+              <span><span class="badge" style="background:#16a34a;">&nbsp;</span> Queue</span>
+              <span><span class="badge" style="background:#d97706;">&nbsp;</span> Cache</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-xl-6">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-diagram-3 me-2 text-primary"></i>Dependency graph</span>
+            <span class="badge bg-warning-subtle text-warning-emphasis">mock network</span>
+          </div>
+          <div class="card-body">
+            <div class="chart-shell chart-shell-dark">
+              <svg viewBox="0 0 560 280" class="w-100" aria-label="Dependency graph">
+                <defs>
+                  <filter id="softGlow">
+                    <feDropShadow dx="0" dy="6" stdDeviation="8" flood-color="#0f1923" flood-opacity="0.18"/>
+                  </filter>
+                </defs>
+                {% for x1, y1, x2, y2, tone in [
+                  (110,84,274,66,'#4a6080'),(110,84,276,206,'#4a6080'),(274,66,442,106,'#2563eb'),
+                  (276,206,442,178,'#16a34a'),(274,66,276,206,'#94a3b8'),(442,106,442,178,'#d97706')
+                ] %}
+                <line x1="{{ x1 }}" y1="{{ y1 }}" x2="{{ x2 }}" y2="{{ y2 }}" stroke="{{ tone }}" stroke-width="3" stroke-linecap="round"/>
+                {% endfor %}
+                {% for x, y, label, color, sub in [
+                  (110,84,'core','#0f1923','auth + nav'),
+                  (274,66,'widgets_ui','#2563eb','showcase'),
+                  (276,206,'docs','#16a34a','knowledge'),
+                  (442,106,'logger','#d97706','events'),
+                  (442,178,'postgres','#7c3aed','state')
+                ] %}
+                <g filter="url(#softGlow)">
+                  <rect x="{{ x - 46 }}" y="{{ y - 26 }}" width="92" height="52" rx="18" fill="#ffffff" stroke="{{ color }}" stroke-width="3"/>
+                  <text x="{{ x }}" y="{{ y - 2 }}" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">{{ label }}</text>
+                  <text x="{{ x }}" y="{{ y + 14 }}" text-anchor="middle" font-size="11" fill="#6b7a8d">{{ sub }}</text>
+                </g>
+                {% endfor %}
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-sliders2 me-2 text-primary"></i>UI configuration surface</span>
+            <span class="badge {% if view_mode == 'admin' %}bg-warning-subtle text-warning-emphasis{% else %}bg-success-subtle text-success-emphasis{% endif %}">
+              {% if view_mode == 'admin' %}admin preview{% else %}user preview{% endif %}
+            </span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12 col-lg-4">
+                <label class="form-label">Density preset</label>
+                <select class="form-select">
+                  <option selected>Compact</option>
+                  <option>Comfortable</option>
+                  <option>Expanded</option>
+                </select>
+              </div>
+              <div class="col-12 col-lg-4">
+                <label class="form-label">Sidebar width</label>
+                <input type="range" class="form-range" min="220" max="340" value="260">
+              </div>
+              <div class="col-12 col-lg-4">
+                <label class="form-label">Brand accent</label>
+                <div class="d-flex gap-2">
+                  {% for color in ['#2563eb','#0891b2','#16a34a','#d97706','#dc2626','#0f172a'] %}
+                  <button type="button" class="btn p-0 border-0 rounded-circle" style="width:28px;height:28px;background:{{ color }};" aria-label="Accent {{ loop.index }}"></button>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="col-12 col-lg-5">
+                <div class="rounded p-3 h-100" style="background:#f8fafc;border:1px solid var(--card-border);">
+                  <div class="text-uppercase fs-xs fw-600 text-muted mb-2">Toggles coerenti</div>
+                  <div class="d-grid gap-2">
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" checked id="uiCfgAnim">
+                      <label class="form-check-label" for="uiCfgAnim">Enable motion hints</label>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" checked id="uiCfgTopbar">
+                      <label class="form-check-label" for="uiCfgTopbar">Mobile topbar on small screens</label>
+                    </div>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" checked id="uiCfgStatus">
+                      <label class="form-check-label" for="uiCfgStatus">Show inline status badges</label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12 col-lg-7">
+                <div class="rounded p-3 h-100" style="background:linear-gradient(135deg,#0f1923 0%,#1e2f40 100%);border:1px solid #223446;color:#fff;">
+                  <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                      <div class="text-uppercase fs-xs fw-600" style="color:#8fa3b8;">Preview shell</div>
+                      <div class="fw-700">Topbar + sidebar + cards</div>
+                    </div>
+                    <span class="badge text-bg-light">coherent</span>
+                  </div>
+                  <div class="row g-2">
+                    <div class="col-4">
+                      <div class="rounded p-2" style="background:rgba(255,255,255,.06);min-height:110px;">
+                        <div class="fs-xs text-uppercase mb-2" style="color:#8fa3b8;">Nav</div>
+                        <div class="d-grid gap-1 fs-sm">
+                          <span>Dashboard</span>
+                          <span style="color:#fff;">Widget & UI</span>
+                          <span style="color:#8fa3b8;">Logs</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="col-8">
+                      <div class="rounded p-2" style="background:#ffffff;color:#1e293b;min-height:110px;">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <strong>Card header</strong>
+                          <span class="badge bg-primary">live</span>
+                        </div>
+                        <div class="progress mb-2" style="height:8px;">
+                          <div class="progress-bar bg-primary" style="width:72%;"></div>
+                        </div>
+                        <div class="small text-muted">Questa anteprima mostra i token principali da replicare nei nuovi PoC.</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── TABS & NAV ── -->
+  <div class="tab-pane fade" id="tabtabs" role="tabpanel">
+    <div class="row g-4">
+
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Segment control (page-level nav)</h6>
+        <ul class="nav nav-tabs-segment mb-3" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#demotab1" type="button"><i class="bi bi-database me-1"></i>Postgres <span class="badge bg-primary ms-1">primary</span></button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#demotab2" type="button"><i class="bi bi-lightning-charge me-1"></i>Queue <span class="badge bg-success ms-1">online</span></button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#demotab3" type="button"><i class="bi bi-cloud me-1"></i>Object storage <span class="badge bg-secondary ms-1">optional</span></button></li>
+        </ul>
+        <div class="tab-content tab-content-surface tab-content-surface-compact">
+          <div class="tab-pane fade show active" id="demotab1">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-database me-2 text-primary"></i>Database Principale</div>
+              <div class="card-body fs-sm text-muted">PostgreSQL: 18 tabelle, audit strutturato, connessioni pooled e seed runtime coerente.</div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="demotab2">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-lightning-charge me-2 text-success"></i>Redis</div>
+              <div class="card-body fs-sm text-muted">Connesso · Ping 1.2ms · 3 queue attive · 0 job pending.</div>
+            </div>
+          </div>
+          <div class="tab-pane fade" id="demotab3">
+            <div class="card">
+              <div class="card-header"><i class="bi bi-cloud me-2 text-muted"></i>S3 / Storage</div>
+              <div class="card-body fs-sm text-muted">Non configurato. Abilita nelle impostazioni.</div>
+            </div>
+          </div>
+        </div>
+
+        <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Underline tabs (pannelli addon)</h6>
+        <ul class="nav nav-tabs" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#utab1" type="button">Generale</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#utab2" type="button">Avanzate</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#utab3" type="button">Log</button></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="utab1"><div class="py-3 fs-sm text-muted">Impostazioni generali del componente.</div></div>
+          <div class="tab-pane fade" id="utab2"><div class="py-3 fs-sm text-muted">Opzioni avanzate e configurazione fine.</div></div>
+          <div class="tab-pane fade" id="utab3"><div class="py-3 fs-sm text-muted">Registro attività recenti.</div></div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Nav pills</h6>
+        <ul class="nav nav-pills mb-3" role="tablist">
+          <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#ptab1" type="button"><i class="bi bi-house me-1"></i>Overview</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#ptab2" type="button"><i class="bi bi-graph-up me-1"></i>Metriche</button></li>
+          <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#ptab3" type="button"><i class="bi bi-gear me-1"></i>Config</button></li>
+        </ul>
+        <div class="tab-content">
+          <div class="tab-pane fade show active" id="ptab1"><div class="p-3 rounded fs-sm text-muted" style="background:#f8fafc;border:1px solid var(--card-border)">Vista panoramica del sistema.</div></div>
+          <div class="tab-pane fade" id="ptab2"><div class="p-3 rounded fs-sm text-muted" style="background:#f8fafc;border:1px solid var(--card-border)">Grafici e KPI principali.</div></div>
+          <div class="tab-pane fade" id="ptab3"><div class="p-3 rounded fs-sm text-muted" style="background:#f8fafc;border:1px solid var(--card-border)">Parametri di configurazione.</div></div>
+        </div>
+
+        <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Breadcrumb & Pagination</h6>
+        <nav aria-label="breadcrumb" class="mb-3">
+          <ol class="breadcrumb fs-sm mb-0">
+            <li class="breadcrumb-item"><a href="#">Admin</a></li>
+            <li class="breadcrumb-item"><a href="#">Impostazioni</a></li>
+            <li class="breadcrumb-item active">Database</li>
+          </ol>
+        </nav>
+        <nav>
+          <ul class="pagination pagination-sm mb-0">
+            <li class="page-item disabled"><a class="page-link" href="#" tabindex="-1">«</a></li>
+            {% for p in range(1,6) %}
+            <li class="page-item {% if p==2 %}active{% endif %}"><a class="page-link" href="#">{{ p }}</a></li>
+            {% endfor %}
+            <li class="page-item"><a class="page-link" href="#">»</a></li>
+          </ul>
+        </nav>
+
+        <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Sidebar-link pattern</h6>
+        <div class="p-2 rounded" style="background:#0f1923;border-radius:.6rem;">
+          {% for icon, label, active in [('house','Dashboard',False),('sliders','Impostazioni',True),('people','Utenti',False),('journal-text','Log eventi',False)] %}
+          <a href="#" class="sidebar-link {% if active %}active{% endif %}" onclick="return false;">
+            <i class="bi bi-{{ icon }} sidebar-icon"></i> {{ label }}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── LAYOUT ── -->
+  <div class="tab-pane fade" id="tablayout" role="tabpanel">
+    <div class="row g-4">
+      <div class="col-12">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Grid 12 colonne</h6>
+        <div class="row g-2">
+          {% for n in [12,6,6,4,4,4,3,3,3,3,2,2,2,2,2,2] %}
+          <div class="col-{{ n }}">
+            <div class="text-center py-2 rounded fs-xs fw-600" style="background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;">
+              col-{{ n }}
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-12">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Anatomia Card</h6>
+        <div class="alert alert-light border fs-sm mb-3">
+          <div class="fw-semibold mb-1"><i class="bi bi-rulers me-2 text-primary"></i>Preset compatto (globale)</div>
+          <div class="text-muted">
+            Header: <code>.62rem .85rem</code> · Footer: <code>.56rem .85rem</code> · Titoli e azioni compatti, corpo card invariato per leggibilita.
+          </div>
+        </div>
+        <div class="row g-3">
+          <div class="col-12 col-lg-4">
+            <div class="card card-soft card-accent h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-card-text me-2 text-primary"></i>Header + Body + Footer</span>
+                <span class="badge bg-primary-subtle text-primary-emphasis">Default</span>
+              </div>
+              <div class="card-body">
+                <div class="card-title">Card Bilanciata</div>
+                <div class="card-subtitle">Pattern consigliato per contenuti operativi.</div>
+                <p class="mb-0 text-muted fs-sm">Usa header per titolo/azioni, body per contenuto principale e footer per azioni secondarie o metadata.</p>
+              </div>
+              <div class="card-footer d-flex justify-content-between align-items-center">
+                <span class="text-muted fs-xs">Aggiornata 2m fa</span>
+                <button class="btn btn-outline-secondary btn-sm py-0 px-2">Dettagli</button>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="card h-100">
+              <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div class="card-kpi">
+                    <span class="kpi-value">12.8k</span>
+                    <span class="kpi-label">Request giornaliere</span>
+                  </div>
+                  <span class="badge bg-success-subtle text-success-emphasis">+8.1%</span>
+                </div>
+                <div class="progress mt-3" style="height:7px;">
+                  <div class="progress-bar bg-success" style="width:72%;"></div>
+                </div>
+                <div class="d-flex justify-content-between mt-2 fs-xs text-muted">
+                  <span>Obiettivo</span><span>72%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="card card-ghost h-100">
+              <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
+                <i class="bi bi-plus-circle text-primary" style="font-size:1.5rem;"></i>
+                <div class="card-title mt-2 mb-1">Card Placeholder</div>
+                <p class="text-muted fs-sm mb-3">Ideale per stato vuoto e CTA di creazione.</p>
+                <button class="btn btn-primary btn-sm"><i class="bi bi-plus me-1"></i>Crea elemento</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Stat cards</h6>
+        <div class="row g-3">
+          {% for val, lbl, icon, cls in [('1.24k','Sessioni','graph-up',''),('98.2%','Uptime','check-circle','success'),('3.4s','Latenza media','clock','warning'),('12','Errori 24h','bug','danger')] %}
+          <div class="col-6 col-md-3">
+            <div class="stat-card {{ cls }}">
+              <div class="stat-val">{{ val }}</div>
+              <div class="stat-lbl">{{ lbl }}</div>
+              <div class="stat-icon"><i class="bi bi-{{ icon }}"></i></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+      <div class="col-12">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Layout Dashboard (Composizione)</h6>
+        <div class="row g-3">
+          <div class="col-12 col-lg-8">
+            <div class="card h-100">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="bi bi-activity me-2 text-info"></i>Timeline eventi</span>
+                <button class="btn btn-outline-secondary btn-sm py-0 px-2">Filtri</button>
+              </div>
+              <div class="card-body p-0">
+                <table class="table table-compact mb-0">
+                  <thead><tr><th>Ora</th><th>Evento</th><th>Stato</th></tr></thead>
+                  <tbody>
+                    <tr><td>10:41:02</td><td>Worker queue sync</td><td><span class="badge bg-success">ok</span></td></tr>
+                    <tr><td>10:40:47</td><td>API token refresh</td><td><span class="badge bg-warning text-dark">warn</span></td></tr>
+                    <tr><td>10:39:11</td><td>Import utenti</td><td><span class="badge bg-info text-dark">info</span></td></tr>
+                    <tr><td>10:37:55</td><td>Postgres vacuum analyze</td><td><span class="badge bg-secondary">done</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-lg-4">
+            <div class="card h-100">
+              <div class="card-header"><i class="bi bi-lightning-charge me-2 text-warning"></i>Azioni rapide</div>
+              <div class="card-body d-grid gap-2">
+                <button class="btn btn-outline-primary btn-sm text-start"><i class="bi bi-people me-2"></i>Gestisci utenti</button>
+                <button class="btn btn-outline-primary btn-sm text-start"><i class="bi bi-list-task me-2"></i>Controlla job</button>
+                <button class="btn btn-outline-secondary btn-sm text-start"><i class="bi bi-journal-text me-2"></i>Esporta log</button>
+                <button class="btn btn-outline-danger btn-sm text-start"><i class="bi bi-shield-lock me-2"></i>Sicurezza</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <h6 class="text-muted text-uppercase fs-xs mb-3">Bottoni — varianti</h6>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          {% for v in ['primary','secondary','success','danger','warning','info','light','dark'] %}
+          <button class="btn btn-{{ v }} {% if v in ['warning','light'] %}text-dark{% elif v == 'info' %}text-white{% endif %}">{{ v }}</button>
+          {% endfor %}
+        </div>
+        <div class="d-flex flex-wrap gap-2 mb-3">
+          {% for v in ['primary','secondary','success','danger','warning'] %}
+          <button class="btn btn-outline-{{ v }}">outline-{{ v }}</button>
+          {% endfor %}
+        </div>
+        <div class="d-flex flex-wrap gap-2">
+          <button class="btn btn-primary btn-lg">Large</button>
+          <button class="btn btn-primary">Default</button>
+          <button class="btn btn-primary btn-sm">Small</button>
+          <button class="btn btn-primary" disabled><i class="bi bi-lock me-1"></i>Disabled</button>
+          <button class="btn btn-primary">
+            <span class="spinner-border spinner-border-sm me-1"></span>Loading...
+          </button>
+        </div>
+        <div class="small text-muted mt-3"><i class="bi bi-info-circle me-2"></i>
+          Suggerimento: mantieni header/footer sintetici (titolo + 1 azione), lascia il contenuto nel body e usa footer solo per metadata operativi o CTA secondarie.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ── MODALS ── -->
+<div class="modal fade" id="modalInfo" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title"><i class="bi bi-info-circle me-2 text-primary"></i>Modal informativo</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <p class="mb-3">Questo è un modal informativo con testo, alert e azioni. Utile per mostrare dettagli o messaggi importanti.</p>
+        <div class="small text-muted d-flex align-items-start gap-2"><i class="bi bi-lightbulb mt-1"></i>
+          <div>Usa i modal con parsimonia per non disturbare il flusso utente.</div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Chiudi</button>
+        <button class="btn btn-primary" onclick="showToast('Azione confermata!','success');bootstrap.Modal.getInstance(document.getElementById('modalInfo')).hide()">Conferma</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalConfirm" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-sm">
+    <div class="modal-content">
+      <div class="modal-body text-center pt-4 pb-2">
+        <div style="font-size:2.5rem;color:#dc2626;"><i class="bi bi-trash3-fill"></i></div>
+        <h5 class="mt-2 mb-1">Conferma eliminazione</h5>
+        <p class="text-muted fs-sm mb-0">L'operazione non è reversibile.</p>
+      </div>
+      <div class="modal-footer border-0 justify-content-center gap-2">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+        <button class="btn btn-danger" onclick="showToast('Eliminato!','danger');bootstrap.Modal.getInstance(document.getElementById('modalConfirm')).hide()">Elimina</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalForm" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modal con form</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="mb-3"><label class="form-label">Titolo</label><input type="text" class="form-control" value="Esempio titolo"></div>
+        <div class="mb-3"><label class="form-label">Categoria</label><select class="form-select"><option>Generale</option><option>Tecnico</option><option>Urgente</option></select></div>
+        <div class="mb-3"><label class="form-label">Descrizione</label><textarea class="form-control" rows="3">Testo di esempio...</textarea></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+        <button class="btn btn-primary" onclick="showToast('Salvato!','success');bootstrap.Modal.getInstance(document.getElementById('modalForm')).hide()">Salva</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="modalLg" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header"><h5 class="modal-title">Modal large</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
+      <div class="modal-body">
+        <div class="row g-3">
+          <div class="col-md-6"><div class="placeholder-media rounded"><i class="bi bi-image me-2"></i>Immagine</div></div>
+          <div class="col-md-6"><h6>Titolo contenuto</h6><p class="text-muted fs-sm">Questo modal large è ideale per form complessi, preview di documenti o contenuti multicolonna.</p></div>
+        </div>
+      </div>
+      <div class="modal-footer"><button class="btn btn-outline-secondary" data-bs-dismiss="modal">Chiudi</button></div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Upload con progress -->
+<div class="modal fade" id="modalUpload" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-cloud-upload me-2 text-primary"></i>Upload file</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" id="uploadCloseBtn"></button>
+      </div>
+      <div class="modal-body">
+        <div class="text-center mb-3">
+          <div id="uploadIcon" style="font-size:2.5rem;color:#2563eb;"><i class="bi bi-file-earmark-arrow-up"></i></div>
+          <div class="fw-600 mt-1" id="uploadFileName">documento_progetto.pdf</div>
+          <div class="text-muted fs-xs">2.4 MB</div>
+        </div>
+        <div class="d-flex justify-content-between fs-xs mb-1">
+          <span class="text-muted" id="uploadStatus">In attesa...</span>
+          <span class="fw-700" id="uploadPct">0%</span>
+        </div>
+        <div class="progress mb-2" style="height:10px;border-radius:10px;">
+          <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
+               id="uploadBar" style="width:0%;transition:width .3s ease;"></div>
+        </div>
+        <div class="text-muted fs-xs text-end" id="uploadSpeed">—</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" id="uploadCancelBtn">Annulla</button>
+        <button class="btn btn-primary btn-sm" id="uploadStartBtn" onclick="startUpload()">
+          <i class="bi bi-play-fill me-1"></i>Avvia Upload
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Installazione a step con progress -->
+<div class="modal fade" id="modalInstall" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-download me-2 text-success"></i>Installazione</h5>
+      </div>
+      <div class="modal-body">
+        <div class="d-flex justify-content-between fs-xs mb-1">
+          <span class="text-muted fw-600" id="installStepLabel">Pronto</span>
+          <span class="fw-700" id="installPct">0%</span>
+        </div>
+        <div class="progress mb-3" style="height:12px;border-radius:12px;">
+          <div class="progress-bar bg-success" id="installBar"
+               style="width:0%;transition:width .5s ease;"></div>
+        </div>
+        <div id="installSteps" class="d-flex flex-column gap-1">
+          {% for step in ['Download pacchetti','Verifica integrità','Configurazione','Migrazione DB','Avvio servizi'] %}
+          {% set i = loop.index0 %}
+          <div class="d-flex align-items-center gap-2 fs-sm" id="istep{{ i }}">
+            <i class="bi bi-circle text-muted" id="istepicon{{ i }}" style="width:16px;"></i>
+            <span class="text-muted" id="isteplbl{{ i }}">{{ step }}</span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" id="installCloseBtn" disabled>Chiudi</button>
+        <button class="btn btn-success btn-sm" id="installStartBtn" onclick="startInstall()">
+          <i class="bi bi-play-fill me-1"></i>Installa
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ g.csp_nonce }}">
+// Bootstrap tooltips & popovers
+document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => new bootstrap.Popover(el));
+
+// ── INTERACTIVE PROGRESS ──
+let progressTimer = null;
+function startProgress() {
+  const bar   = document.getElementById("liveProgressBar");
+  const label = document.getElementById("liveProgressLabel");
+  const status= document.getElementById("liveProgressStatus");
+  let pct = parseInt(bar.style.width) || 0;
+  if (pct >= 100) return;
+  clearInterval(progressTimer);
+  const steps = ["Inizializzazione...","Elaborazione dati...","Sincronizzazione...","Finalizzazione...","Completato ✓"];
+  progressTimer = setInterval(() => {
+    pct = Math.min(100, pct + Math.floor(Math.random() * 8) + 2);
+    bar.style.width = pct + "%";
+    bar.setAttribute("aria-valuenow", pct);
+    label.textContent = pct + "%";
+    const si = Math.floor(pct / 25);
+    status.textContent = steps[Math.min(si, steps.length-1)];
+    if (pct >= 100) {
+      clearInterval(progressTimer);
+      bar.classList.remove("progress-bar-animated");
+      bar.classList.replace("bg-primary","bg-success");
+    }
+  }, 180);
+}
+function resetProgress() {
+  clearInterval(progressTimer);
+  const bar = document.getElementById("liveProgressBar");
+  bar.style.width = "0%"; bar.setAttribute("aria-valuenow",0);
+  bar.classList.add("progress-bar-animated");
+  bar.classList.replace("bg-success","bg-primary");
+  document.getElementById("liveProgressLabel").textContent = "0%";
+  document.getElementById("liveProgressStatus").textContent = "Premi Avvia per simulare un'operazione.";
+}
+window.startProgress = startProgress;
+window.resetProgress = resetProgress;
+
+// ── MODAL UPLOAD ──
+let uploadTimer = null;
+function startUpload() {
+  const bar    = document.getElementById("uploadBar");
+  const pctEl  = document.getElementById("uploadPct");
+  const status = document.getElementById("uploadStatus");
+  const speed  = document.getElementById("uploadSpeed");
+  const startBtn=document.getElementById("uploadStartBtn");
+  startBtn.disabled = true;
+  document.getElementById("uploadCancelBtn").textContent = "Annulla";
+  let pct = 0;
+  clearInterval(uploadTimer);
+  uploadTimer = setInterval(() => {
+    pct = Math.min(100, pct + Math.floor(Math.random()*6)+2);
+    bar.style.width = pct + "%";
+    pctEl.textContent = pct + "%";
+    status.textContent = pct < 100 ? "Caricamento in corso..." : "Upload completato!";
+    speed.textContent = pct < 100 ? (Math.random()*3+0.5).toFixed(1) + " MB/s" : "—";
+    if (pct >= 100) {
+      clearInterval(uploadTimer);
+      bar.classList.remove("bg-primary","progress-bar-striped","progress-bar-animated");
+      bar.classList.add("bg-success");
+      document.getElementById("uploadIcon").innerHTML = '<i class="bi bi-check-circle-fill" style="color:#16a34a;"></i>';
+      document.getElementById("uploadCancelBtn").textContent = "Chiudi";
+      document.getElementById("uploadCancelBtn").disabled = false;
+      startBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i>Ricarica';
+      startBtn.disabled = false;
+      startBtn.onclick = () => {
+        pct=0; bar.style.width="0%"; pctEl.textContent="0%"; status.textContent="In attesa..."; speed.textContent="—";
+        bar.classList.remove("bg-success"); bar.classList.add("bg-primary","progress-bar-striped","progress-bar-animated");
+        document.getElementById("uploadIcon").innerHTML = '<i class="bi bi-file-earmark-arrow-up"></i>';
+        startBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Avvia Upload';
+        startBtn.onclick = startUpload;
+      };
+    }
+  }, 160);
+}
+window.startUpload = startUpload;
+document.getElementById("modalUpload") && document.getElementById("modalUpload").addEventListener("hidden.bs.modal", () => {
+  clearInterval(uploadTimer);
+});
+
+// ── MODAL INSTALL ──
+const INSTALL_STEPS = ["Download pacchetti","Verifica integrità","Configurazione","Migrazione DB","Avvio servizi"];
+let installTimer = null, installStep = 0, installPct = 0;
+function startInstall() {
+  const bar = document.getElementById("installBar");
+  const pctEl = document.getElementById("installPct");
+  const stepLbl = document.getElementById("installStepLabel");
+  const startBtn = document.getElementById("installStartBtn");
+  startBtn.disabled = true;
+  installStep = 0; installPct = 0;
+  // Reset icons
+  INSTALL_STEPS.forEach((_,i) => {
+    document.getElementById("istepicon"+i).className = "bi bi-circle text-muted";
+    document.getElementById("isteplbl"+i).className = "text-muted";
+  });
+  clearInterval(installTimer);
+  installTimer = setInterval(() => {
+    installPct = Math.min(100, installPct + Math.floor(Math.random()*5)+2);
+    bar.style.width = installPct + "%";
+    pctEl.textContent = installPct + "%";
+    const curStep = Math.floor(installPct / (100/INSTALL_STEPS.length));
+    if (curStep !== installStep && curStep < INSTALL_STEPS.length) {
+      // complete previous
+      const prev = document.getElementById("istepicon"+(curStep-1));
+      if(prev) { prev.className="bi bi-check-circle-fill text-success"; document.getElementById("isteplbl"+(curStep-1)).className="fw-500"; }
+      installStep = curStep;
+      stepLbl.textContent = INSTALL_STEPS[Math.min(curStep, INSTALL_STEPS.length-1)];
+      const cur = document.getElementById("istepicon"+curStep);
+      if(cur) cur.className="bi bi-arrow-repeat text-primary";
+      document.getElementById("isteplbl"+curStep) && (document.getElementById("isteplbl"+curStep).className="text-primary fw-600");
+    }
+    if (installPct >= 100) {
+      clearInterval(installTimer);
+      INSTALL_STEPS.forEach((_,i) => {
+        document.getElementById("istepicon"+i).className = "bi bi-check-circle-fill text-success";
+        document.getElementById("isteplbl"+i).className = "fw-500";
+      });
+      stepLbl.textContent = "Installazione completata ✓";
+      bar.classList.add("bg-success"); bar.classList.remove("bg-primary");
+      document.getElementById("installCloseBtn").disabled = false;
+    }
+  }, 150);
+}
+window.startInstall = startInstall;
+document.getElementById("modalInstall") && document.getElementById("modalInstall").addEventListener("hidden.bs.modal", () => clearInterval(installTimer));
+
+// ── PROGRESS TOAST ──
+function showProgressToast(msg, type, duration) {
+  const colors = {success:"#16a34a",primary:"#2563eb",warning:"#d97706",danger:"#dc2626",info:"#0891b2"};
+  const icons  = {success:"check-circle-fill",primary:"info-circle-fill",warning:"exclamation-triangle-fill",danger:"x-circle-fill",info:"info-circle-fill"};
+  const color  = colors[type] || "#2563eb";
+  const icon   = icons[type]  || "info-circle-fill";
+  const id = "ptst-" + Date.now();
+
+  const toastEl = document.createElement("div");
+  toastEl.className = "toast show align-items-center border-0 mb-2";
+  toastEl.id = id;
+  toastEl.style.cssText = `min-width:280px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.13);border-radius:.6rem;overflow:hidden;`;
+  toastEl.innerHTML = `
+    <div style="padding:.75rem 1rem .5rem;display:flex;align-items:center;gap:.5rem;">
+      <i class="bi bi-${icon}" style="color:${color};font-size:1rem;flex-shrink:0;"></i>
+      <div class="flex-grow-1 fs-sm fw-500">${msg}</div>
+      <button onclick="this.closest('.toast').remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#94a3b8;padding:0;line-height:1;">&times;</button>
+    </div>
+    <div style="padding:0 1rem .75rem;">
+      <div style="background:#f1f5f9;border-radius:4px;height:4px;overflow:hidden;">
+        <div id="tpbar-${id}" style="height:100%;background:${color};width:100%;transition:width ${duration}ms linear;border-radius:4px;"></div>
+      </div>
+    </div>`;
+
+  const stack = document.getElementById("toastStack");
+  if (stack) stack.prepend(toastEl);
+
+  // Start shrinking
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      const pbar = document.getElementById("tpbar-" + id);
+      if (pbar) pbar.style.width = "0%";
+    });
+  });
+
+  setTimeout(() => { toastEl.style.opacity="0"; toastEl.style.transition="opacity .3s"; setTimeout(()=>toastEl.remove(),300); }, duration);
+}
+window.showProgressToast = showProgressToast;
+
+document.addEventListener("DOMContentLoaded", () => {
+  resetProgress();
+});
+</script>
+{% endblock %}

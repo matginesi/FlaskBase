@@ -1,0 +1,420 @@
+{% extends "base.html" %}
+{% block title %} · Communications{% endblock %}
+{% block content %}
+<div class="page-header settings-page-header">
+  <div class="settings-header-row">
+    <div class="min-w-0">
+      <div class="page-breadcrumb"><i class="bi bi-megaphone me-1"></i>Admin</div>
+      <h1>Communications</h1>
+      <p class="settings-header-copy">Two explicit channels aligned with Widget & UI: direct inbox messages and HTML email sends, each with compact recipient selection and shared delivery flow.</p>
+    </div>
+    <div class="settings-header-badges">
+      <span class="badge text-bg-light border">messages</span>
+      <span class="badge text-bg-light border">email templates</span>
+      <span class="badge text-bg-light border">broadcast ready</span>
+    </div>
+  </div>
+</div>
+
+<div class="adaptive-card-grid adaptive-card-grid--compact mb-3 settings-kpi-row">
+  <div>
+    <div class="stat-card stat-card-compact settings-kpi-card settings-kpi-card-modern">
+      <div class="settings-kpi-strip"></div>
+      <div class="settings-kpi-top">
+        <div class="settings-kpi-topline">
+          <div class="settings-kpi-eyebrow">Broadcasts</div>
+          <div class="settings-kpi-helper">recent communications</div>
+        </div>
+        <span class="settings-kpi-icon-wrap"><i class="bi bi-broadcast-pin settings-kpi-icon"></i></span>
+      </div>
+      <div class="settings-kpi-body">
+        <div class="stat-val">{{ broadcasts|length }}</div>
+        <div class="stat-lbl">Recent broadcasts</div>
+      </div>
+      <div class="settings-kpi-meta">Latest public or system-wide deliveries.</div>
+    </div>
+  </div>
+  <div>
+    <div class="stat-card success stat-card-compact settings-kpi-card settings-kpi-card-modern">
+      <div class="settings-kpi-strip"></div>
+      <div class="settings-kpi-top">
+        <div class="settings-kpi-topline">
+          <div class="settings-kpi-eyebrow">Direct</div>
+          <div class="settings-kpi-helper">user-specific items</div>
+        </div>
+        <span class="settings-kpi-icon-wrap"><i class="bi bi-person-lines-fill settings-kpi-icon"></i></span>
+      </div>
+      <div class="settings-kpi-body">
+        <div class="stat-val">{{ user_messages|length }}</div>
+        <div class="stat-lbl">Direct messages</div>
+      </div>
+      <div class="settings-kpi-meta">Most recent targeted sends stored in inbox.</div>
+    </div>
+  </div>
+  <div>
+    <div class="stat-card warning stat-card-compact settings-kpi-card settings-kpi-card-modern">
+      <div class="settings-kpi-strip"></div>
+      <div class="settings-kpi-top">
+        <div class="settings-kpi-topline">
+          <div class="settings-kpi-eyebrow">Templates</div>
+          <div class="settings-kpi-helper">html mail presets</div>
+        </div>
+        <span class="settings-kpi-icon-wrap"><i class="bi bi-envelope-paper-heart settings-kpi-icon"></i></span>
+      </div>
+      <div class="settings-kpi-body">
+        <div class="stat-val">{{ email_templates|length }}</div>
+        <div class="stat-lbl">Email templates</div>
+      </div>
+      <div class="settings-kpi-meta">Server-side layouts available for delivery.</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3">
+  <div class="col-12 col-xxl-5">
+    <div class="card settings-panel-card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span>Composer</span>
+        <span class="badge bg-light text-dark border">2 channels</span>
+      </div>
+      <div class="card-body">
+        <ul class="nav nav-tabs-segment mb-3" role="tablist">
+          <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="tab-messages" data-bs-toggle="tab" data-bs-target="#pane-messages" type="button" role="tab">
+              <i class="bi bi-chat-left-text me-1"></i>Messaggi
+            </button>
+          </li>
+          <li class="nav-item" role="presentation">
+            <button class="nav-link" id="tab-email" data-bs-toggle="tab" data-bs-target="#pane-email" type="button" role="tab">
+              <i class="bi bi-envelope-paper me-1"></i>Email
+            </button>
+          </li>
+        </ul>
+
+        <div class="tab-content tab-content-surface tab-content-surface-compact">
+          <div class="tab-pane fade show active" id="pane-messages" role="tabpanel" aria-labelledby="tab-messages">
+            <form method="post" class="d-flex flex-column gap-3 comms-form" data-channel="messages">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="kind" value="user">
+              <input type="hidden" name="send_email" value="">
+              <input type="hidden" name="email_template_key" value="default">
+              <input type="hidden" name="email_subject" value="">
+              <input type="hidden" name="email_preheader" value="">
+              <input type="hidden" name="action_label" value="">
+              <input type="hidden" name="action_url" value="">
+
+              <div class="comms-recipient-panel">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="fw-semibold">Destinatari</div>
+                  <span class="badge bg-light text-dark border">max 10 righe</span>
+                </div>
+                <div class="row g-2 align-items-start">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label form-label-sm">Modalita'</label>
+                    <div class="d-grid gap-2">
+                      <label class="border rounded px-2 py-2 bg-white">
+                        <input class="form-check-input me-2 js-kind-toggle" type="radio" name="audience_mode_messages" value="user" checked>
+                        Un utente
+                      </label>
+                      <label class="border rounded px-2 py-2 bg-white">
+                        <input class="form-check-input me-2 js-kind-toggle" type="radio" name="audience_mode_messages" value="broadcast">
+                        Broadcast
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-8 js-user-select-wrap">
+                    <label class="form-label form-label-sm">Utente</label>
+                    <select class="form-select form-select-sm" name="user_id" size="10" data-default-size="10">
+                      {% for u in users %}
+                      <option value="{{ u.id }}">{{ u.name }} · {{ u.email }}</option>
+                      {% endfor %}
+                    </select>
+                    <div class="form-text">Selezione singola. Passa a broadcast per pubblicare a tutti.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label form-label-sm">Titolo</label>
+                <input class="form-control form-control-sm" name="title" maxlength="120" required>
+              </div>
+              <div>
+                <label class="form-label form-label-sm">Messaggio</label>
+                <textarea class="form-control form-control-sm" name="body" rows="7" required placeholder="Scrivi il messaggio inbox o diretto..."></textarea>
+                <div class="form-text">Per i messaggi puoi usare testo semplice o HTML sanitizzato.</div>
+              </div>
+
+              <div class="row g-2">
+                <div class="col-6">
+                  <label class="form-label form-label-sm">Priorita'</label>
+                  <select class="form-select form-select-sm" name="level">
+                    <option value="info">info</option>
+                    <option value="success">success</option>
+                    <option value="warning">warning</option>
+                    <option value="danger">danger</option>
+                  </select>
+                </div>
+                <div class="col-6">
+                  <label class="form-label form-label-sm">Formato</label>
+                  <select class="form-select form-select-sm" name="body_format">
+                    <option value="text">text</option>
+                    <option value="html">html</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label form-label-sm">Scadenza</label>
+                  <input class="form-control form-control-sm" name="expires_at" type="datetime-local">
+                </div>
+              </div>
+
+              <button class="btn btn-primary btn-sm" type="submit">
+                <i class="bi bi-send me-1"></i>Invia messaggio
+              </button>
+            </form>
+          </div>
+
+          <div class="tab-pane fade" id="pane-email" role="tabpanel" aria-labelledby="tab-email">
+            <form method="post" class="d-flex flex-column gap-3 comms-form" data-channel="email">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="hidden" name="kind" value="user">
+              <input type="hidden" name="send_email" value="1">
+              <input type="hidden" name="body_format" value="html">
+
+              <div class="comms-recipient-panel">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                  <div class="fw-semibold">Destinatari</div>
+                  <span class="badge bg-light text-dark border">max 10 righe</span>
+                </div>
+                <div class="row g-2 align-items-start">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label form-label-sm">Modalita'</label>
+                    <div class="d-grid gap-2">
+                      <label class="border rounded px-2 py-2 bg-white">
+                        <input class="form-check-input me-2 js-kind-toggle" type="radio" name="audience_mode_email" value="user" checked>
+                        Un utente
+                      </label>
+                      <label class="border rounded px-2 py-2 bg-white">
+                        <input class="form-check-input me-2 js-kind-toggle" type="radio" name="audience_mode_email" value="broadcast">
+                        Broadcast
+                      </label>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-8 js-user-select-wrap">
+                    <label class="form-label form-label-sm">Utente</label>
+                    <select class="form-select form-select-sm" name="user_id" size="10" data-default-size="10">
+                      {% for u in users %}
+                      <option value="{{ u.id }}">{{ u.name }} · {{ u.email }}</option>
+                      {% endfor %}
+                    </select>
+                    <div class="form-text">Email singola o broadcast con lo stesso flusso.</div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-2">
+                <div class="col-12 col-md-6">
+                  <label class="form-label form-label-sm">Template email</label>
+                  <select class="form-select form-select-sm" name="email_template_key">
+                    {% for tpl in email_templates %}
+                    <option value="{{ tpl.key }}">{{ tpl.label }}</option>
+                    {% endfor %}
+                  </select>
+                </div>
+                <div class="col-12 col-md-6">
+                  <label class="form-label form-label-sm">Priorita'</label>
+                  <select class="form-select form-select-sm" name="level">
+                    <option value="info">info</option>
+                    <option value="success">success</option>
+                    <option value="warning">warning</option>
+                    <option value="danger">danger</option>
+                  </select>
+                </div>
+                <div class="col-12">
+                  <label class="form-label form-label-sm">Titolo interno</label>
+                  <input class="form-control form-control-sm" name="title" maxlength="120" required placeholder="Nome della comunicazione">
+                </div>
+                <div class="col-12">
+                  <label class="form-label form-label-sm">Oggetto email</label>
+                  <input class="form-control form-control-sm" name="email_subject" maxlength="180" required placeholder="Subject della mail">
+                </div>
+                <div class="col-12">
+                  <label class="form-label form-label-sm">Preheader</label>
+                  <input class="form-control form-control-sm" name="email_preheader" maxlength="180" placeholder="Anteprima breve della mail">
+                </div>
+              </div>
+
+              <div>
+                <label class="form-label form-label-sm">Corpo HTML</label>
+                <textarea class="form-control form-control-sm" name="body" rows="8" required placeholder="<p>Contenuto HTML sanificato lato server...</p>"></textarea>
+                <div class="form-text">Il body viene sanitizzato lato server e inserito nel template selezionato.</div>
+              </div>
+
+              <div class="row g-2">
+                <div class="col-12 col-md-5">
+                  <label class="form-label form-label-sm">CTA label</label>
+                  <input class="form-control form-control-sm" name="action_label" maxlength="80" placeholder="Apri messaggi">
+                </div>
+                <div class="col-12 col-md-7">
+                  <label class="form-label form-label-sm">CTA URL</label>
+                  <input class="form-control form-control-sm" name="action_url" type="url" maxlength="500" placeholder="https://...">
+                </div>
+                <div class="col-12">
+                  <label class="form-label form-label-sm">Scadenza</label>
+                  <input class="form-control form-control-sm" name="expires_at" type="datetime-local">
+                </div>
+              </div>
+
+              <button class="btn btn-success btn-sm" type="submit">
+                <i class="bi bi-envelope-check me-1"></i>Invia email HTML
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xxl-7">
+    <div class="card settings-panel-card mb-3">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span>Storico broadcast</span>
+        <span class="badge bg-light text-dark border">{{ broadcasts|length }} recenti</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-compact align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Titolo</th>
+                <th>Email</th>
+                <th>Stato</th>
+              </tr>
+            </thead>
+            <tbody id="broadcastRows">
+              {% include "admin/_broadcast_rows.html" %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card settings-panel-card">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span>Messaggi diretti recenti</span>
+        <span class="badge bg-light text-dark border">{{ user_messages|length }} recenti</span>
+      </div>
+      <div class="card-body p-0">
+        <div class="table-responsive">
+          <table class="table table-sm table-compact align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Data</th>
+                <th>Utente</th>
+                <th>Titolo</th>
+                <th>Letto</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody id="userMessageRows">
+              {% include "admin/_user_message_rows.html" %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script nonce="{{ g.csp_nonce }}">
+  (function () {
+    "use strict";
+
+    const forms = document.querySelectorAll(".comms-form");
+    const broadcastRows = document.getElementById("broadcastRows");
+    const userMessageRows = document.getElementById("userMessageRows");
+
+    function syncAudience(form) {
+      if (!form) { return; }
+      const selected = form.querySelector(".js-kind-toggle:checked");
+      const kindInput = form.querySelector('input[name="kind"]');
+      const wrap = form.querySelector(".js-user-select-wrap");
+      const userSelect = form.querySelector('select[name="user_id"]');
+      const mode = selected ? selected.value : "user";
+      if (kindInput) {
+        kindInput.value = mode === "broadcast" ? "broadcast" : "user";
+      }
+      if (wrap) {
+        wrap.classList.toggle("d-none", mode === "broadcast");
+      }
+      if (userSelect) {
+        userSelect.required = mode !== "broadcast";
+        if (mode === "broadcast") {
+          userSelect.selectedIndex = -1;
+        } else if (userSelect.selectedIndex < 0 && userSelect.options.length) {
+          userSelect.selectedIndex = 0;
+        }
+      }
+    }
+
+    async function submitCommsForm(form) {
+      syncAudience(form);
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalHtml = submitBtn ? submitBtn.innerHTML : "";
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Invio...';
+      }
+      try {
+        const response = await fetch(form.action || window.location.pathname, {
+          method: "POST",
+          body: new FormData(form),
+          headers: {
+            "X-Requested-With": "XMLHttpRequest",
+            "Accept": "application/json"
+          },
+          credentials: "same-origin"
+        });
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          throw new Error(data && (data.message || data.error) ? (data.message || data.error) : "Invio fallito.");
+        }
+        if (broadcastRows && typeof data.broadcast_rows_html === "string") {
+          broadcastRows.innerHTML = data.broadcast_rows_html;
+        }
+        if (userMessageRows && typeof data.user_message_rows_html === "string") {
+          userMessageRows.innerHTML = data.user_message_rows_html;
+        }
+        form.reset();
+        syncAudience(form);
+        if (window.showToast) {
+          window.showToast(data.message || "Communication created.", "success");
+        }
+      } catch (error) {
+        if (window.showToast) {
+          window.showToast(String(error.message || error), "danger");
+        }
+      } finally {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHtml;
+        }
+      }
+    }
+
+    forms.forEach(function (form) {
+      form.querySelectorAll(".js-kind-toggle").forEach(function (input) {
+        input.addEventListener("change", function () {
+          syncAudience(form);
+        });
+      });
+      syncAudience(form);
+      form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        submitCommsForm(form);
+      });
+    });
+  })();
+</script>
+{% endblock %}

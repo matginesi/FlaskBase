@@ -1,0 +1,8 @@
+<div class="db-subnav mb-3" aria-label="Database navigation">
+  <a href="{{ url_for('admin.database') }}" class="db-subnav-link {% if request.endpoint == 'admin.database' %}active{% endif %}">
+    <i class="bi bi-hdd-stack me-1"></i>{{ tr('database.overview', 'Overview') }}
+  </a>
+  <a href="{{ url_for('admin.deploy_health') }}" class="db-subnav-link {% if request.endpoint == 'admin.deploy_health' %}active{% endif %}">
+    <i class="bi bi-shield-check me-1"></i>{{ tr('nav.deploy_health', 'Deploy Health') }}
+  </a>
+</div>

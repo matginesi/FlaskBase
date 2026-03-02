@@ -1,0 +1,6 @@
+{# Flash messages are rendered as bottom-right toasts (no top banners). #}
+{% with messages = get_flashed_messages(with_categories=True) %}
+  {% if messages %}
+    <script type="application/json" id="flashMessagesData">{{ messages | tojson }}</script>
+  {% endif %}
+{% endwith %}

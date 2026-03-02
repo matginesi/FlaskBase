@@ -1,0 +1,20 @@
+{
+  "Dashboard": "Dashboard",
+  "Settings": "Settings",
+  "Add-ons": "Add-ons",
+  "Admin": "Admin",
+  "Users": "Users",
+  "Messages": "Messages",
+  "Database": "Database",
+  "Security": "Security",
+  "Login": "Login",
+  "Logout": "Logout",
+  "Save": "Save",
+  "Cancel": "Cancel",
+  "Apply changes": "Apply changes",
+  "Language": "Language",
+  "English": "English",
+  "Italian": "Italian",
+  "Profile": "Profile",
+  "nav.deploy_health": "Deploy Health"
+}

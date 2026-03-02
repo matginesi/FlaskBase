@@ -1,0 +1,324 @@
+{% extends "base.html" %}
+{% block title %} · Job & Queue{% endblock %}
+{% block content %}
+<div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-2">
+  <div>
+    <div class="page-breadcrumb"><i class="bi bi-shield me-1"></i> Admin</div>
+    <h1>Job & Queue Control</h1>
+    <p>Monitoraggio runtime dei job, controllo pause/stop e lancio nuovi task.</p>
+    <div class="fs-xs text-muted" id="runtimeHeaderLine">
+      Runtime mode: <code>{{ runtime.mode }}</code> · process role: <code>{{ runtime.process_role }}</code> ·
+      backend: <code>{{ runtime.backend or 'db' }}</code>{% if runtime.backend == 'redis' %} · redis: <code>{{ 'online' if runtime.redis_connected else 'offline' }}</code>{% endif %} ·
+      worker thread: <code>{{ 'online' if runtime.thread_alive else 'offline' }}</code> ·
+      poll: <code>{{ '%.2f'|format(runtime.poll_interval_sec) }}s</code>
+    </div>
+  </div>
+  <button type="button" class="btn btn-outline-secondary btn-sm" id="refreshJobsBtn">
+    <i class="bi bi-arrow-clockwise me-1"></i>Aggiorna
+  </button>
+</div>
+
+{% set level="info" %}{% set title="Operational Split (recommended, prod)" %}{% set body="Usa Redis in produzione per lock e concorrenza, DB per stato e audit. Evita job lunghi sul thread request." %}{% set dismissible=false %}{% include "partials/totem_block.html" %}
+<div class="font-monospace fs-xs">web (gunicorn): <code>JOB_RUNTIME_MODE=web gunicorn -w 4 -b 0.0.0.0:5000 wsgi:app</code></div>
+  <div class="font-monospace fs-xs">web (uWSGI): <code>JOB_RUNTIME_MODE=web uwsgi --http :5000 --wsgi-file wsgi.py --callable app --processes 4 --threads 2</code></div>
+  <div class="font-monospace fs-xs">worker: <code>JOB_RUNTIME_MODE=worker JOB_PROCESS_ROLE=worker python cli.py worker</code></div>
+</div>
+
+<div class="row g-3 mb-3">
+  <div class="col-12 col-xl-4">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-plus-square me-2 text-primary"></i>Lancio nuovo job</div>
+      <div class="card-body">
+        <form method="post" action="{{ url_for('admin.launch_job') }}" class="d-grid gap-2">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <div>
+            <label class="form-label">Job type</label>
+            <select class="form-select" name="job_type" id="jobTypeSelect">
+              {% for k, h in handlers.items() %}
+              <option value="{{ k }}">{{ k }} — {{ h.label }}</option>
+              {% endfor %}
+            </select>
+            <div class="form-text" id="jobPolicyHint"></div>
+          </div>
+          <div>
+            <label class="form-label">Queue</label>
+            <select class="form-select" name="queue_key">
+              {% for q in queues %}
+              <option value="{{ q.queue_key }}">{{ q.queue_key }}{% if q.paused %} (paused){% endif %}</option>
+              {% endfor %}
+              {% if not queues %}
+              <option value="default">default</option>
+              {% endif %}
+            </select>
+          </div>
+          <div>
+            <label class="form-label">Payload JSON</label>
+            <textarea class="form-control font-monospace" name="payload_json" id="payloadEditor" rows="5">{"steps": 12, "step_ms": 800}</textarea>
+          </div>
+          <button class="btn btn-primary" type="submit">
+            <i class="bi bi-play-circle me-1"></i>Accoda job
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-8">
+    <div class="card h-100">
+      <div class="card-header"><i class="bi bi-list-task me-2 text-info"></i>Queue</div>
+      <div class="card-body p-0">
+        <table class="table table-compact table-hover mb-0" id="queuesTable">
+          <thead>
+            <tr><th>Queue</th><th>Concurrency</th><th>Stato</th><th class="text-end">Azioni</th></tr>
+          </thead>
+          <tbody>
+            {% for q in queues %}
+            <tr data-queue-id="{{ q.id }}">
+              <td><strong>{{ q.queue_key }}</strong><div class="text-muted fs-xs">{{ q.name }}</div></td>
+              <td>{{ q.concurrency }}</td>
+              <td>
+                {% if q.paused %}
+                <span class="badge bg-warning text-dark">Paused</span>
+                {% else %}
+                <span class="badge bg-success">Active</span>
+                {% endif %}
+              </td>
+              <td class="text-end">
+                <form method="post" action="{{ url_for('admin.pause_queue', queue_id=q.id) }}" class="d-inline">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <input type="hidden" name="paused" value="{{ '0' if q.paused else '1' }}">
+                  <button class="btn btn-outline-{{ 'success' if q.paused else 'warning' }} btn-sm" type="submit">
+                    <i class="bi bi-{{ 'play' if q.paused else 'pause' }} me-1"></i>{{ 'Resume' if q.paused else 'Pause' }}
+                  </button>
+                </form>
+              </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center text-muted py-3">Nessuna queue configurata</td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span><i class="bi bi-cpu me-2 text-secondary"></i>Job recenti</span>
+    <div class="d-flex align-items-center gap-2">
+      <form method="post" action="{{ url_for('admin.cleanup_jobs') }}" class="d-inline"
+            data-confirm-title="Pulizia job recenti"
+            data-confirm-message="Rimuovere i job completati/falliti/fermati presenti nei job recenti?"
+            data-confirm-label="Pulisci recenti"
+            data-confirm-class="btn-danger">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <input type="hidden" name="scope" value="recent">
+        <input type="hidden" name="recent_limit" value="200">
+        <button class="btn btn-outline-danger btn-sm" type="submit" title="Rimuovi job terminali recenti">
+          <i class="bi bi-trash me-1"></i>Pulisci recenti
+        </button>
+      </form>
+      <small class="text-muted" id="jobsTimestamp"></small>
+    </div>
+  </div>
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-compact table-hover mb-0" id="jobsTable">
+        <thead>
+          <tr>
+            <th>ID</th><th>Queue</th><th>Tipo</th><th>Stato</th><th>Tentativi</th><th>Progresso</th><th>Messaggio</th><th>Creazione</th><th class="text-end">Azioni</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for j in jobs %}
+          {% set rt = ((j.result.get('_runtime') or {}) if j.result is mapping else {}) %}
+          {% set att = (rt.get('attempt', 0) | int) %}
+          {% set maxr = (rt.get('max_retries', 0) | int) %}
+          <tr data-job-id="{{ j.id }}">
+            <td><code>#{{ j.id }}</code></td>
+            <td>{{ j.queue.queue_key if j.queue else '-' }}</td>
+            <td><span class="badge bg-light text-dark">{{ j.job_type }}</span></td>
+            <td>
+              <span class="badge
+                {% if j.status == 'completed' %}bg-success
+                {% elif j.status == 'failed' %}bg-danger
+                {% elif j.status == 'paused' %}bg-warning text-dark
+                {% elif j.status == 'running' %}bg-primary
+                {% elif j.status == 'stopped' %}bg-secondary
+                {% else %}bg-info text-dark{% endif %}">
+                {{ j.status }}
+              </span>
+            </td>
+            <td class="fs-xs text-muted">{{ att }}/{{ maxr + 1 }}</td>
+            <td class="progress-col">
+              <div class="progress progress-thin">
+                <div class="progress-bar" role="progressbar" style="width: {{ j.progress or 0 }}%;"></div>
+              </div>
+              <div class="fs-xs text-muted mt-1">{{ j.progress or 0 }}%</div>
+            </td>
+            <td class="fs-sm cell-truncate-220">{{ j.message or '-' }}</td>
+            <td class="fs-xs text-muted text-nowrap">{{ j.created_at.strftime('%d/%m %H:%M:%S') if j.created_at else '-' }}</td>
+            <td class="text-end">
+              <form method="post" action="{{ url_for('admin.pause_job', job_id=j.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                {% if j.status in ('running', 'queued') %}
+                <input type="hidden" name="paused" value="1">
+                <button class="btn btn-outline-warning btn-sm" type="submit" title="Pause">
+                  <i class="bi bi-pause"></i>
+                </button>
+                {% elif j.status == 'paused' %}
+                <input type="hidden" name="paused" value="0">
+                <button class="btn btn-outline-success btn-sm" type="submit" title="Resume">
+                  <i class="bi bi-play"></i>
+                </button>
+                {% else %}
+                <button class="btn btn-outline-secondary btn-sm" type="button" disabled><i class="bi bi-pause"></i></button>
+                {% endif %}
+              </form>
+              <form method="post" action="{{ url_for('admin.stop_job', job_id=j.id) }}" class="d-inline">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button class="btn btn-outline-danger btn-sm" type="submit" {% if j.status in ('completed','failed','stopped') %}disabled{% endif %} title="Stop">
+                  <i class="bi bi-stop"></i>
+                </button>
+              </form>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="9" class="text-center text-muted py-3">Nessun job presente</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ g.csp_nonce }}">
+const handlers = {{ handlers | tojson }};
+const payloadEditor = document.getElementById("payloadEditor");
+const jobTypeSelect = document.getElementById("jobTypeSelect");
+const jobPolicyHint = document.getElementById("jobPolicyHint");
+const runtimeHeaderLine = document.getElementById("runtimeHeaderLine");
+const csrfToken = "{{ csrf_token() }}";
+
+function safeHtml(v) {
+  return String(v || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#39;");
+}
+
+jobTypeSelect?.addEventListener("change", () => {
+  const selected = handlers[jobTypeSelect.value];
+  if (!selected || !payloadEditor) return;
+  payloadEditor.value = JSON.stringify(selected.example_payload || {}, null, 2);
+  if (jobPolicyHint) {
+    const retries = Number.isFinite(Number(selected.max_retries)) ? Number(selected.max_retries) : 0;
+    const timeout = Number.isFinite(Number(selected.timeout_sec)) ? Number(selected.timeout_sec) : 0;
+    const queue = String(selected.queue_key || "default");
+    jobPolicyHint.textContent = `queue=${queue} · retries=${retries} · timeout=${timeout > 0 ? timeout + "s" : "none"}`;
+  }
+});
+
+if (jobTypeSelect && handlers[jobTypeSelect.value]) {
+  jobTypeSelect.dispatchEvent(new Event("change"));
+}
+
+async function refreshJobs() {
+  try {
+    const r = await fetch("{{ url_for('admin.jobs_data') }}", {credentials: "same-origin"});
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.message || "errore refresh");
+
+    const qBody = document.querySelector("#queuesTable tbody");
+    if (qBody) {
+      qBody.innerHTML = (d.queues || []).map(q => `
+        <tr>
+          <td><strong>${safeHtml(q.queue_key)}</strong><div class="text-muted fs-xs">${safeHtml(q.name)}</div></td>
+          <td>${q.concurrency}</td>
+          <td>${q.paused ? '<span class="badge bg-warning text-dark">Paused</span>' : '<span class="badge bg-success">Active</span>'}</td>
+          <td class="text-end">
+            <form method="post" action="/admin/queues/${q.id}/pause" class="d-inline">
+              <input type="hidden" name="csrf_token" value="${csrfToken}">
+              <input type="hidden" name="paused" value="${q.paused ? "0" : "1"}">
+              <button class="btn btn-outline-${q.paused ? "success" : "warning"} btn-sm" type="submit">
+                <i class="bi bi-${q.paused ? "play" : "pause"} me-1"></i>${q.paused ? "Resume" : "Pause"}
+              </button>
+            </form>
+          </td>
+        </tr>
+      `).join("") || '<tr><td colspan="4" class="text-center text-muted py-3">Nessuna queue</td></tr>';
+    }
+
+    const statusBadge = s => {
+      if (s === "completed") return '<span class="badge bg-success">completed</span>';
+      if (s === "failed") return '<span class="badge bg-danger">failed</span>';
+      if (s === "paused") return '<span class="badge bg-warning text-dark">paused</span>';
+      if (s === "running") return '<span class="badge bg-primary">running</span>';
+      if (s === "stopped") return '<span class="badge bg-secondary">stopped</span>';
+      return '<span class="badge bg-info text-dark">queued</span>';
+    };
+
+    const jBody = document.querySelector("#jobsTable tbody");
+    if (jBody) {
+      jBody.innerHTML = (d.jobs || []).map(j => `
+        <tr>
+          <td><code>#${j.id}</code></td>
+          <td>${safeHtml(j.queue_key || "-")}</td>
+          <td><span class="badge bg-light text-dark">${safeHtml(j.job_type)}</span></td>
+          <td>${statusBadge(j.status)}</td>
+          <td class="fs-xs text-muted">${Number(j.attempt || 0)}/${Number(j.max_retries || 0) + 1}</td>
+          <td class="progress-col">
+            <div class="progress progress-thin"><div class="progress-bar" style="width:${j.progress || 0}%;"></div></div>
+            <div class="fs-xs text-muted mt-1">${j.progress || 0}%</div>
+          </td>
+          <td class="fs-sm cell-truncate-220">${safeHtml(j.message || "-")}</td>
+          <td class="fs-xs text-muted text-nowrap">${safeHtml((j.created_at || "").replace("T", " ").slice(0, 19))}</td>
+          <td class="text-end">
+            <form method="post" action="/admin/jobs/${j.id}/pause" class="d-inline">
+              <input type="hidden" name="csrf_token" value="${csrfToken}">
+              ${
+                (j.status === "running" || j.status === "queued")
+                  ? '<input type="hidden" name="paused" value="1"><button class="btn btn-outline-warning btn-sm" type="submit" title="Pause"><i class="bi bi-pause"></i></button>'
+                  : (j.status === "paused")
+                  ? '<input type="hidden" name="paused" value="0"><button class="btn btn-outline-success btn-sm" type="submit" title="Resume"><i class="bi bi-play"></i></button>'
+                  : '<button class="btn btn-outline-secondary btn-sm" type="button" disabled><i class="bi bi-pause"></i></button>'
+              }
+            </form>
+            <form method="post" action="/admin/jobs/${j.id}/stop" class="d-inline">
+              <input type="hidden" name="csrf_token" value="${csrfToken}">
+              <button class="btn btn-outline-danger btn-sm" type="submit" ${(j.status === "completed" || j.status === "failed" || j.status === "stopped") ? "disabled" : ""} title="Stop">
+                <i class="bi bi-stop"></i>
+              </button>
+            </form>
+          </td>
+        </tr>
+      `).join("") || '<tr><td colspan="9" class="text-center text-muted py-3">Nessun job</td></tr>';
+    }
+
+    if (runtimeHeaderLine && d.runtime) {
+      const mode = safeHtml(d.runtime.mode || "-");
+      const role = safeHtml(d.runtime.process_role || "-");
+      const backend = safeHtml(d.runtime.backend || "db");
+      const redis = d.runtime.backend === "redis" ? (d.runtime.redis_connected ? "online" : "offline") : null;
+      const online = d.runtime.thread_alive ? "online" : "offline";
+      const poll = Number.isFinite(Number(d.runtime.poll_interval_sec)) ? Number(d.runtime.poll_interval_sec).toFixed(2) : "-";
+      const redisPart = redis ? ` · redis: <code>${redis}</code>` : "";
+      runtimeHeaderLine.innerHTML = `Runtime mode: <code>${mode}</code> · process role: <code>${role}</code> · backend: <code>${backend}</code>${redisPart} · worker thread: <code>${online}</code> · poll: <code>${poll}s</code>`;
+    }
+
+    const ts = document.getElementById("jobsTimestamp");
+    if (ts) ts.textContent = new Date().toLocaleTimeString();
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+document.getElementById("refreshJobsBtn")?.addEventListener("click", refreshJobs);
+setInterval(refreshJobs, 4000);
+</script>
+{% endblock %}

@@ -1,0 +1,31 @@
+{% for m in user_messages %}
+<tr>
+  <td class="text-muted small">{{ m.created_at.strftime('%Y-%m-%d %H:%M') if m.created_at else '' }}</td>
+  <td>{{ m.user.name if m.user else '-' }}</td>
+  <td>
+    <div class="fw-semibold">{{ m.title }}</div>
+    <div class="text-muted fs-xs">{{ m.level }} · {{ m.body_format }}</div>
+  </td>
+  <td>
+    {% if m.is_read %}
+    <span class="badge bg-success">read</span>
+    {% else %}
+    <span class="badge bg-primary-subtle text-primary border">unread</span>
+    {% endif %}
+  </td>
+  <td class="fs-xs">
+    {% if m.email_error %}
+    <span class="badge bg-danger">failed</span>
+    <div class="text-muted mt-1">{{ m.email_error }}</div>
+    {% elif m.email_sent_at %}
+    <span class="badge bg-success">sent</span>
+    {% elif m.email_requested %}
+    <span class="badge bg-secondary">requested</span>
+    {% else %}
+    <span class="badge bg-light text-dark border">inbox only</span>
+    {% endif %}
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="5" class="p-3 text-muted">No direct messages yet.</td></tr>
+{% endfor %}

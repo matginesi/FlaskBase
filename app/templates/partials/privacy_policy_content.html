@@ -1,0 +1,56 @@
+<div style="line-height:1.75;">
+  <h5>1. Titolare del trattamento</h5>
+  <p class="text-muted">{{ g.app_name }} - Contatto: <code>admin@esempio.com</code></p>
+
+  <h5>2. Dati raccolti</h5>
+  <p>Raccogliamo solo i dati necessari al funzionamento del servizio:</p>
+  <ul>
+    <li><strong>Dati account</strong>: nome, email, password (hash PBKDF2-SHA256).</li>
+    <li><strong>Log tecnici</strong>: IP, URL, azioni e timestamp per sicurezza/debug.</li>
+    <li><strong>Cookie tecnici</strong>: cookie di sessione (httpOnly, SameSite=Lax) necessario al login.</li>
+  </ul>
+
+  <h5>3. Cookie utilizzati</h5>
+  <div class="table-responsive mb-3">
+    <table class="table table-compact">
+      <thead><tr><th>Nome</th><th>Tipo</th><th>Scopo</th><th>Durata</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>session</code></td>
+          <td><span class="badge bg-primary">Tecnico</span></td>
+          <td>Mantiene la sessione autenticata</td>
+          <td>Sessione browser</td>
+        </tr>
+        <tr>
+          <td><code>remember_token</code></td>
+          <td><span class="badge bg-primary">Tecnico</span></td>
+          <td>Ricorda l'utente (se selezionato)</td>
+          <td>30 giorni</td>
+        </tr>
+        <tr>
+          <td><code>cookie_accepted</code></td>
+          <td><span class="badge bg-secondary">localStorage</span></td>
+          <td>Ricorda l'accettazione del banner cookie</td>
+          <td>Permanente locale</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+  <p>Non utilizziamo cookie di profilazione o sistemi di tracking di terze parti.</p>
+
+  <h5>4. Base giuridica e finalita'</h5>
+  <p>Trattamento basato su <strong>esecuzione del contratto</strong> (art. 6.1.b GDPR) e <strong>legittimo interesse</strong> alla sicurezza (art. 6.1.f GDPR).</p>
+
+  <h5>5. Conservazione dati</h5>
+  <p>I log sono conservati fino a <strong>90 giorni</strong>. I dati account per la durata del rapporto e cancellati entro 30 giorni dalla richiesta.</p>
+
+  <h5>6. Diritti GDPR</h5>
+  <p>Puoi richiedere accesso, rettifica, cancellazione, limitazione, portabilita' e opposizione.</p>
+
+  <h5>7. Sicurezza</h5>
+  <p>Password hashate con PBKDF2-SHA256 e trasmissione protetta HTTPS.</p>
+
+  <div class="alert alert-info mt-4 fs-sm mb-0">
+    <i class="bi bi-envelope me-2"></i>Contatto privacy: <strong>admin@esempio.com</strong>
+  </div>
+</div>

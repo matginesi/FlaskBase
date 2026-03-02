@@ -1,0 +1,146 @@
+{
+  "users": [
+    {
+      "email": "admin@test.com",
+      "name": "Admin",
+      "role": "admin",
+      "password": "admin",
+      "username": "admin",
+      "company": "WebApp Labs",
+      "department": "Platform",
+      "job_title": "Administrator",
+      "api_token_name": "seed-admin",
+      "api_scopes": ["admin", "profile:read", "addons:manage", "addons:data", "jobs:manage", "documentation:*", "hello_world:*", "widgets_ui:*"]
+    },
+    {
+      "email": "user@test.com",
+      "name": "User",
+      "role": "user",
+      "password": "user",
+      "username": "user",
+      "company": "WebApp Labs",
+      "department": "PoC",
+      "job_title": "Operator",
+      "api_token_name": "seed-user",
+      "api_scopes": ["profile:read", "addons:data", "jobs:read", "documentation:read", "hello_world:read", "widgets_ui:read"]
+    }
+  ],
+  "addons": [
+    {
+      "addon_key": "hello_world",
+      "title": "Hello World",
+      "version": "1.0.0",
+    "description": "Minimal demo add-on",
+      "source_type": "builtin",
+      "is_builtin": true,
+      "enabled": true,
+      "status": "seeded",
+      "config_defaults": {
+        "welcome_copy": "Hello from add-ons!"
+      },
+      "grants": [
+        {
+          "principal_type": "role",
+          "principal_value": "admin",
+          "capability": "view_admin",
+          "is_allowed": true
+        },
+        {
+          "principal_type": "role",
+          "principal_value": "user",
+          "capability": "view_user",
+          "is_allowed": true
+        }
+      ]
+    },
+    {
+      "addon_key": "widgets_ui",
+      "title": "Widget & UI",
+      "version": "1.0.0",
+    "description": "UI catalog: widgets, charts and graphs",
+      "source_type": "builtin",
+      "is_builtin": true,
+      "enabled": true,
+      "status": "seeded",
+      "config_defaults": {
+        "show_advanced_examples": true,
+        "allow_live_preview": true
+      },
+      "grants": [
+        {
+          "principal_type": "role",
+          "principal_value": "admin",
+          "capability": "view_admin",
+          "is_allowed": true
+        },
+        {
+          "principal_type": "role",
+          "principal_value": "user",
+          "capability": "view_user",
+          "is_allowed": true
+        }
+      ]
+    },
+    {
+      "addon_key": "documentation",
+      "title": "Documentation",
+      "version": "2.0.1",
+    "description": "Markdown viewer with Mermaid support",
+      "source_type": "builtin",
+      "is_builtin": true,
+      "enabled": true,
+      "status": "seeded",
+      "config_defaults": {
+        "default_doc": "README.md",
+        "allow_mermaid": true
+      },
+      "grants": [
+        {
+          "principal_type": "role",
+          "principal_value": "admin",
+          "capability": "view_admin",
+          "is_allowed": true
+        },
+        {
+          "principal_type": "role",
+          "principal_value": "user",
+          "capability": "view_user",
+          "is_allowed": true
+        }
+      ]
+    }
+  ],
+  "job_queues": [
+    {
+      "queue_key": "default",
+      "name": "Default Queue",
+      "enabled": true,
+      "paused": false,
+      "concurrency": 2,
+      "settings": {
+        "retry_limit": 3,
+        "heartbeat_sec": 15
+      }
+    },
+    {
+      "queue_key": "addons",
+      "name": "Addon Jobs",
+      "addon_key": "widgets_ui",
+      "enabled": true,
+      "paused": false,
+      "concurrency": 2,
+      "settings": {
+        "retry_limit": 2,
+        "heartbeat_sec": 20
+      }
+    }
+  ],
+  "broadcasts": [
+    {
+      "title": "Ambiente seed pronto",
+      "body": "Database PostgreSQL, utenti demo, registry addon e queue inizializzati correttamente.",
+      "level": "info",
+      "is_active": true
+    }
+  ]
+}

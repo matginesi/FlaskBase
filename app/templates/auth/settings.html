@@ -1,0 +1,575 @@
+{% extends "base.html" %}
+{% block title %} · Account{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-breadcrumb"><i class="bi bi-person-gear me-1"></i> Account</div>
+  <h1>Impostazioni Account</h1>
+  <p>Gestisci le tue informazioni e la sicurezza</p>
+</div>
+
+<div class="row g-2 mb-3 account-summary">
+  <div class="col-6 col-lg-3">
+    <div class="account-pill">
+      <div class="account-pill-label">Ruolo</div>
+      <div class="account-pill-value">{{ current_user.role }}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="account-pill">
+      <div class="account-pill-label">Email</div>
+      <div class="account-pill-value fs-xs text-truncate">{{ current_user.email }}</div>
+      <div class="account-pill-sub fs-xs text-muted">
+        {% if current_user.email_verified %}<i class="bi bi-patch-check-fill text-success me-1"></i>Verificata{% else %}<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>Non verificata{% endif %}
+      </div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="account-pill">
+      <div class="account-pill-label">Sicurezza</div>
+      <div class="account-pill-value">{% if mfa_enabled %}MFA ON{% else %}MFA OFF{% endif %}</div>
+      <div class="account-pill-sub fs-xs text-muted">{% if mfa_enabled %}Recovery: {{ mfa_recovery_remaining }}{% else %}Abilita per protezione{% endif %}</div>
+    </div>
+  </div>
+  <div class="col-6 col-lg-3">
+    <div class="account-pill">
+      <div class="account-pill-label">Ultimo accesso</div>
+      <div class="account-pill-value fs-xs">{{ current_user.last_login_at.strftime('%d/%m/%Y %H:%M') if current_user.last_login_at else '—' }}</div>
+      <div class="account-pill-sub fs-xs text-muted">IP: {{ current_user.last_ip or '—' }}</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 account-layout">
+  <div class="col-12 col-xl-4">
+    <div class="account-sticky">
+    <div class="settings-section">
+      <div class="settings-section-header"><i class="bi bi-person-circle me-2 text-primary"></i>Profilo</div>
+      <div class="settings-section-body">
+        <form method="post" novalidate>
+          {{ form.csrf_token }}
+          <div class="mb-3">
+            {{ form.name.label(class_="form-label") }}
+            {{ form.name(class_="form-control") }}
+            {% for e in form.name.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="mb-3">
+            {{ form.username.label(class_="form-label") }}
+            {{ form.username(class_="form-control", placeholder="es. mario.rossi") }}
+            {% for e in form.username.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+          </div>
+          <div class="row g-2 mb-2">
+            <div class="col-12 col-md-6">
+              {{ form.locale.label(class_="form-label") }}
+              {{ form.locale(class_="form-control", placeholder="it-IT") }}
+            </div>
+            <div class="col-12 col-md-6">
+              {{ form.timezone.label(class_="form-label") }}
+              {{ form.timezone(class_="form-control", placeholder="Europe/Rome") }}
+            </div>
+            <div class="col-12">
+              {% if form.notes is defined %}
+                {{ form.notes.label(class_="form-label") }}
+                {{ form.notes(class_="form-control", rows="4", placeholder="Preferenze tecniche, note operative, integrazioni...") }}
+              {% else %}
+                <label class="form-label">Note tecniche</label>
+                <textarea class="form-control" rows="4" disabled>Campo note non disponibile in questa sessione runtime.</textarea>
+              {% endif %}
+            </div>
+          </div>
+          <div class="form-check mb-1">
+            {{ form.notification_email_enabled(class_="form-check-input") }}
+            {{ form.notification_email_enabled.label(class_="form-check-label") }}
+          </div>
+          <div class="form-check mb-1">
+            {{ form.notification_security_enabled(class_="form-check-input") }}
+            {{ form.notification_security_enabled.label(class_="form-check-label") }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Email</label>
+            <input class="form-control" value="{{ current_user.email }}" disabled>
+            <div class="form-text">L'email non può essere modificata da qui.</div>
+          </div>
+          <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-check2 me-1"></i>Salva modifiche</button>
+        </form>
+      </div>
+    </div>
+    <div class="settings-section mt-3">
+      <div class="settings-section-header"><i class="bi bi-info-circle me-2 text-info"></i>Informazioni account</div>
+      <div class="settings-section-body p-0">
+        <div class="settings-row px-3">
+          <div class="settings-row-info">
+            <strong>Ruolo</strong>
+            <small>Il tuo livello di accesso</small>
+          </div>
+          <span class="badge {% if current_user.role == 'admin' %}bg-warning text-dark{% else %}bg-primary{% endif %}">
+            {{ current_user.role }}
+          </span>
+        </div>
+        <div class="settings-row px-3">
+          <div class="settings-row-info">
+            <strong>Stato account</strong>
+            <small>Attività corrente</small>
+          </div>
+          <span class="badge bg-success">Attivo</span>
+        </div>
+        <div class="settings-row px-3">
+          <div class="settings-row-info">
+            <strong>Ultimo accesso</strong>
+            <small>Data e ora</small>
+          </div>
+          <span class="text-muted fs-xs">
+            {{ current_user.last_login_at.strftime('%d/%m/%Y %H:%M') if current_user.last_login_at else '–' }}
+          </span>
+        </div>
+        <div class="settings-row px-3">
+          <div class="settings-row-info">
+            <strong>Ultimo IP</strong>
+            <small>IP ultimo login valido</small>
+          </div>
+          <span class="text-muted fs-xs">{{ current_user.last_ip or '–' }}</span>
+        </div>
+        <div class="settings-row px-3">
+          <div class="settings-row-info">
+            <strong>Ultima attività</strong>
+            <small>Heartbeat sessione</small>
+          </div>
+          <span class="text-muted fs-xs">
+            {{ current_user.last_seen_at.strftime('%d/%m/%Y %H:%M') if current_user.last_seen_at else '–' }}
+          </span>
+        </div>
+        <div class="settings-row px-3">
+          <div class="settings-row-info">
+            <strong>Membro dal</strong>
+            <small>Data registrazione</small>
+          </div>
+          <span class="text-muted fs-xs">{{ current_user.created_at.strftime('%d/%m/%Y') }}</span>
+        </div>
+      </div>
+    </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-8">
+    <div class="row g-3">
+      <div class="col-12">
+        <div class="settings-section">
+          <div class="settings-section-header"><i class="bi bi-lock me-2 text-warning"></i>Cambia password</div>
+          <div class="settings-section-body">
+            <form method="post" action="{{ url_for('auth.change_password') }}" novalidate>
+              {{ change_pwd_form.csrf_token if change_pwd_form else '' }}
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="mb-2">
+                <label class="form-label">Password attuale</label>
+                <input type="password" name="current_password" class="form-control form-control-sm" required>
+              </div>
+              <div class="mb-2">
+                <label class="form-label">Nuova password</label>
+                <input type="password" name="new_password" id="new_password" class="form-control form-control-sm" required minlength="8">
+                <div class="progress mt-1" style="height:4px;">
+                  <div class="progress-bar" id="pwdStrengthBar" style="width:0%;transition:width .3s;" role="progressbar"></div>
+                </div>
+                <div class="fs-xs text-muted mt-1" id="pwdStrengthLabel"></div>
+              </div>
+              <div class="mb-3">
+                <label class="form-label">Conferma password</label>
+                <input type="password" name="confirm_password" class="form-control form-control-sm" required>
+              </div>
+              <button type="submit" class="btn btn-warning btn-sm text-dark"><i class="bi bi-lock-fill me-1"></i>Aggiorna password</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="settings-section">
+          <div class="settings-section-header"><i class="bi bi-shield-lock me-2 text-primary"></i>Autenticazione MFA</div>
+          <div class="settings-section-body">
+            <div class="d-flex align-items-center justify-content-between mb-2">
+              <div class="fs-sm text-muted">
+                Stato:
+                {% if mfa_enabled %}
+                  <span class="badge bg-success">Attiva</span>
+                {% else %}
+                  <span class="badge bg-secondary">Disattiva</span>
+                {% endif %}
+                · Recovery disponibili: <strong>{{ mfa_recovery_remaining or 0 }}</strong>
+              </div>
+              <div class="fs-xs text-muted">
+                Ultimo uso: {{ mfa_last_used_at.strftime('%d/%m/%Y %H:%M') if mfa_last_used_at else '—' }}
+              </div>
+            </div>
+
+            {% if mfa_recovery_codes_plain %}
+            <div class="alert alert-warning py-2">
+              <div class="fw-600 mb-1">Recovery code (visibili una sola volta)</div>
+              <div class="d-flex flex-wrap gap-2">
+                {% for code in mfa_recovery_codes_plain %}
+                  <code>{{ code }}</code>
+                {% endfor %}
+              </div>
+            </div>
+            {% endif %}
+
+            {% if mfa_setup_secret %}
+            <div class="alert alert-info py-2">
+              <div class="fw-600">Setup MFA in corso (scade tra {{ mfa_setup_expires_in }}s)</div>
+              <div class="mt-1">Secret: <code>{{ mfa_setup_secret }}</code></div>
+              {% if mfa_setup_uri %}
+              <div class="mt-1 fs-xs text-muted">URI otpauth: <code style="word-break:break-all;">{{ mfa_setup_uri }}</code></div>
+              {% endif %}
+            </div>
+            <form method="post" action="{{ url_for('auth.mfa_enable') }}" class="mb-3">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-7">
+                  <label class="form-label">Codice autenticatore</label>
+                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="Codice 6 cifre" required>
+                </div>
+                <div class="col-12 col-md-5">
+                  <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-check2-circle me-1"></i>Conferma attivazione</button>
+                </div>
+              </div>
+            </form>
+            {% endif %}
+
+            {% if not mfa_enabled %}
+            <form method="post" action="{{ url_for('auth.mfa_setup') }}" class="mb-2">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-7">
+                  <label class="form-label">Password attuale</label>
+                  <input type="password" name="current_password" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-12 col-md-5">
+                  <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-shield-plus me-1"></i>Avvia setup MFA</button>
+                </div>
+              </div>
+            </form>
+            {% else %}
+            <form method="post" action="{{ url_for('auth.mfa_regenerate_recovery') }}" class="mb-2">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Password attuale</label>
+                  <input type="password" name="current_password" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Codice MFA</label>
+                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="OTP o recovery" required>
+                </div>
+                <div class="col-12 col-md-4">
+                  <button type="submit" class="btn btn-outline-secondary btn-sm w-100"><i class="bi bi-arrow-repeat me-1"></i>Rigenera recovery</button>
+                </div>
+              </div>
+            </form>
+            <form method="post" action="{{ url_for('auth.mfa_disable') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="row g-2 align-items-end">
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Password attuale</label>
+                  <input type="password" name="current_password" class="form-control form-control-sm" required>
+                </div>
+                <div class="col-12 col-md-4">
+                  <label class="form-label">Codice MFA</label>
+                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="OTP o recovery" required>
+                </div>
+                <div class="col-12 col-md-4">
+                  <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-shield-x me-1"></i>Disattiva MFA</button>
+                </div>
+              </div>
+            </form>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="settings-section">
+          <div class="settings-section-header d-flex align-items-center justify-content-between">
+            <span><i class="bi bi-key me-2 text-primary"></i>API Key personali</span>
+            <span class="badge bg-light text-dark"><span id="apiKeyActiveCount">{{ active_personal_token_total }}</span> attive / <span id="apiKeyTotalCount">{{ personal_token_total }}</span> totali</span>
+          </div>
+          <div class="settings-section-body">
+            <div class="text-muted fs-sm mb-3">Crea chiavi dedicate per script o client esterni. La chiave completa viene mostrata subito dopo la creazione e non viene salvata in chiaro.</div>
+            <div class="alert alert-warning py-2 {% if not revealed_tokens %}d-none{% endif %}" id="apiKeyRevealBox">
+              <div class="fw-600 mb-1">Nuove chiavi mostrate una sola volta</div>
+              <div id="apiKeyRevealList">
+                {% for k in revealed_tokens %}
+                <div class="mb-2">
+                  <div class="fs-xs text-muted">{{ k.name }} · {{ k.prefix }}... · scade {{ k.expires_at[:10] if k.expires_at else 'mai' }}</div>
+                  <code style="word-break:break-all;">{{ k.token }}</code>
+                </div>
+                {% endfor %}
+              </div>
+              <div class="fs-xs mb-0">Salvale ora in un password manager: dopo questa vista non saranno più recuperabili.</div>
+            </div>
+
+            <div class="card card-soft border-0 mb-3">
+              <div class="card-body">
+                <form method="post" action="{{ url_for('auth.api_keys_create') }}" class="row g-2" id="apiKeyCreateForm">
+                  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                  <div class="col-12 col-lg-4">
+                    <label class="form-label">Nome chiave</label>
+                    <input type="text" name="name" class="form-control form-control-sm" maxlength="80" placeholder="es. local automation">
+                  </div>
+                  <div class="col-12 col-lg-3">
+                    <label class="form-label">Scadenza (giorni)</label>
+                    <input type="number" name="expiry_days" class="form-control form-control-sm" min="1" max="3650" placeholder="opzionale">
+                  </div>
+                  <div class="col-12 col-lg-5">
+                    <label class="form-label">Scopes</label>
+                    <input type="text" name="scopes" class="form-control form-control-sm font-monospace" value="profile:read" placeholder="profile:read, hello_world:read">
+                  </div>
+                  <div class="col-12 col-lg-6">
+                    <label class="form-label">Password attuale</label>
+                    <input type="password" name="current_password" class="form-control form-control-sm" required>
+                  </div>
+                  <div class="col-12 col-lg-3">
+                    <label class="form-label">MFA code</label>
+                    <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="se attivo">
+                  </div>
+                  <div class="col-12 col-lg-3">
+                    <label class="form-label">Recovery code</label>
+                    <input type="text" name="recovery_code" class="form-control form-control-sm" placeholder="alternativo">
+                  </div>
+                  <div class="col-12">
+                    <div class="form-text mb-2">Gli scope sono separati da virgola. Lascia la scadenza vuota per una chiave senza scadenza. Se MFA è attivo inserisci OTP o recovery code.</div>
+                    <button type="submit" class="btn btn-primary btn-sm" id="apiKeyCreateBtn">
+                      <i class="bi bi-plus-circle me-1"></i>Crea API key
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
+              <div class="fs-xs text-muted">Qui vedi tutte le tue chiavi personali. Quelle temporanee generate da API Tester restano escluse e sono gestite automaticamente.</div>
+              <div class="fs-xs text-muted"><span id="apiKeyActiveCountInline">{{ active_personal_token_total }}</span> attive</div>
+            </div>
+
+            <div class="table-responsive account-api-table">
+              <table class="table table-sm align-middle mb-0">
+                <thead>
+                  <tr>
+                    <th>Key</th>
+                    <th>Name</th>
+                    <th>Scopes</th>
+                    <th>Status</th>
+                    <th>Expires</th>
+                    <th>Last used</th>
+                    <th class="text-end">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="apiKeyTableBody">
+                  {% for token in personal_tokens %}
+                  <tr data-token-id="{{ token.id }}">
+                    <td><code>{{ token.prefix }}...</code></td>
+                    <td>
+                      <div class="fw-semibold">{{ token.name }}</div>
+                      <div class="text-muted fs-xs">{{ token.created_at[:16].replace('T', ' ') if token.created_at else '—' }}</div>
+                    </td>
+                    <td class="fs-xs text-muted">
+                      {% if token.scopes %}
+                        <code>{{ token.scopes | join(', ') }}</code>
+                      {% else %}
+                        <span>—</span>
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if token.status == 'active' %}
+                      <span class="badge bg-success">Attiva</span>
+                      {% elif token.status == 'expired' %}
+                      <span class="badge bg-secondary">Scaduta</span>
+                      {% else %}
+                      <span class="badge bg-danger">Revocata</span>
+                      {% endif %}
+                    </td>
+                    <td class="fs-xs text-muted">{{ token.expires_at[:10] if token.expires_at else 'Mai' }}</td>
+                    <td class="fs-xs text-muted">{{ token.last_used_at[:16].replace('T', ' ') if token.last_used_at else '—' }}</td>
+                    <td class="text-end">
+                      <form method="post" action="{{ url_for('auth.api_keys_revoke', token_id=token.id) }}" class="d-inline js-api-key-revoke-form"
+                            data-confirm-title="Revoke API key"
+                            data-confirm-message="Revocare la chiave personale {{ token.prefix }}... ?"
+                            data-confirm-label="Revoke"
+                            data-confirm-class="btn-danger">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="btn btn-outline-danger btn-sm" {% if not token.is_active %}disabled{% endif %}>
+                          <i class="bi bi-x-circle me-1"></i>Revoca
+                        </button>
+                      </form>
+                    </td>
+                  </tr>
+                  {% else %}
+                  <tr>
+                    <td colspan="7" class="text-center text-muted py-4">Nessuna API key personale.</td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script>
+  (function () {
+    "use strict";
+
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+    const createForm = document.getElementById("apiKeyCreateForm");
+    const createButton = document.getElementById("apiKeyCreateBtn");
+    const revealBox = document.getElementById("apiKeyRevealBox");
+    const revealList = document.getElementById("apiKeyRevealList");
+    const tableBody = document.getElementById("apiKeyTableBody");
+    const totalCount = document.getElementById("apiKeyTotalCount");
+    const activeCount = document.getElementById("apiKeyActiveCount");
+    const activeCountInline = document.getElementById("apiKeyActiveCountInline");
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, function (char) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] || char;
+      });
+    }
+
+    function formatDate(value, withTime) {
+      const raw = String(value || "").trim();
+      if (!raw) return "—";
+      const bits = raw.replace("T", " ").slice(0, withTime ? 16 : 10);
+      return bits || "—";
+    }
+
+    function renderRevealTokens(tokens) {
+      const rows = Array.isArray(tokens) ? tokens.filter(Boolean) : [];
+      if (!rows.length) {
+        revealBox.classList.add("d-none");
+        revealList.innerHTML = "";
+        return;
+      }
+      revealList.innerHTML = rows.map(function (token) {
+        return `
+          <div class="mb-2">
+            <div class="fs-xs text-muted">${escapeHtml(token.name)} · ${escapeHtml(token.prefix)}... · scade ${escapeHtml(token.expires_at ? formatDate(token.expires_at, false) : "mai")}</div>
+            <code style="word-break:break-all;">${escapeHtml(token.token)}</code>
+          </div>
+        `;
+      }).join("");
+      revealBox.classList.remove("d-none");
+    }
+
+    function statusBadge(token) {
+      if (token.status === "active") return '<span class="badge bg-success">Attiva</span>';
+      if (token.status === "expired") return '<span class="badge bg-secondary">Scaduta</span>';
+      return '<span class="badge bg-danger">Revocata</span>';
+    }
+
+    function revokeButton(token) {
+      const disabled = token.is_active ? "" : "disabled";
+      return `
+        <form method="post" action="/auth/api-keys/${token.id}/revoke" class="d-inline js-api-key-revoke-form" data-token-id="${token.id}">
+          <input type="hidden" name="csrf_token" value="${escapeHtml(csrfToken)}">
+          <button type="submit" class="btn btn-outline-danger btn-sm" ${disabled}>
+            <i class="bi bi-x-circle me-1"></i>Revoca
+          </button>
+        </form>
+      `;
+    }
+
+    function renderTokenRows(tokens) {
+      const rows = Array.isArray(tokens) ? tokens : [];
+      if (!rows.length) {
+        tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Nessuna API key personale.</td></tr>';
+        return;
+      }
+      tableBody.innerHTML = rows.map(function (token) {
+        const scopes = Array.isArray(token.scopes) && token.scopes.length
+          ? `<code>${escapeHtml(token.scopes.join(", "))}</code>`
+          : "<span>—</span>";
+        return `
+          <tr data-token-id="${token.id}">
+            <td><code>${escapeHtml(token.prefix)}...</code></td>
+            <td>
+              <div class="fw-semibold">${escapeHtml(token.name)}</div>
+              <div class="text-muted fs-xs">${escapeHtml(formatDate(token.created_at, true))}</div>
+            </td>
+            <td class="fs-xs text-muted">${scopes}</td>
+            <td>${statusBadge(token)}</td>
+            <td class="fs-xs text-muted">${escapeHtml(token.expires_at ? formatDate(token.expires_at, false) : "Mai")}</td>
+            <td class="fs-xs text-muted">${escapeHtml(formatDate(token.last_used_at, true))}</td>
+            <td class="text-end">${revokeButton(token)}</td>
+          </tr>
+        `;
+      }).join("");
+    }
+
+    function applyWorkspace(payload) {
+      totalCount.textContent = String(payload.personal_token_total || 0);
+      activeCount.textContent = String(payload.active_personal_token_total || 0);
+      activeCountInline.textContent = String(payload.active_personal_token_total || 0);
+      renderRevealTokens(payload.revealed_tokens || []);
+      renderTokenRows(payload.personal_tokens || []);
+    }
+
+    async function postJson(url, payload) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify(payload || {})
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error || "Request failed");
+      }
+      return data;
+    }
+
+    createForm.addEventListener("submit", async function (event) {
+      event.preventDefault();
+      const formData = new FormData(createForm);
+      createButton.disabled = true;
+      try {
+        const data = await postJson("{{ url_for('auth.api_keys_create_json') }}", {
+          name: formData.get("name"),
+          expiry_days: formData.get("expiry_days"),
+          scopes: formData.get("scopes"),
+          current_password: formData.get("current_password"),
+          otp_code: formData.get("otp_code"),
+          recovery_code: formData.get("recovery_code")
+        });
+        applyWorkspace(data);
+        createForm.reset();
+        const scopesInput = createForm.querySelector('input[name="scopes"]');
+        if (scopesInput) scopesInput.value = "profile:read";
+        if (window.showToast) window.showToast("API key creata", "success");
+      } catch (error) {
+        if (window.showToast) window.showToast(String(error.message || error), "danger");
+      } finally {
+        createButton.disabled = false;
+      }
+    });
+
+    document.addEventListener("submit", async function (event) {
+      const form = event.target;
+      if (!(form instanceof HTMLFormElement) || !form.classList.contains("js-api-key-revoke-form")) {
+        return;
+      }
+      event.preventDefault();
+      const tokenId = form.closest("tr")?.getAttribute("data-token-id") || form.dataset.tokenId || "";
+      if (!tokenId) return;
+      try {
+        const data = await postJson(`/auth/api-keys/${tokenId}/revoke.json`, {});
+        applyWorkspace(data);
+        if (window.showToast) window.showToast("API key revocata", "success");
+      } catch (error) {
+        if (window.showToast) window.showToast(String(error.message || error), "danger");
+      }
+    });
+  })();
+</script>
+{% endblock %}

@@ -1,0 +1,193 @@
+{
+  "lang.english": "English",
+  "lang.italian": "Italiano",
+  "nav.workspace": "Workspace",
+  "nav.dashboard": "Dashboard",
+  "nav.messages": "Messaggi",
+  "nav.account": "Account",
+  "nav.addons": "Add-on",
+  "nav.admin": "Amministrazione",
+  "nav.settings": "Impostazioni",
+  "nav.users": "Utenti",
+  "nav.logs": "Log",
+  "nav.comms": "Comunicazioni",
+  "nav.database": "Database",
+  "nav.deploy_health": "Deploy Health",
+  "nav.logout": "Esci",
+  "nav.privacy_policy": "Privacy Policy",
+  "nav.webapp_config": "Config WebApp",
+  "nav.event_logs": "Log eventi",
+  "cookie.notice": "Utilizziamo cookie tecnici essenziali per il funzionamento. Nessun cookie di profilazione.",
+  "cookie.accept": "Accetto",
+  "modal.confirm_action": "Conferma azione",
+  "modal.cancel": "Annulla",
+  "modal.confirm": "Conferma",
+  "auth.login_title": "Login",
+  "auth.login_subtitle": "Accedi al tuo account e continua nel workspace condiviso di WebApp.",
+  "auth.demo_seed": "Seed demo",
+  "auth.email_confirmation_pending": "Conferma email in attesa",
+  "auth.account_waiting_confirmation": "Questo account è in attesa della conferma email.",
+  "auth.resend_confirmation": "Reinvia email di conferma",
+  "auth.no_account": "Non hai un account?",
+  "auth.create_one": "Registrati",
+  "auth.register_title": "Registrazione",
+  "auth.register_subtitle": "Crea il tuo account utente",
+  "auth.min_8_chars": "Minimo 8 caratteri.",
+  "auth.accept_terms_full": "Ho letto e accetto Privacy Policy e termini.",
+  "auth.accept_terms_intro": "Ho letto e accetto la",
+  "auth.accept_terms_suffix": "e i termini.",
+  "auth.register_submit": "Registrati e invia conferma email",
+  "auth.have_account": "Hai già un account?",
+  "auth.sign_in": "Accedi",
+  "auth.invalid_input": "Dati non validi.",
+  "auth.account_locked": "Account temporaneamente bloccato. Riprova più tardi.",
+  "auth.invalid_credentials": "Email o password non validi.",
+  "auth.confirm_email_before_login": "Conferma la tua email prima di accedere.",
+  "auth.invalid_mfa_session": "Sessione MFA non valida. Effettua nuovamente il login.",
+  "auth.expired_mfa_session": "Sessione MFA scaduta. Effettua nuovamente il login.",
+  "auth.enter_valid_mfa": "Inserisci un codice MFA valido.",
+  "auth.too_many_mfa_attempts": "Troppi tentativi MFA falliti. Effettua nuovamente il login.",
+  "auth.invalid_mfa_code": "Codice MFA non valido.",
+  "auth.self_registration_disabled": "Registrazione self-service disabilitata.",
+  "auth.check_input_with_details": "Verifica i dati inseriti: ",
+  "auth.check_input": "Verifica i dati inseriti.",
+  "auth.generic_signup_notice": "Se i dati sono validi, riceverai una email con i prossimi passi.",
+  "auth.signup_created_email_failed": "Registrazione creata, ma invio email non riuscito. Contatta un admin.",
+  "auth.invalid_confirmation_link": "Link di conferma non valido o scaduto.",
+  "auth.user_not_found": "Utente non trovato.",
+  "auth.email_already_confirmed": "Email già confermata in precedenza.",
+  "auth.enter_valid_email": "Inserisci una email valida.",
+  "auth.resend_if_pending": "Se l'account esiste ed è in attesa, la mail di conferma è stata reinviata.",
+  "auth.mfa_title": "MFA",
+  "auth.mfa_required_for": "Verifica MFA richiesta per {email}",
+  "auth.code_6_digits": "Codice a 6 cifre",
+  "auth.or_recovery_code": "Oppure recovery code",
+  "auth.back_to_login": "Torna al login",
+  "auth.confirm_email_title": "Conferma la tua email",
+  "auth.check_inbox": "Controlla la tua casella email per attivare l'account.",
+  "auth.confirmation_email_sent": "Email di conferma inviata",
+  "auth.we_sent_to": "Abbiamo inviato il link di attivazione a {email}.",
+  "auth.we_sent_to_signup_address": "Abbiamo inviato il link di attivazione all'indirizzo usato in registrazione.",
+  "auth.account_locked_until_confirm": "L'account resta bloccato finché non usi il link di conferma. Se il messaggio non arriva, controlla lo spam o richiedi una nuova email dalla pagina di login.",
+  "auth.go_to_sign_in": "Vai al login",
+  "auth.back_to_sign_up": "Torna alla registrazione",
+  "errors.403_title": "Accesso negato",
+  "errors.404_title": "Pagina non trovata",
+  "errors.413_title": "Payload troppo grande",
+  "errors.429_title": "Troppe richieste",
+  "errors.500_title": "Errore interno del server",
+  "errors.maintenance_title": "Manutenzione",
+  "errors.forbidden_message": "Non hai i permessi necessari per visualizzare questa risorsa.",
+  "errors.payload_too_large_message": "La richiesta supera il limite consentito. Riduci la dimensione del file o del payload e riprova.",
+  "errors.too_many_requests_message": "Hai superato il limite di richieste. Attendi qualche secondo e riprova.",
+  "errors.retry": "Riprova",
+  "errors.back_home": "Torna alla dashboard",
+  "errors.maintenance_running": "Manutenzione in corso",
+  "errors.go_home": "Torna alla dashboard",
+  "errors.page_missing": "La pagina che cerchi non esiste o è stata spostata.",
+  "errors.internal_message": "Si è verificato un errore imprevisto. Riprova tra poco o contatta l'amministratore.",
+  "errors.maintenance_message": "Il sito è temporaneamente offline per lavori di manutenzione. Torna presto.",
+  "topbar.logout": "Esci",
+  "topbar.messages": "Messaggi",
+  "topbar.open_navigation": "Apri navigazione",
+  "topbar.close": "Chiudi",
+  "topbar.language": "Lingua",
+  "workspace.user": "workspace"
+  ,"dashboard.breadcrumb_admin": "Admin"
+  ,"dashboard.breadcrumb_home": "Home"
+  ,"dashboard.welcome": "Benvenuto"
+  ,"dashboard.operational_overview": "Panoramica operativa"
+  ,"dashboard.user_control_panel": "Ecco il tuo pannello di controllo"
+  ,"dashboard.system": "Sistema"
+  ,"dashboard.refresh": "Aggiorna"
+  ,"dashboard.load": "Carico"
+  ,"dashboard.cores": "Core"
+  ,"dashboard.uptime": "Uptime"
+  ,"dashboard.cpu_usage": "Uso CPU"
+  ,"dashboard.cpu_live": "CPU % (live)"
+  ,"dashboard.load_live": "Load 1m (live)"
+  ,"dashboard.last_60s": "ultimi ~60s"
+  ,"dashboard.current": "Attuale"
+  ,"dashboard.peak": "Picco"
+  ,"dashboard.ram": "RAM"
+  ,"dashboard.disk": "Disco"
+  ,"dashboard.application": "Applicazione"
+  ,"dashboard.connected": "connesso"
+  ,"dashboard.not_connected": "non connesso"
+  ,"dashboard.disabled": "disabilitato"
+  ,"dashboard.pending": "in coda"
+  ,"dashboard.active": "Attivi"
+  ,"dashboard.total_broadcasts": "Broadcast totali"
+  ,"dashboard.logins_today": "Logins (oggi)"
+  ,"dashboard.successes": "Successi"
+  ,"dashboard.logs_today": "Log (oggi)"
+  ,"dashboard.warn": "Warn"
+  ,"dashboard.err": "Err"
+  ,"dashboard.unread": "non letti"
+  ,"dashboard.open": "Apri"
+  ,"dashboard.user_kind": "Utente"
+  ,"dashboard.broadcast_kind": "Broadcast"
+  ,"dashboard.no_unread_messages": "Nessun messaggio non letto."
+  ,"dashboard.quick_actions": "Azioni rapide"
+  ,"database.open_page": "Apri pagina database"
+  ,"database.overview": "Panoramica"
+  ,"database.subtitle": "Panoramica runtime PostgreSQL, manutenzione, export e diagnostica in sola lettura."
+  ,"database.size": "Dimensione database"
+  ,"database.registered_tables": "Tabelle registrate"
+  ,"database.open_connections": "Connessioni aperte"
+  ,"database.settings_revision": "Revisione impostazioni"
+  ,"database.runtime_settings": "Impostazioni runtime"
+  ,"database.ping": "Ping"
+  ,"database.type_flush": "Scrivi FLUSH"
+  ,"database.confirm_flush": "Conferma flush"
+  ,"database.flush_namespace": "Svuota namespace"
+  ,"database.flush_help": "Il flush elimina solo le chiavi del namespace configurato."
+  ,"deploy_health.title": "Stato deploy"
+  ,"deploy_health.subtitle": "Checklist pratica per validare BASE_URL, host allow-list, header proxy, cookie e limiti runtime."
+  ,"deploy_health.production": "produzione"
+  ,"deploy_health.dev": "dev"
+  ,"deploy_health.warnings": "Avvisi"
+  ,"deploy_health.fix_before_done": "Correggi questi punti prima di considerarlo finito."
+  ,"deploy_health.looks_good": "Tutto ok."
+  ,"deploy_health.no_warnings": "Nessun avviso di deploy rilevato per il contesto corrente."
+  ,"deploy_health.request_host": "Richiesta e host"
+  ,"deploy_health.host": "Host"
+  ,"deploy_health.url_root": "URL root"
+  ,"deploy_health.client_ip": "IP client"
+  ,"deploy_health.allowed": "Consentito"
+  ,"deploy_health.yes": "sì"
+  ,"deploy_health.no": "no"
+  ,"deploy_health.allowlist": "Allowlist"
+  ,"deploy_health.base_url_proxy": "BASE_URL e proxy"
+  ,"deploy_health.proxy_tip": "Suggerimento: abilita PROXY_FIX_* solo dietro un reverse proxy che imposta questi header."
+  ,"deploy_health.cookie_flags": "Flag cookie"
+  ,"deploy_health.rate_limiting": "Rate limiting"
+  ,"deploy_health.enabled": "Abilitato"
+  ,"deploy_health.storage": "Storage"
+  ,"deploy_health.rate_limit_tip": "In produzione usa Redis o Memcached se hai più worker."
+  ,"deploy_health.attention_needed": "Le impostazioni di deploy richiedono attenzione"
+  ,"deploy_health.open_page": "Apri deploy health"
+  ,"settings.runtime_title": "Impostazioni runtime"
+  ,"settings.runtime_subtitle": "Configurazione runtime salvata a database per {app_name}. I segreti di deploy restano in .env."
+  ,"settings.db_backed": "DB-backed"
+  ,"settings.live_apply": "applicazione live"
+  ,"settings.revision": "revisione"
+  ,"settings.application": "Applicazione"
+  ,"settings.app_name": "Nome app"
+  ,"settings.version": "Versione"
+  ,"settings.base_url": "Base URL"
+  ,"settings.base_url_help": "Il Base URL runtime viene gestito fuori da questa schermata."
+  ,"settings.interface_language": "Lingua interfaccia"
+  ,"settings.interface_language_help": "Cambia la lingua della sessione corrente per l'interfaccia admin."
+  ,"settings.theme_visual": "Tema e visual"
+  ,"settings.visual_system": "Sistema visivo"
+  ,"settings.shell_styling": "Stile shell"
+  ,"settings.live_shell": "Shell live"
+  ,"settings.theme_copy": "Mantieni coerenti chrome dell'app, densità tipografica e limiti visual della dashboard."
+  ,"settings.topbar_sidebar_proportions": "Proporzioni topbar e sidebar"
+  ,"settings.readable_density": "Densità leggibile su desktop e mobile"
+  ,"settings.consistent_surfaces": "Superfici coerenti per card e dashboard"
+  ,"settings.color_layout_system": "Sistema colore e layout"
+  ,"settings.color_layout_copy": "Colori shell, spaziature e densità tipografica."
+  ,"settings.theme_layout_badge": "Tema + Layout"
+}

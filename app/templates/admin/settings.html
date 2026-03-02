@@ -1,0 +1,1319 @@
+{% extends "base.html" %}
+{% block title %} · {{ tr('settings.runtime_title', 'Runtime Settings') }}{% endblock %}
+{% block content %}
+<div data-page="admin-settings">
+<div class="page-header settings-page-header">
+  <div class="page-breadcrumb"><i class="bi bi-shield me-1"></i>{{ tr('nav.admin', 'Admin') }}</div>
+  <div class="settings-header-row">
+    <div class="min-w-0">
+      <h1>{{ tr('settings.runtime_title', 'Runtime settings') }}</h1>
+      <p class="text-muted settings-header-copy">{{ tr('settings.runtime_subtitle', 'Database-backed runtime configuration for {app_name}. Deploy-only secrets remain in .env.', app_name=cfg.SETTINGS.APP_NAME | default('WebApp')) }}</p>
+    </div>
+    <div class="settings-header-badges">
+      <span class="badge text-bg-light border">{{ tr('settings.db_backed', 'DB-backed') }}</span>
+      <span class="badge text-bg-light border">{{ tr('settings.live_apply', 'live apply') }}</span>
+      <span class="badge text-bg-light border">{{ tr('settings.revision', 'revision') }} {{ cfg.SETTINGS.APP_VERSION | default('1.0.0') }}</span>
+    </div>
+  </div>
+</div>
+
+<form id="addonsInstallForm" method="post" action="{{ url_for('admin.addons_install') }}" enctype="multipart/form-data" class="d-none">
+  {{ addon_form.csrf_token }}
+  <input type="file" name="addon_zip" id="addonZipInput" accept=".zip">
+</form>
+
+<form id="settingsImportForm" method="post" action="{{ url_for('admin.settings_import') }}" enctype="multipart/form-data" class="d-none">
+  {{ form.csrf_token }}
+  <input type="file" name="settings_json" id="settingsImportHiddenInput" accept=".json,application/json">
+</form>
+
+<form method="post" novalidate id="configForm" class="config-webapp">
+  {{ form.csrf_token }}
+
+  <div class="adaptive-card-grid adaptive-card-grid--compact mb-3 settings-kpi-row">
+    <div>
+      <div class="stat-card success stat-card-compact settings-kpi-card settings-kpi-card-modern">
+        <div class="settings-kpi-strip"></div>
+        <div class="settings-kpi-top">
+          <div class="settings-kpi-topline">
+            <div class="settings-kpi-eyebrow">Add-ons</div>
+            <div class="settings-kpi-helper">live runtime</div>
+          </div>
+          <span class="settings-kpi-icon-wrap"><i class="bi bi-puzzle settings-kpi-icon"></i></span>
+        </div>
+        <div class="settings-kpi-body">
+          <div class="stat-val" id="addonEnabledCountKpi">0</div>
+          <div class="stat-lbl">Enabled add-ons</div>
+        </div>
+        <div class="settings-kpi-meta">Navigation and route modules currently active.</div>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card warning stat-card-compact settings-kpi-card settings-kpi-card-modern">
+        <div class="settings-kpi-strip"></div>
+        <div class="settings-kpi-top">
+          <div class="settings-kpi-topline">
+            <div class="settings-kpi-eyebrow">Release</div>
+            <div class="settings-kpi-helper">identity</div>
+          </div>
+          <span class="settings-kpi-icon-wrap"><i class="bi bi-box-seam settings-kpi-icon"></i></span>
+        </div>
+        <div class="settings-kpi-body">
+          <div class="stat-val settings-kpi-code">{{ cfg.SETTINGS.APP_VERSION | default('1.0.0') }}</div>
+          <div class="stat-lbl">App version</div>
+        </div>
+        <div class="settings-kpi-meta">{{ cfg.SETTINGS.APP_NAME | default('WebApp') }}</div>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card stat-card-compact settings-kpi-card settings-kpi-card-modern">
+        <div class="settings-kpi-strip"></div>
+        <div class="settings-kpi-top">
+          <div class="settings-kpi-topline">
+            <div class="settings-kpi-eyebrow">Source</div>
+            <div class="settings-kpi-helper">storage</div>
+          </div>
+          <span class="settings-kpi-icon-wrap"><i class="bi bi-database settings-kpi-icon"></i></span>
+        </div>
+        <div class="settings-kpi-body">
+          <div class="stat-val settings-kpi-code">DB</div>
+          <div class="stat-lbl">Runtime source</div>
+        </div>
+        <div class="settings-kpi-meta">Live settings come from PostgreSQL, not from the seed file.</div>
+      </div>
+    </div>
+    <div>
+      <div class="stat-card stat-card-compact settings-kpi-card settings-kpi-card-modern">
+        <div class="settings-kpi-strip"></div>
+        <div class="settings-kpi-top">
+          <div class="settings-kpi-topline">
+            <div class="settings-kpi-eyebrow">Portability</div>
+            <div class="settings-kpi-helper">snapshot</div>
+          </div>
+          <span class="settings-kpi-icon-wrap"><i class="bi bi-arrow-left-right settings-kpi-icon"></i></span>
+        </div>
+        <div class="settings-kpi-body">
+          <div class="stat-val settings-kpi-code">JSON</div>
+          <div class="stat-lbl">Import / export</div>
+        </div>
+        <div class="settings-kpi-meta">Export the live config or safely apply a stored snapshot.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 settings-layout-row">
+    <div class="col-12 col-lg-8 col-xxl-9 settings-main-col">
+      <div class="settings-section-stack">
+      <div class="card mb-3 settings-panel-card">
+        <div class="card-header"><i class="bi bi-app me-2 text-primary"></i>{{ tr('settings.application', 'Application') }}</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-12 col-md-4">
+              <label class="form-label">{{ tr('settings.app_name', 'App name') }}</label>
+              <input type="text" class="form-control form-control-sm" name="st_app_name" value="{{ cfg.SETTINGS.APP_NAME | default('WebApp') }}" maxlength="80">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">{{ tr('settings.version', 'Version') }}</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="st_app_version" value="{{ cfg.SETTINGS.APP_VERSION | default('1.0.0') }}" maxlength="32">
+            </div>
+            <div class="col-12 col-md-5">
+              <label class="form-label">{{ tr('settings.base_url', 'Base URL') }}</label>
+              <input type="text" class="form-control form-control-sm font-monospace" value="{{ cfg.SETTINGS.BASE_URL | default('http://127.0.0.1:5000') }}" disabled>
+              <div class="form-text">{{ tr('settings.base_url_help', 'Runtime base URL is managed outside this screen.') }}</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">{{ tr('settings.interface_language', 'Interface language') }}</label>
+              <div class="d-flex flex-wrap gap-2">
+                <a class="btn btn-sm {% if g.ui_lang == 'en' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('main.set_language', lang='en', next=url_for('admin.settings')) }}">English</a>
+                <a class="btn btn-sm {% if g.ui_lang == 'it' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('main.set_language', lang='it', next=url_for('admin.settings')) }}">Italiano</a>
+              </div>
+              <div class="form-text">{{ tr('settings.interface_language_help', 'Changes the current session language for the admin interface.') }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3 settings-panel-card">
+        <div class="card-header"><i class="bi bi-shield-lock me-2 text-danger"></i>Security</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-12 col-md-4">
+              <label class="form-label">Login rate limit</label>
+              <input type="text" class="form-control form-control-sm" name="sec_login_rate_limit" value="{{ cfg.SETTINGS.SECURITY.LOGIN_RATE_LIMIT }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Session timeout (min)</label>
+              <input type="number" class="form-control form-control-sm" name="sec_session_timeout_min" value="{{ cfg.SETTINGS.SECURITY.SESSION_TIMEOUT_MIN }}" min="5" max="43200">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">CSRF TTL (sec)</label>
+              <input type="number" class="form-control form-control-sm" name="sec_csrf_time_limit_sec" value="{{ cfg.SETTINGS.SECURITY.CSRF_TIME_LIMIT_SEC }}" min="60" max="86400">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Allowed hosts</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="sec_allowed_hosts" value="{{ cfg.SETTINGS.SECURITY.ALLOWED_HOSTS }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Max content length</label>
+              <input type="number" class="form-control form-control-sm" name="sec_max_content_length" value="{{ cfg.SETTINGS.SECURITY.MAX_CONTENT_LENGTH }}" min="1024">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Max form memory</label>
+              <input type="number" class="form-control form-control-sm" name="sec_max_form_memory_size" value="{{ cfg.SETTINGS.SECURITY.MAX_FORM_MEMORY_SIZE }}" min="1024">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">API token touch interval</label>
+              <input type="number" class="form-control form-control-sm" name="sec_api_token_touch_interval_sec" value="{{ cfg.SETTINGS.SECURITY.API_TOKEN_TOUCH_INTERVAL_SEC }}" min="1" max="3600">
+            </div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="sec_csrf_enabled" value="1" {% if cfg.SETTINGS.SECURITY.CSRF_ENABLED %}checked{% endif %}><label class="form-check-label">CSRF enabled</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="sec_security_audit_enabled" value="1" {% if cfg.SETTINGS.SECURITY.SECURITY_AUDIT_ENABLED %}checked{% endif %}><label class="form-check-label">Security audit</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="sec_block_trace_track" value="1" {% if cfg.SETTINGS.SECURITY.BLOCK_TRACE_TRACK %}checked{% endif %}><label class="form-check-label">Block trace/track</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="sec_mask_sensitive_log_data" value="1" {% if cfg.SETTINGS.SECURITY.MASK_SENSITIVE_LOG_DATA %}checked{% endif %}><label class="form-check-label">Mask sensitive logs</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="sec_allow_log_text_content" value="1" {% if cfg.SETTINGS.SECURITY.ALLOW_LOG_TEXT_CONTENT %}checked{% endif %}><label class="form-check-label">Allow log text content</label></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3 settings-panel-card">
+        <div class="card-header"><i class="bi bi-person-lock me-2 text-warning"></i>Authentication</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-12 col-md-4">
+              <label class="form-label">Max failed logins</label>
+              <input type="number" class="form-control form-control-sm" name="auth_max_failed_login_attempts" value="{{ cfg.SETTINGS.AUTH.MAX_FAILED_LOGIN_ATTEMPTS }}" min="1" max="100">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Lockout minutes</label>
+              <input type="number" class="form-control form-control-sm" name="auth_lockout_minutes" value="{{ cfg.SETTINGS.AUTH.LOCKOUT_MINUTES }}" min="1" max="10080">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Signup cooldown (sec)</label>
+              <input type="number" class="form-control form-control-sm" name="auth_signup_retry_cooldown_sec" value="{{ cfg.SETTINGS.AUTH.SIGNUP_RETRY_COOLDOWN_SEC }}" min="10" max="86400">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">MFA issuer</label>
+              <input type="text" class="form-control form-control-sm" name="auth_mfa_issuer" value="{{ cfg.SETTINGS.AUTH.MFA_ISSUER }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Recovery codes count</label>
+              <input type="number" class="form-control form-control-sm" name="auth_mfa_recovery_codes_count" value="{{ cfg.SETTINGS.AUTH.MFA_RECOVERY_CODES_COUNT }}" min="1" max="50">
+            </div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="auth_self_registration_enabled" value="1" {% if cfg.SETTINGS.AUTH.SELF_REGISTRATION_ENABLED %}checked{% endif %}><label class="form-check-label">Self registration</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="auth_email_confirm_required" value="1" {% if cfg.SETTINGS.AUTH.EMAIL_CONFIRM_REQUIRED %}checked{% endif %}><label class="form-check-label">Email confirmation</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="auth_send_api_key_notice_on_signin" value="1" {% if cfg.SETTINGS.AUTH.SEND_API_KEY_NOTICE_ON_SIGNIN %}checked{% endif %}><label class="form-check-label">Notice on sign-in</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="auth_mfa_enabled" value="1" {% if cfg.SETTINGS.AUTH.MFA_ENABLED %}checked{% endif %}><label class="form-check-label">MFA enabled</label></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3 settings-panel-card">
+        <div class="card-header"><i class="bi bi-envelope me-2 text-success"></i>Email</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-12 col-md-4">
+              <label class="form-label">Mode</label>
+              <select class="form-select form-select-sm" name="email_mode">
+                {% for mode in ['sendmail', 'smtp', 'disabled'] %}
+                <option value="{{ mode }}" {% if cfg.SETTINGS.EMAIL.MODE == mode %}selected{% endif %}>{{ mode }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">From email</label>
+              <input type="email" class="form-control form-control-sm" name="email_from_email" value="{{ cfg.SETTINGS.EMAIL.FROM_EMAIL }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Reply-to</label>
+              <input type="email" class="form-control form-control-sm" name="email_reply_to" value="{{ cfg.SETTINGS.EMAIL.REPLY_TO }}">
+            </div>
+            <div class="col-12 col-md-5">
+              <label class="form-label">From name</label>
+              <input type="text" class="form-control form-control-sm" name="email_from_name" value="{{ cfg.SETTINGS.EMAIL.FROM_NAME }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Confirmation TTL (min)</label>
+              <input type="number" class="form-control form-control-sm" name="email_confirmation_token_ttl_min" value="{{ cfg.SETTINGS.EMAIL.CONFIRMATION_TOKEN_TTL_MIN }}" min="1" max="10080">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Sendmail path</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="email_sendmail_path" value="{{ cfg.SETTINGS.EMAIL.SENDMAIL_PATH }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">SMTP host</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="email_smtp_host" value="{{ cfg.SETTINGS.EMAIL.SMTP_HOST }}">
+            </div>
+            <div class="col-6 col-md-2">
+              <label class="form-label">SMTP port</label>
+              <input type="number" class="form-control form-control-sm" name="email_smtp_port" value="{{ cfg.SETTINGS.EMAIL.SMTP_PORT }}" min="1" max="65535">
+            </div>
+            <div class="col-6 col-md-3">
+              <label class="form-label">SMTP username</label>
+              <input type="text" class="form-control form-control-sm" name="email_smtp_username" value="{{ cfg.SETTINGS.EMAIL.SMTP_USERNAME }}">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">SMTP password</label>
+              <input type="password" class="form-control form-control-sm" name="email_smtp_password" value="{{ cfg.SETTINGS.EMAIL.SMTP_PASSWORD }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Legacy SMTP config path</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="email_config_path" value="{{ cfg.SETTINGS.EMAIL.CONFIG_PATH }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Public base URL</label>
+              <input type="url" class="form-control form-control-sm" name="email_public_base_url" value="{{ cfg.SETTINGS.EMAIL.PUBLIC_BASE_URL }}">
+            </div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="email_enabled" value="1" {% if cfg.SETTINGS.EMAIL.ENABLED %}checked{% endif %}><label class="form-check-label">Email enabled</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="email_allow_broadcast_email" value="1" {% if cfg.SETTINGS.EMAIL.ALLOW_BROADCAST_EMAIL %}checked{% endif %}><label class="form-check-label">Broadcast email</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="email_send_api_key_on_confirmation" value="1" {% if cfg.SETTINGS.EMAIL.SEND_API_KEY_ON_CONFIRMATION %}checked{% endif %}><label class="form-check-label">Send API key on confirmation</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="email_smtp_use_tls" value="1" {% if cfg.SETTINGS.EMAIL.SMTP_USE_TLS %}checked{% endif %}><label class="form-check-label">SMTP STARTTLS</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="email_smtp_use_ssl" value="1" {% if cfg.SETTINGS.EMAIL.SMTP_USE_SSL %}checked{% endif %}><label class="form-check-label">SMTP SSL</label></div></div>
+            <div class="col-6 col-md-4">
+              <label class="form-label">SMTP timeout (sec)</label>
+              <input type="number" class="form-control form-control-sm" name="email_smtp_timeout_sec" value="{{ cfg.SETTINGS.EMAIL.SMTP_TIMEOUT_SEC }}" min="3" max="120">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3 settings-panel-card">
+        <div class="card-header"><i class="bi bi-braces-asterisk me-2 text-primary"></i>API platform</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <label class="form-label">API public base URL</label>
+              <input type="url" class="form-control form-control-sm font-monospace" name="api_public_base_url" value="{{ cfg.SETTINGS.API.PUBLIC_BASE_URL | default(cfg.SETTINGS.BASE_URL ~ '/api') }}" readonly disabled>
+              <div class="form-text">Derived automatically from the main WebApp base URL. No separate API server is required.</div>
+            </div>
+            <div class="col-12 col-md-2">
+              <label class="form-label">Docs path</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="api_docs_path" value="{{ cfg.SETTINGS.API.DOCS_PATH | default('/docs') }}">
+            </div>
+            <div class="col-12 col-md-2">
+              <label class="form-label">OpenAPI path</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="api_openapi_path" value="{{ cfg.SETTINGS.API.OPENAPI_PATH | default('/openapi.json') }}">
+            </div>
+            <div class="col-12 col-md-2">
+              <label class="form-label">ReDoc path</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="api_redoc_path" value="{{ cfg.SETTINGS.API.REDOC_PATH | default('/redoc') }}">
+            </div>
+            <div class="col-12">
+              <label class="form-label">CORS allowed origins</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="api_cors_allowed_origins" value="{{ cfg.SETTINGS.API.CORS_ALLOWED_ORIGINS | default('') }}">
+              <div class="form-text">Leave empty to deny cross-origin browser access by default.</div>
+            </div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-6 col-md-3"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="api_enabled" value="1" {% if cfg.SETTINGS.API.ENABLED | default(true) %}checked{% endif %}><label class="form-check-label">API enabled</label></div></div>
+            <div class="col-6 col-md-3"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="api_docs_enabled" value="1" {% if cfg.SETTINGS.API.DOCS_ENABLED | default(true) %}checked{% endif %}><label class="form-check-label">Swagger docs</label></div></div>
+            <div class="col-6 col-md-3"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="api_openapi_enabled" value="1" {% if cfg.SETTINGS.API.OPENAPI_ENABLED | default(true) %}checked{% endif %}><label class="form-check-label">OpenAPI JSON</label></div></div>
+            <div class="col-6 col-md-3"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="api_redoc_enabled" value="1" {% if cfg.SETTINGS.API.REDOC_ENABLED | default(false) %}checked{% endif %}><label class="form-check-label">ReDoc</label></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3 settings-panel-card">
+        <div class="card-header"><i class="bi bi-list-check me-2 text-info"></i>Logging and dashboard</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-12 col-md-3">
+              <label class="form-label">Log level</label>
+              <select class="form-select form-select-sm" name="log_level">
+                {% for level in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] %}
+                <option value="{{ level }}" {% if cfg.SETTINGS.LOGGING.LEVEL == level %}selected{% endif %}>{{ level }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">DB log level</label>
+              <select class="form-select form-select-sm" name="log_db_level">
+                {% for level in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] %}
+                <option value="{{ level }}" {% if cfg.SETTINGS.LOGGING.DB_LEVEL == level %}selected{% endif %}>{{ level }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">DB burst max/key</label>
+              <input type="number" class="form-control form-control-sm" name="log_db_burst_max_per_key" value="{{ cfg.SETTINGS.LOGGING.DB_BURST_MAX_PER_KEY }}" min="1" max="100">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">DB burst window (sec)</label>
+              <input type="number" class="form-control form-control-sm" name="log_db_burst_window_sec" value="{{ cfg.SETTINGS.LOGGING.DB_BURST_WINDOW_SEC }}" min="5" max="3600">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Max bytes</label>
+              <input type="number" class="form-control form-control-sm" name="log_max_bytes" value="{{ cfg.SETTINGS.LOGGING.MAX_BYTES }}" min="65536">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Backups</label>
+              <input type="number" class="form-control form-control-sm" name="log_backup_count" value="{{ cfg.SETTINGS.LOGGING.BACKUP_COUNT }}" min="1" max="100">
+            </div>
+            <div class="col-12 col-md-8">
+              <label class="form-label">Log file</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="log_file" value="{{ cfg.SETTINGS.LOGGING.FILE }}">
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">Max context chars</label>
+              <input type="number" class="form-control form-control-sm" name="log_max_context_string_len" value="{{ cfg.SETTINGS.LOGGING.MAX_CONTEXT_STRING_LEN }}" min="120" max="12000">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">DB skip event prefixes</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="log_db_skip_event_prefixes" value="{{ cfg.SETTINGS.LOGGING.DB_SKIP_EVENT_PREFIXES }}">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">DB skip logger prefixes</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="log_db_skip_logger_prefixes" value="{{ cfg.SETTINGS.LOGGING.DB_SKIP_LOGGER_PREFIXES }}">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Audit DB level</label>
+              <select class="form-select form-select-sm" name="log_audit_db_level">
+                {% for level in ['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'] %}
+                <option value="{{ level }}" {% if cfg.SETTINGS.LOGGING.AUDIT_DB_LEVEL == level %}selected{% endif %}>{{ level }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Audit burst max/key</label>
+              <input type="number" class="form-control form-control-sm" name="log_audit_db_burst_max_per_key" value="{{ cfg.SETTINGS.LOGGING.AUDIT_DB_BURST_MAX_PER_KEY }}" min="1" max="100">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Audit burst window (sec)</label>
+              <input type="number" class="form-control form-control-sm" name="log_audit_db_burst_window_sec" value="{{ cfg.SETTINGS.LOGGING.AUDIT_DB_BURST_WINDOW_SEC }}" min="5" max="3600">
+            </div>
+            <div class="col-12 col-md-3">
+              <label class="form-label">Dashboard auto-refresh (sec)</label>
+              <input type="number" class="form-control form-control-sm" name="dash_auto_refresh_sec" value="{{ cfg.SETTINGS.DASHBOARD.auto_refresh_sec }}" min="3" max="3600">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Audit DB skip event prefixes</label>
+              <input type="text" class="form-control form-control-sm font-monospace" name="log_audit_db_skip_event_prefixes" value="{{ cfg.SETTINGS.LOGGING.AUDIT_DB_SKIP_EVENT_PREFIXES }}">
+            </div>
+          </div>
+          <div class="row g-2 mt-1">
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="log_db_enabled" value="1" {% if cfg.SETTINGS.LOGGING.DB_ENABLED %}checked{% endif %}><label class="form-check-label">Persist logs to DB</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="log_audit_db_enabled" value="1" {% if cfg.SETTINGS.LOGGING.AUDIT_DB_ENABLED %}checked{% endif %}><label class="form-check-label">Persist audit to DB</label></div></div>
+            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="dash_auto_refresh_enabled" value="1" {% if cfg.SETTINGS.DASHBOARD.auto_refresh_enabled %}checked{% endif %}><label class="form-check-label">Dashboard auto-refresh</label></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3 settings-panel-card settings-theme-card">
+        <div class="card-header"><i class="bi bi-palette me-2 text-primary"></i>{{ tr('settings.theme_visual', 'Theme and visual') }}</div>
+        <div class="card-body">
+          <div class="settings-theme-shell">
+            <div class="settings-theme-intro">
+              <div class="settings-theme-intro-copy">
+                <div class="settings-theme-eyebrow">{{ tr('settings.visual_system', 'Visual system') }}</div>
+                <div class="settings-theme-title-row">
+                  <div class="settings-theme-title">{{ tr('settings.shell_styling', 'Shell styling') }}</div>
+                  <span class="settings-theme-intro-badge"><i class="bi bi-window-sidebar me-1"></i>{{ tr('settings.live_shell', 'Live shell') }}</span>
+                </div>
+                <div class="settings-theme-copy">{{ tr('settings.theme_copy', 'Keep the app chrome, typography density, and dashboard caps aligned with the runtime UI.') }}</div>
+                <div class="settings-theme-points">
+                  <span><i class="bi bi-check2-circle"></i>{{ tr('settings.topbar_sidebar_proportions', 'Topbar and sidebar proportions') }}</span>
+                  <span><i class="bi bi-check2-circle"></i>{{ tr('settings.readable_density', 'Readable density on desktop and mobile') }}</span>
+                  <span><i class="bi bi-check2-circle"></i>{{ tr('settings.consistent_surfaces', 'Consistent card and dashboard surfaces') }}</span>
+                </div>
+              </div>
+              <div class="settings-theme-preview">
+                <div class="settings-preview-card">
+                  <div class="settings-preview-topbar"></div>
+                  <div class="settings-preview-body">
+                    <div class="settings-preview-sidebar"></div>
+                    <div class="settings-preview-surface">
+                      <div class="settings-preview-shell-row">
+                        <div class="settings-preview-dot"></div>
+                        <div class="settings-preview-dot is-soft"></div>
+                        <div class="settings-preview-dot is-soft"></div>
+                      </div>
+                      <div class="settings-preview-chip"></div>
+                      <div class="settings-preview-chip is-muted"></div>
+                      <div class="settings-preview-panel is-thin"></div>
+                      <div class="settings-preview-panel"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="settings-theme-grid">
+            <section class="settings-theme-panel settings-theme-panel--full">
+              <div class="settings-theme-panel-head">
+                <div>
+                  <strong>{{ tr('settings.color_layout_system', 'Color and layout system') }}</strong>
+                  <div class="settings-theme-panel-copy">{{ tr('settings.color_layout_copy', 'Core shell colors, spacing, and typography density.') }}</div>
+                </div>
+                <span class="settings-theme-badge">{{ tr('settings.theme_layout_badge', 'Theme + Layout') }}</span>
+              </div>
+              <div class="settings-theme-fields settings-theme-fields--colors">
+                <div class="settings-theme-field"><label class="form-label">Brand</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.brand_color }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_brand_color" value="{{ theme_raw.brand_color }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Accent</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.accent_light }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_accent_light" value="{{ theme_raw.accent_light }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Text</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.text_color }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_text_color" value="{{ theme_raw.text_color }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Muted text</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.text_muted }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_text_muted" value="{{ theme_raw.text_muted }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Body background</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.body_bg }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_body_bg" value="{{ theme_raw.body_bg }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Card background</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.card_bg }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_card_bg" value="{{ theme_raw.card_bg }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Topbar background</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.topbar_bg }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_topbar_bg" value="{{ theme_raw.topbar_bg }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Sidebar background</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.sidebar_bg }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_sidebar_bg" value="{{ theme_raw.sidebar_bg }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Sidebar width</label><input type="number" class="form-control form-control-sm" name="th_sidebar_width_px" value="{{ theme_raw.sidebar_width_px }}" min="220" max="360"></div>
+                <div class="settings-theme-field"><label class="form-label">Topbar height</label><input type="number" class="form-control form-control-sm" name="th_topbar_height_px" value="{{ theme_raw.topbar_height_px }}" min="48" max="88"></div>
+                <div class="settings-theme-field"><label class="form-label">Radius</label><input type="number" class="form-control form-control-sm" name="th_radius_px" value="{{ theme_raw.radius_px }}" min="6" max="18"></div>
+                <div class="settings-theme-field"><label class="form-label">Base font size</label><input type="number" class="form-control form-control-sm" name="th_font_size_base_px" value="{{ theme_raw.font_size_base_px }}" min="12" max="18"></div>
+              </div>
+            </section>
+            <section class="settings-theme-panel settings-theme-panel--full">
+              <div class="settings-theme-panel-head">
+                <div>
+                  <strong>Dashboard visual caps</strong>
+                  <div class="settings-theme-panel-copy">UI scaling limits for cards and recent activity.</div>
+                </div>
+                <span class="settings-theme-badge">Visual</span>
+              </div>
+              <div class="settings-theme-fields settings-theme-fields--visual">
+                <div class="settings-theme-field"><label class="form-label">Recent events max</label><input type="number" class="form-control form-control-sm" name="vis_recent_events_max" value="{{ visual_raw.DASHBOARD.recent_events_max }}" min="4" max="50"></div>
+                <div class="settings-theme-field"><label class="form-label">Recent events height</label><input type="number" class="form-control form-control-sm" name="vis_recent_events_max_height_px" value="{{ visual_raw.DASHBOARD.recent_events_max_height_px }}" min="180" max="900"></div>
+                <div class="settings-theme-field"><label class="form-label">KPI max users</label><input type="number" class="form-control form-control-sm" name="vis_kpi_users" value="{{ visual_raw.DASHBOARD.kpi_max.users }}" min="1"></div>
+                <div class="settings-theme-field"><label class="form-label">KPI max messages</label><input type="number" class="form-control form-control-sm" name="vis_kpi_messages" value="{{ visual_raw.DASHBOARD.kpi_max.messages }}" min="1"></div>
+                <div class="settings-theme-field"><label class="form-label">KPI max logins</label><input type="number" class="form-control form-control-sm" name="vis_kpi_logins" value="{{ visual_raw.DASHBOARD.kpi_max.logins }}" min="1"></div>
+                <div class="settings-theme-field"><label class="form-label">KPI max logs</label><input type="number" class="form-control form-control-sm" name="vis_kpi_logs" value="{{ visual_raw.DASHBOARD.kpi_max.logs }}" min="1"></div>
+                <div class="settings-theme-field"><label class="form-label">KPI max DB MB</label><input type="number" class="form-control form-control-sm" name="vis_kpi_db_mb" value="{{ visual_raw.DASHBOARD.kpi_max.db_mb }}" min="1"></div>
+              </div>
+            </section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card mb-3 settings-panel-card settings-install-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <span><i class="bi bi-cloud-arrow-up me-2 text-success"></i>Install add-on ZIP</span>
+          <span class="badge bg-danger-subtle text-danger-emphasis badge-compact">high risk</span>
+        </div>
+        <div class="card-body d-grid gap-2">
+          <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="small text-muted">
+              Open the installer modal to validate a ZIP package, upload it with progress feedback, persist runtime settings, and request a restart when needed.
+            </div>
+            <span class="badge {% if current_user.mfa_enabled %}bg-success-subtle text-success-emphasis{% else %}bg-warning-subtle text-warning-emphasis{% endif %}">
+              MFA {% if current_user.mfa_enabled %}active{% else %}recommended{% endif %}
+            </span>
+          </div>
+          <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal" data-bs-target="#addonInstallModal">
+            <i class="bi bi-plus-circle me-1"></i>Open installer
+          </button>
+          <div class="text-muted small">ZIP must contain a single add-on root folder. Only safe text assets are accepted, symlinks are blocked, and oversized archives are rejected before install.</div>
+          <div class="alert alert-danger small mb-0">L'installazione di add-on equivale a esecuzione di codice arbitrario sul server. Procedi solo con pacchetti fidati. MFA resta fortemente consigliato anche se non obbligatorio.</div>
+        </div>
+      </div>
+
+      <div class="card mb-3 settings-panel-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <span><i class="bi bi-puzzle me-2 text-success"></i>Add-ons</span>
+          <span class="badge bg-success-subtle text-success-emphasis badge-compact" id="addonEnabledCount">0 enabled</span>
+        </div>
+        <div class="card-body p-0 d-none d-lg-block">
+          <div class="table-responsive settings-addon-table-wrap">
+            <table class="table table-sm table-compact table-hover align-middle mb-0 config-policy-table">
+              <colgroup><col><col style="width:110px;"><col style="width:170px;"><col class="config-col-toggle"></colgroup>
+              <thead><tr><th>Add-on</th><th class="text-center">Config</th><th class="text-center">Actions</th><th class="text-center config-th-toggle">Enabled</th></tr></thead>
+              <tbody>
+                {% set addons = (cfg.ADDONS.ITEMS if cfg.ADDONS and cfg.ADDONS.ITEMS else {}) %}
+                {% for a in addon_registry %}
+                {% set key = a.id %}
+                {% set row = addons.get(key, {'enabled': True}) %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-start gap-2">
+                      <i class="bi bi-{{ a.icon }} text-muted mt-1"></i>
+                      <div>
+                        <strong>{{ a.label }}</strong>
+                        <div class="form-text mb-0">{{ a.hint }} · <code>{{ key }}</code></div>
+                        <div class="form-text mb-0">User view is visible to users and admins. Admin view stays admin-only.</div>
+                        {% if a.load_error %}
+                        <div class="form-text text-danger mb-0">Load error: {{ a.load_error }}</div>
+                        {% elif a.pending_restart %}
+                        <div class="form-text text-warning mb-0">Pending restart to fully activate new runtime routes.</div>
+                        {% elif a.is_loaded %}
+                        <div class="form-text text-success mb-0">Loaded in the current runtime.</div>
+                        {% elif a.is_discovered %}
+                        <div class="form-text text-warning mb-0">Installed on disk but not active in the current runtime.</div>
+                        {% endif %}
+                      </div>
+                    </div>
+                  </td>
+                  <td class="text-center">
+                    <button type="button" class="btn btn-outline-primary btn-sm py-0 px-2" data-bs-toggle="modal" data-bs-target="#addonCfgModal_{{ key }}">
+                      <i class="bi bi-sliders me-1"></i>Config
+                    </button>
+                  </td>
+                  <td class="text-center">
+                    <div class="d-inline-flex flex-wrap gap-1 justify-content-center">
+                      <a href="{{ url_for('admin.addons_export', addon_id=key) }}" class="btn btn-outline-secondary btn-sm py-0 px-2">
+                        <i class="bi bi-download"></i>
+                      </a>
+                      {% if not a.is_builtin %}
+                      <button type="submit" class="btn btn-outline-danger btn-sm py-0 px-2 js-confirm-submit" formaction="{{ url_for('admin.addons_uninstall', addon_id=key) }}" formmethod="post" data-confirm-title="Delete add-on" data-confirm-label="Delete add-on" data-confirm-class="btn-danger" data-confirm-message="Delete add-on {{ key }}? This removes its folder from disk.">
+                        <i class="bi bi-trash"></i>
+                      </button>
+                      {% else %}
+                      <button type="button" class="btn btn-outline-secondary btn-sm py-0 px-2" disabled title="Built-in add-on">
+                        <i class="bi bi-lock"></i>
+                      </button>
+                      {% endif %}
+                    </div>
+                  </td>
+                  <td class="text-center config-td-toggle">
+                    <div class="form-check form-switch d-inline-flex config-switch-wrap">
+                      <input class="form-check-input addon-enabled" type="checkbox" name="ad_{{ key }}_enabled" value="1" data-key="{{ key }}" {% if row.enabled %}checked{% endif %}>
+                    </div>
+                  </td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="card-body d-lg-none settings-addon-cards">
+          {% set addons = (cfg.ADDONS.ITEMS if cfg.ADDONS and cfg.ADDONS.ITEMS else {}) %}
+          {% for a in addon_registry %}
+          {% set key = a.id %}
+          {% set row = addons.get(key, {'enabled': True}) %}
+          <div class="settings-addon-card">
+            <div class="settings-addon-card-head">
+              <div class="d-flex align-items-start gap-2 min-w-0">
+                <span class="settings-addon-card-icon">
+                  <i class="bi bi-{{ a.icon }}"></i>
+                </span>
+                <div class="min-w-0 flex-grow-1">
+                  <div class="settings-addon-card-topline">
+                    <div class="fw-semibold text-truncate">{{ a.label }}</div>
+                    <span class="settings-addon-status {% if row.enabled %}is-enabled{% else %}is-disabled{% endif %}">
+                      {% if row.enabled %}Enabled{% else %}Disabled{% endif %}
+                    </span>
+                  </div>
+                  <div class="form-text mb-0">{{ a.hint }}</div>
+                  <div class="settings-addon-meta-row">
+                    <code>{{ key }}</code>
+                    <span class="settings-addon-meta-pill">{% if a.is_builtin %}Built-in{% else %}Installed{% endif %}</span>
+                    {% if a.load_error %}
+                    <span class="settings-addon-meta-pill is-warning">Load failed</span>
+                    {% elif a.pending_restart %}
+                    <span class="settings-addon-meta-pill is-warning">Pending restart</span>
+                    {% elif a.is_loaded %}
+                    <span class="settings-addon-meta-pill">Loaded</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+              <div class="settings-addon-toggle-wrap">
+                <div class="settings-addon-toggle-label">Live</div>
+                <div class="form-check form-switch config-switch-wrap ms-0">
+                  <input class="form-check-input addon-enabled" type="checkbox" name="ad_{{ key }}_enabled" value="1" data-key="{{ key }}" {% if row.enabled %}checked{% endif %}>
+                </div>
+              </div>
+            </div>
+            <div class="settings-addon-card-body">
+              <div class="settings-addon-note">User view is visible to users and admins. Admin view stays admin-only.</div>
+              {% if a.load_error %}
+              <div class="form-text text-danger mb-0">Load error: {{ a.load_error }}</div>
+              {% elif a.pending_restart %}
+              <div class="form-text text-warning mb-0">Pending restart to fully activate new runtime routes.</div>
+              {% elif a.is_loaded %}
+              <div class="form-text text-success mb-0">Loaded in the current runtime.</div>
+              {% endif %}
+              <div class="settings-addon-card-actions">
+                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addonCfgModal_{{ key }}">
+                  <i class="bi bi-sliders me-1"></i>Config
+                </button>
+                <a href="{{ url_for('admin.addons_export', addon_id=key) }}" class="btn btn-outline-secondary btn-sm">
+                  <i class="bi bi-download me-1"></i>Export
+                </a>
+                {% if not a.is_builtin %}
+                <button type="submit" class="btn btn-outline-danger btn-sm js-confirm-submit" formaction="{{ url_for('admin.addons_uninstall', addon_id=key) }}" formmethod="post" data-confirm-title="Delete add-on" data-confirm-label="Delete add-on" data-confirm-class="btn-danger" data-confirm-message="Delete add-on {{ key }}? This removes its folder from disk.">
+                  <i class="bi bi-trash me-1"></i>Delete
+                </button>
+                {% else %}
+                <button type="button" class="btn btn-outline-secondary btn-sm" disabled>
+                  <i class="bi bi-lock me-1"></i>Built-in
+                </button>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4 col-xxl-3 settings-side-col">
+      <div class="settings-side-stack">
+        <div class="card mb-3 settings-side-shell">
+          <div class="card-header"><i class="bi bi-lightning-charge me-2 text-primary"></i>Actions</div>
+          <div class="card-body settings-side-shell-body">
+            <div class="settings-side-group">
+              <div class="settings-side-label">Apply changes</div>
+              <p class="text-muted small mb-2">Save all sections in one transaction and refresh the live runtime state.</p>
+              <button type="submit" class="btn btn-primary btn-sm w-100">
+                <i class="bi bi-check2-circle me-1"></i>Save runtime settings
+              </button>
+            </div>
+
+            <div class="settings-side-divider"></div>
+
+            <div class="settings-side-group">
+              <div class="settings-side-label">Config exchange</div>
+              <a href="{{ url_for('admin.settings_export') }}" class="btn btn-outline-primary btn-sm w-100">
+                <i class="bi bi-download me-1"></i>Export settings JSON
+              </a>
+              <input type="file" class="form-control form-control-sm mt-2" id="settingsImportPicker" accept=".json,application/json">
+              <button type="button" class="btn btn-outline-success btn-sm w-100 mt-2" id="settingsImportBtn">
+                <i class="bi bi-upload me-1"></i>Import settings JSON
+              </button>
+              <div class="text-muted small mt-2">Uses the same runtime JSON structure persisted in <code>app_settings</code>.</div>
+            </div>
+
+            <div class="settings-side-divider"></div>
+
+            <div class="settings-side-group">
+              <div class="settings-side-label">Server control</div>
+              <button type="button" class="btn btn-outline-warning btn-sm w-100" id="serverRestartBtn">
+                <i class="bi bi-arrow-repeat me-1"></i>Restart server
+              </button>
+              <div class="text-muted small mt-2">Connected users will be forced to refresh. Gunicorn reloads in place; Werkzeug reload is requested when supported.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {% for p in addon_config_panels %}
+  <div class="modal fade" id="addonCfgModal_{{ p.addon_id }}" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-{{ p.icon }} me-2"></i>{{ p.title }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          {% if p.description %}
+          <div class="form-text mb-2">{{ p.description }} · <code>{{ p.addon_id }}</code></div>
+          {% endif %}
+          {% if p.fields %}
+          <div class="row g-2">
+            {% for f in p.fields %}
+            {% set safe_key = f.key | replace('.', '_') | replace('-', '_') %}
+            <div class="col-12 {{ 'col-md-12' if f.type == 'textarea' else 'col-md-6' }}">
+              {% if f.type == 'checkbox' %}
+              <div class="form-check form-switch mt-2">
+                <input class="form-check-input addon-config-input" type="checkbox" id="addon_cfg_{{ p.addon_id }}_{{ safe_key }}" name="addon_cfg__{{ p.addon_id }}__{{ f.key }}" value="1" {% if f.value %}checked{% endif %}>
+                <label class="form-check-label" for="addon_cfg_{{ p.addon_id }}_{{ safe_key }}">{{ f.label }}</label>
+              </div>
+              {% elif f.type == 'textarea' %}
+              <label class="form-label">{{ f.label }}</label>
+              <textarea class="form-control form-control-sm" id="addon_cfg_{{ p.addon_id }}_{{ safe_key }}" name="addon_cfg__{{ p.addon_id }}__{{ f.key }}" rows="{{ f.rows or 3 }}">{{ f.value if f.value is not none else '' }}</textarea>
+              {% elif f.type == 'select' %}
+              <label class="form-label">{{ f.label }}</label>
+              <select class="form-select form-select-sm" id="addon_cfg_{{ p.addon_id }}_{{ safe_key }}" name="addon_cfg__{{ p.addon_id }}__{{ f.key }}">
+                {% for opt in f.options %}
+                <option value="{{ opt.value }}" {% if f.value|string == opt.value|string %}selected{% endif %}>{{ opt.label }}</option>
+                {% endfor %}
+              </select>
+              {% else %}
+              <label class="form-label">{{ f.label }}</label>
+              <input type="{{ f.type if f.type in ['password', 'number', 'url'] else 'text' }}" class="form-control form-control-sm" id="addon_cfg_{{ p.addon_id }}_{{ safe_key }}" name="addon_cfg__{{ p.addon_id }}__{{ f.key }}" value="{{ f.value if f.value is not none else '' }}">
+              {% endif %}
+              {% if f.help %}<div class="form-text">{{ f.help }}</div>{% endif %}
+            </div>
+            {% endfor %}
+          </div>
+          {% else %}
+          <div class="text-muted small">No configurable fields for this add-on.</div>
+          {% endif %}
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+          <button type="submit" form="configForm" class="btn btn-primary btn-sm" data-bs-dismiss="modal">
+            <i class="bi bi-save me-1"></i>Save all
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</form>
+
+<div class="modal fade" id="addonInstallModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-cloud-arrow-up me-2 text-success"></i>Add-on installer</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-danger small">
+          Installing an add-on is equivalent to executing arbitrary code on the server. Proceed only with trusted ZIP packages.
+        </div>
+        <div class="d-flex align-items-center justify-content-between gap-2 mb-3">
+          <div class="small text-muted">Installation is allowed for admins even without MFA, but MFA is strongly recommended before uploading server-side code.</div>
+          <span class="badge {% if current_user.mfa_enabled %}bg-success-subtle text-success-emphasis{% else %}bg-warning-subtle text-warning-emphasis{% endif %}">
+            MFA {% if current_user.mfa_enabled %}active{% else %}optional{% endif %}
+          </span>
+        </div>
+        <label for="addonZipPicker" class="form-label">Add-on ZIP package</label>
+        <input type="file" class="form-control form-control-sm" id="addonZipPicker" accept=".zip">
+        <div class="small text-muted mt-2" id="addonInstallSelectedFile">No file selected.</div>
+        <div class="small text-muted mt-1 mb-3">Expected structure: one root folder containing at least <code>addon.py</code>, <code>config.json</code>, and <code>visual.json</code>.</div>
+        <div class="small text-muted mb-2" id="addonInstallProgressLabel">Preparing upload…</div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" id="addonInstallProgressBar" style="width:0%">0%</div>
+        </div>
+        <div class="small text-muted mt-3" id="addonInstallProgressMeta">The package is validated, copied, registered in runtime settings, and loaded into the application.</div>
+        <div class="alert d-none mt-3 mb-0" id="addonInstallResultBox"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary btn-sm" id="addonInstallCloseBtn" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-success btn-sm" id="addonInstallBtn">
+          <i class="bi bi-plus-circle me-1"></i>Install add-on
+        </button>
+        <button type="button" class="btn btn-primary btn-sm d-none" id="addonInstallReloadBtn">Reload page</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="serverRestartProgressModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-arrow-repeat me-2 text-warning"></i>Restarting server</h5>
+      </div>
+      <div class="modal-body">
+        <div class="small text-muted mb-2" id="serverRestartProgressLabel">Preparing restart request…</div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
+          <div class="progress-bar progress-bar-striped progress-bar-animated" id="serverRestartProgressBar" style="width:0%">0%</div>
+        </div>
+        <div class="small text-muted mt-3" id="serverRestartProgressMeta">Connected sessions will receive a forced-refresh signal before the runtime restarts.</div>
+        <div class="alert d-none mt-3 mb-0" id="serverRestartResultBox"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-primary btn-sm d-none" id="serverRestartReloadBtn">
+          <i class="bi bi-arrow-clockwise me-1"></i>Refresh now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script nonce="{{ g.csp_nonce }}">
+(function(){
+  function countChecked(cls){ return document.querySelectorAll('.' + cls + ':checked').length; }
+  function syncAddonEnabledToggles(source){
+    if(!source){ return; }
+    var key = source.getAttribute('data-key');
+    if(!key){ return; }
+    document.querySelectorAll('.addon-enabled[data-key="' + key.replace(/"/g, '\\"') + '"]').forEach(function(el){
+      if(el !== source){
+        el.checked = source.checked;
+      }
+    });
+  }
+  function updateKpis(){
+    var ac = countChecked('addon-enabled');
+    var akpi = document.getElementById('addonEnabledCountKpi');
+    var ac2 = document.getElementById('addonEnabledCount');
+    if(akpi) akpi.textContent = ac;
+    if(ac2) ac2.textContent = ac + ' enabled';
+  }
+  document.querySelectorAll('.addon-enabled').forEach(function(el){
+    el.addEventListener('change', function(){
+      syncAddonEnabledToggles(el);
+      updateKpis();
+    });
+  });
+  updateKpis();
+
+  function notify(msg, type){
+    if(window.showToast){
+      window.showToast(msg, type || 'info');
+      return;
+    }
+    console.warn(msg);
+  }
+
+  function mirrorFileInput(sourceId, targetId, submitFormId, emptyMessage){
+    var picker = document.getElementById(sourceId);
+    var hiddenInput = document.getElementById(targetId);
+    var submitForm = document.getElementById(submitFormId);
+    if(!picker || !hiddenInput || !submitForm){ return null; }
+    picker.addEventListener('change', function(){
+      if(picker.files && picker.files[0]){
+        try {
+          var dt = new DataTransfer();
+          dt.items.add(picker.files[0]);
+          hiddenInput.files = dt.files;
+        } catch(e) {}
+      }
+    });
+    return function(){
+      if(!picker.files || !picker.files[0]){
+        notify(emptyMessage, 'warning');
+        return;
+      }
+      try {
+        var dt = new DataTransfer();
+        dt.items.add(picker.files[0]);
+        hiddenInput.files = dt.files;
+      } catch(e) {}
+      submitForm.submit();
+    };
+  }
+
+  var importSubmit = mirrorFileInput('settingsImportPicker', 'settingsImportHiddenInput', 'settingsImportForm', 'Select a .json file first.');
+  var configForm = document.getElementById('configForm');
+
+  function stampCheckboxMarkers(form){
+    if(!form){ return; }
+    form.querySelectorAll('input[type="checkbox"][name]').forEach(function(input){
+      var markerName = '__present__' + input.name;
+      var existing = form.querySelector('input[type="hidden"][name="' + markerName.replace(/"/g, '\\"') + '"]');
+      if(existing){ return; }
+      var marker = document.createElement('input');
+      marker.type = 'hidden';
+      marker.name = markerName;
+      marker.value = '1';
+      form.appendChild(marker);
+    });
+  }
+
+  if(configForm){
+    configForm.addEventListener('submit', function(){
+      stampCheckboxMarkers(configForm);
+    });
+  }
+
+  var installBtn = document.getElementById('addonInstallBtn');
+  var installForm = document.getElementById('addonsInstallForm');
+  var installPicker = document.getElementById('addonZipPicker');
+  var installSelectedFile = document.getElementById('addonInstallSelectedFile');
+  var csrfToken = document.querySelector('#configForm input[name="csrf_token"]');
+  var progressModalEl = document.getElementById('addonInstallModal');
+  var progressBar = document.getElementById('addonInstallProgressBar');
+  var progressLabel = document.getElementById('addonInstallProgressLabel');
+  var progressMeta = document.getElementById('addonInstallProgressMeta');
+  var resultBox = document.getElementById('addonInstallResultBox');
+  var closeBtn = document.getElementById('addonInstallCloseBtn');
+  var reloadBtn = document.getElementById('addonInstallReloadBtn');
+  var progressModal = (progressModalEl && window.bootstrap) ? bootstrap.Modal.getOrCreateInstance(progressModalEl) : null;
+  var addonStatusUrlTemplate = {{ url_for('admin.addons_status', addon_id='__ADDON_ID__') | tojson }};
+
+  function setInstallProgress(percent, label, meta){
+    if(progressBar){
+      var safePercent = Math.max(0, Math.min(100, percent || 0));
+      progressBar.style.width = safePercent + '%';
+      progressBar.textContent = safePercent + '%';
+      progressBar.setAttribute('aria-valuenow', String(safePercent));
+    }
+    if(progressLabel && label){ progressLabel.textContent = label; }
+    if(progressMeta && meta){ progressMeta.textContent = meta; }
+  }
+
+  function resetInstallModal(){
+    setInstallProgress(0, 'Ready to install.', 'Select a ZIP package to start validation, upload, runtime registration, and restart handling.');
+    if(resultBox){
+      resultBox.className = 'alert d-none mt-3 mb-0';
+      resultBox.textContent = '';
+    }
+    if(closeBtn){
+      closeBtn.classList.remove('d-none');
+      closeBtn.disabled = false;
+    }
+    if(installBtn){
+      installBtn.disabled = false;
+      installBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i>Install add-on';
+    }
+    if(reloadBtn) reloadBtn.classList.add('d-none');
+  }
+
+  function finishInstall(ok, message, type, showReload){
+    var alertType = type || (ok ? 'success' : 'danger');
+    if(resultBox){
+      resultBox.className = 'alert mt-3 mb-0 alert-' + alertType;
+      resultBox.textContent = message || (ok ? 'Add-on installed.' : 'Installation failed.');
+    }
+    if(closeBtn){
+      closeBtn.classList.remove('d-none');
+      closeBtn.disabled = false;
+    }
+    if(installBtn){
+      installBtn.disabled = false;
+      installBtn.innerHTML = '<i class="bi bi-plus-circle me-1"></i>Install add-on';
+    }
+    if(reloadBtn){
+      if(showReload){
+        reloadBtn.classList.remove('d-none');
+      } else {
+        reloadBtn.classList.add('d-none');
+      }
+    }
+    if(window.showToast){
+      window.showToast(message || (ok ? 'Add-on installed.' : 'Installation failed.'), alertType);
+    }
+  }
+
+  function waitForAddonRuntime(addonId, onReady, onTimeout){
+    if(!addonId){
+      window.setTimeout(function(){ if(typeof onReady === 'function'){ onReady(); } }, 1800);
+      return;
+    }
+    var statusUrl = String(addonStatusUrlTemplate || '').replace('__ADDON_ID__', encodeURIComponent(addonId));
+    var startedAt = Date.now();
+    var maxWaitMs = 45000;
+
+    function poll(){
+      fetch(statusUrl + '?_ts=' + Date.now(), {
+        method: 'GET',
+        headers: { 'Accept': 'application/json', 'X-Requested-With': 'XMLHttpRequest' },
+        credentials: 'same-origin',
+        cache: 'no-store'
+      }).then(function(response){
+        if(!response.ok){
+          throw new Error('status-unavailable');
+        }
+        return response.json();
+      }).then(function(payload){
+        if(payload && payload.loaded && !payload.pending_restart){
+          if(typeof onReady === 'function'){ onReady(payload); }
+          return;
+        }
+        if(payload && payload.error){
+          if(typeof onTimeout === 'function'){ onTimeout(payload); }
+          return;
+        }
+        if(Date.now() - startedAt >= maxWaitMs){
+          if(typeof onTimeout === 'function'){ onTimeout(payload || {}); }
+          return;
+        }
+        window.setTimeout(poll, 1500);
+      }).catch(function(){
+        if(Date.now() - startedAt >= maxWaitMs){
+          if(typeof onTimeout === 'function'){ onTimeout({}); }
+          return;
+        }
+        window.setTimeout(poll, 1500);
+      });
+    }
+
+    window.setTimeout(poll, 2200);
+  }
+
+  function uploadAddonZip(){
+    if(!installPicker || !installPicker.files || !installPicker.files[0]){
+      setInstallProgress(0, 'No file selected.', 'Choose a ZIP package before starting the installation.');
+      finishInstall(false, 'Select a .zip file first.', 'warning', false);
+      return;
+    }
+    if(!installForm){
+      notify('Install form unavailable.', 'danger');
+      return;
+    }
+    resetInstallModal();
+    if(progressModal){ progressModal.show(); }
+    if(closeBtn){ closeBtn.disabled = true; }
+    if(installBtn){
+      installBtn.disabled = true;
+      installBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-1" aria-hidden="true"></span>Installing...';
+    }
+    setInstallProgress(4, 'Preparing request…', 'Opening secure upload channel.');
+
+    var formData = new FormData();
+    var csrfInput = installForm.querySelector('input[name=\"csrf_token\"]');
+    if(csrfInput){ formData.append('csrf_token', csrfInput.value); }
+    formData.append('addon_zip', installPicker.files[0]);
+
+    var xhr = new XMLHttpRequest();
+    xhr.open('POST', installForm.action, true);
+    xhr.setRequestHeader('Accept', 'application/json');
+    xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+    xhr.upload.addEventListener('progress', function(event){
+      if(event.lengthComputable){
+        var uploadPct = Math.round((event.loaded / event.total) * 72);
+        setInstallProgress(uploadPct, 'Uploading archive…', 'Transfer in progress.');
+      } else {
+        setInstallProgress(28, 'Uploading archive…', 'Transfer in progress.');
+      }
+    });
+
+    xhr.addEventListener('loadstart', function(){
+      setInstallProgress(8, 'Uploading archive…', 'Transfer started.');
+    });
+
+    xhr.addEventListener('readystatechange', function(){
+      if(xhr.readyState === 2){
+        setInstallProgress(64, 'Installing add-on…', 'The server is validating the archive, extracting files, and applying runtime settings.');
+      }
+    });
+
+    xhr.addEventListener('load', function(){
+      var payload = {};
+      try { payload = JSON.parse(xhr.responseText || '{}'); } catch(e) {}
+      if(xhr.status >= 200 && xhr.status < 300 && payload.ok){
+        setInstallProgress(82, 'Settings applied.', 'The add-on package is installed and runtime settings are now persisted.');
+        if(payload.pending_restart){
+          requestInstallRestart(payload);
+          return;
+        }
+        setInstallProgress(100, 'Add-on available.', 'The add-on is already active in the current runtime.');
+        finishInstall(true, payload.message || 'Add-on installed and loaded.', 'success', true);
+        window.setTimeout(function(){ window.location.reload(); }, 1200);
+        return;
+      }
+      var responseText = String(xhr.responseText || '');
+      var fallbackError = payload.error || payload.message || 'Add-on installation failed.';
+      if(!payload.error && responseText && responseText.indexOf('<') !== -1){
+        fallbackError = 'Unexpected HTML response from the server. Check CSRF/session state and server logs.';
+      }
+      if(payload.code){
+        fallbackError += ' [' + payload.code + ']';
+      }
+      setInstallProgress(100, 'Installation failed.', 'The archive was rejected or the runtime registration failed.');
+      finishInstall(false, fallbackError, payload.category || 'danger', false);
+    });
+
+    xhr.addEventListener('error', function(){
+      setInstallProgress(100, 'Installation failed.', 'Network or server error during upload.');
+      finishInstall(false, 'Add-on installation failed due to a network error.', 'danger', false);
+    });
+
+    xhr.addEventListener('abort', function(){
+      setInstallProgress(100, 'Installation aborted.', 'The upload was cancelled.');
+      finishInstall(false, 'Add-on installation was cancelled.', 'warning', false);
+    });
+
+    xhr.send(formData);
+  }
+
+  function requestInstallRestart(payload){
+    if(!csrfToken){
+      finishInstall(false, 'CSRF token unavailable.', 'danger', false);
+      return;
+    }
+    setInstallProgress(90, 'Restarting server…', 'Waiting for a real restart so the new add-on can be loaded during bootstrap.');
+    fetch('{{ url_for("admin.server_restart") }}', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: new URLSearchParams({ csrf_token: csrfToken.value }),
+      credentials: 'same-origin'
+    }).then(function(response){
+      return response.json().then(function(restartPayload){
+        return { ok: response.ok, payload: restartPayload || {} };
+      });
+    }).then(function(result){
+      if(result.ok && result.payload && result.payload.ok){
+        setInstallProgress(100, 'Restart requested.', 'The page will refresh automatically when the runtime comes back.');
+        finishInstall(true, payload.message || 'Add-on installed and restart requested.', 'success', true);
+        waitForAddonRuntime(
+          payload.addon_id,
+          function(){
+            finishInstall(true, 'Add-on loaded after restart. Refreshing the page now.', 'success', true);
+            window.location.reload();
+          },
+          function(state){
+            if(state && state.error){
+              finishInstall(false, 'Add-on installed, but runtime load failed: ' + state.error, 'danger', true);
+              return;
+            }
+            finishInstall(false, 'Add-on installed, but the runtime did not come back in time. Refresh manually and check the add-on status.', 'warning', true);
+          }
+        );
+        return;
+      }
+      if(result.payload && result.payload.category === 'warning'){
+        setInstallProgress(100, 'Manual restart required.', 'The add-on package is installed and runtime settings are saved, but this server mode requires a manual restart.');
+        finishInstall(true, (payload.message || 'Add-on installed.') + ' Manual restart required.', 'warning', true);
+        if(closeBtn) closeBtn.classList.remove('d-none');
+        return;
+      }
+      setInstallProgress(100, 'Restart failed.', 'The add-on package is installed, but the runtime restart failed.');
+      finishInstall(false, (result.payload && result.payload.message) || 'Add-on installed, but restart failed.', 'danger', true);
+    }).catch(function(){
+      setInstallProgress(100, 'Restart failed.', 'The add-on package is installed, but the restart request failed.');
+      finishInstall(false, 'Add-on installed, but restart failed.', 'danger', true);
+    });
+  }
+
+  if(installBtn){
+    installBtn.addEventListener('click', uploadAddonZip);
+  }
+
+  if(installPicker){
+    installPicker.addEventListener('change', function(){
+      var file = installPicker.files && installPicker.files[0] ? installPicker.files[0] : null;
+      if(installSelectedFile){
+        installSelectedFile.textContent = file
+          ? ('Selected: ' + file.name + ' (' + Math.max(1, Math.round(file.size / 1024)) + ' KB)')
+          : 'No file selected.';
+      }
+      if(resultBox && !resultBox.classList.contains('d-none')){
+        resultBox.className = 'alert d-none mt-3 mb-0';
+        resultBox.textContent = '';
+      }
+      setInstallProgress(0, file ? 'Package selected.' : 'Ready to install.', file ? 'The file is ready for validation and upload.' : 'Select a ZIP package to start validation, upload, runtime registration, and restart handling.');
+    });
+  }
+
+  if(progressModalEl){
+    progressModalEl.addEventListener('show.bs.modal', function(){
+      resetInstallModal();
+      if(installSelectedFile && (!installPicker || !installPicker.files || !installPicker.files[0])){
+        installSelectedFile.textContent = 'No file selected.';
+      }
+    });
+  }
+
+  var importBtn = document.getElementById('settingsImportBtn');
+  if(importBtn && importSubmit){
+    importBtn.addEventListener('click', importSubmit);
+  }
+
+  if(reloadBtn){
+    reloadBtn.addEventListener('click', function(){
+      window.location.reload();
+    });
+  }
+
+  var restartBtn = document.getElementById('serverRestartBtn');
+  var restartModalEl = document.getElementById('serverRestartProgressModal');
+  var restartModal = (restartModalEl && window.bootstrap) ? bootstrap.Modal.getOrCreateInstance(restartModalEl) : null;
+  var restartProgressBar = document.getElementById('serverRestartProgressBar');
+  var restartProgressLabel = document.getElementById('serverRestartProgressLabel');
+  var restartProgressMeta = document.getElementById('serverRestartProgressMeta');
+  var restartResultBox = document.getElementById('serverRestartResultBox');
+  var restartReloadBtn = document.getElementById('serverRestartReloadBtn');
+
+  function setRestartProgress(percent, label, meta){
+    if(restartProgressBar){
+      var safePercent = Math.max(0, Math.min(100, percent || 0));
+      restartProgressBar.style.width = safePercent + '%';
+      restartProgressBar.textContent = safePercent + '%';
+      restartProgressBar.setAttribute('aria-valuenow', String(safePercent));
+    }
+    if(restartProgressLabel && label){ restartProgressLabel.textContent = label; }
+    if(restartProgressMeta && meta){ restartProgressMeta.textContent = meta; }
+  }
+
+  function runServerRestart(){
+    if(!csrfToken){
+      notify('CSRF token unavailable.', 'danger');
+      return;
+    }
+    if(restartResultBox){
+      restartResultBox.className = 'alert d-none mt-3 mb-0';
+      restartResultBox.textContent = '';
+    }
+    if(restartReloadBtn){ restartReloadBtn.classList.add('d-none'); }
+    if(restartModal){ restartModal.show(); }
+    setRestartProgress(12, 'Sending restart request…', 'Users will receive a forced-refresh signal.');
+
+    fetch('{{ url_for("admin.server_restart") }}', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: new URLSearchParams({ csrf_token: csrfToken.value }),
+      credentials: 'same-origin'
+    }).then(function(response){
+      return response.json().then(function(payload){
+        return { ok: response.ok, payload: payload || {} };
+      });
+    }).then(function(result){
+      var payload = result.payload || {};
+      var ok = !!(result.ok && payload.ok);
+      var message = payload.message || (ok ? 'Restart requested.' : 'Restart request failed.');
+      setRestartProgress(100, ok ? 'Restart requested.' : 'Restart failed.', ok ? 'This page will refresh automatically.' : 'The server did not accept the restart request.');
+      if(restartResultBox){
+        restartResultBox.className = 'alert mt-3 mb-0 alert-' + (ok ? 'success' : 'danger');
+        restartResultBox.textContent = message;
+      }
+      if(ok){
+        if(restartReloadBtn){ restartReloadBtn.classList.remove('d-none'); }
+        if(window.showToast){ window.showToast(message, payload.category || 'success'); }
+        waitForAddonRuntime(
+          null,
+          function(){ window.location.reload(); },
+          function(){ if(restartReloadBtn){ restartReloadBtn.classList.remove('d-none'); } }
+        );
+      } else if(window.showToast){
+        window.showToast(message, 'danger');
+      }
+    }).catch(function(err){
+      setRestartProgress(100, 'Restart failed.', 'Network or server-side error.');
+      if(restartResultBox){
+        restartResultBox.className = 'alert mt-3 mb-0 alert-danger';
+        restartResultBox.textContent = String(err && err.message ? err.message : 'Restart request failed.');
+      }
+      if(window.showToast){ window.showToast('Restart request failed.', 'danger'); }
+    });
+  }
+
+  if(restartBtn){
+    restartBtn.addEventListener('click', function(){
+      if(window.openConfirmModal){
+        window.openConfirmModal({
+          title: 'Restart server',
+          message: 'This will restart the runtime and force connected users to refresh. Continue?',
+          confirmLabel: 'Restart',
+          confirmClass: 'btn-warning',
+          onConfirm: runServerRestart
+        });
+        return;
+      }
+      runServerRestart();
+    });
+  }
+
+  if(restartReloadBtn){
+    restartReloadBtn.addEventListener('click', function(){
+      window.location.reload();
+    });
+  }
+
+  document.querySelectorAll('.js-confirm-submit').forEach(function(button){
+    button.addEventListener('click', function(event){
+      var form = button.form;
+      if(!form || !window.openConfirmModal){
+        return;
+      }
+      event.preventDefault();
+      window.openConfirmModal({
+        title: button.dataset.confirmTitle || 'Confirm action',
+        message: button.dataset.confirmMessage || 'Confirm this action?',
+        confirmLabel: button.dataset.confirmLabel || 'Confirm',
+        confirmClass: button.dataset.confirmClass || 'btn-danger',
+        onConfirm: function(){
+          if(typeof form.requestSubmit === 'function'){
+            form.requestSubmit(button);
+            return;
+          }
+          button.dataset.confirmBypass = '1';
+          form.submit();
+        }
+      });
+    });
+  });
+})();
+</script>
+ </div>
+{% endblock %}

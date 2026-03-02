@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block title %} · Messages{% endblock %}
+{% block content %}
+<div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-2">
+  <div>
+    <div class="page-breadcrumb"><i class="bi bi-envelope me-1"></i>Messages</div>
+    <h1 class="mb-1">Inbox</h1>
+    <p class="text-muted mb-0">Broadcast updates and direct admin messages. Open each item in a modal to read it fully.</p>
+  </div>
+  <div class="d-flex align-items-center gap-2 flex-wrap">
+    <span class="badge bg-primary-subtle text-primary border">{{ unread_count }} unread</span>
+    <span class="badge bg-light text-dark border">{{ items|length }} visible</span>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2">
+      <div class="d-flex align-items-center gap-2">
+        <div class="btn-group btn-group-sm" role="group" aria-label="Read filter">
+          <a class="btn btn-outline-secondary {% if filter=='unread' %}active{% endif %}" href="{{ url_for('main.messages', filter='unread', kind=kind) }}">Unread</a>
+          <a class="btn btn-outline-secondary {% if filter=='all' %}active{% endif %}" href="{{ url_for('main.messages', filter='all', kind=kind) }}">All</a>
+        </div>
+        <div class="btn-group btn-group-sm" role="group" aria-label="Message kind">
+          <a class="btn btn-outline-secondary {% if kind=='all' %}active{% endif %}" href="{{ url_for('main.messages', filter=filter, kind='all') }}">All</a>
+          <a class="btn btn-outline-secondary {% if kind=='broadcast' %}active{% endif %}" href="{{ url_for('main.messages', filter=filter, kind='broadcast') }}">Broadcast</a>
+          <a class="btn btn-outline-secondary {% if kind=='user' %}active{% endif %}" href="{{ url_for('main.messages', filter=filter, kind='user') }}">Direct</a>
+        </div>
+      </div>
+      <div class="text-muted fs-xs">HTML messages are sanitized before being rendered.</div>
+    </div>
+  </div>
+</div>
+
+<div class="card">
+  <div class="card-body p-0">
+    {% if not items %}
+      <div class="p-3 text-muted">No messages available.</div>
+    {% else %}
+      <div class="list-group list-group-flush">
+        {% for it in items %}
+          {% set level = (it.level or 'info') %}
+          <div class="list-group-item py-3">
+            <div class="d-flex align-items-start justify-content-between gap-3">
+              <div class="min-w-0 flex-grow-1">
+                <div class="d-flex align-items-center gap-2 flex-wrap">
+                  <div class="fw-semibold">{{ it.title }}</div>
+                  <span class="badge bg-light text-dark border">{{ 'Broadcast' if it.kind == 'broadcast' else 'Direct' }}</span>
+                  {% if not it.is_read %}
+                  <span class="badge bg-primary-subtle text-primary border">Unread</span>
+                  {% endif %}
+                </div>
+                <div class="text-muted fs-xs mt-1">
+                  {{ it.created_at.strftime('%Y-%m-%d %H:%M') if it.created_at else '' }}
+                  {% if it.kind=='user' and it.email_error %}
+                  · <span class="text-warning">Email failed: {{ it.email_error }}</span>
+                  {% elif it.kind=='user' and it.email_sent_at %}
+                  · <span class="text-success">Email sent</span>
+                  {% endif %}
+                </div>
+                <div class="text-muted mt-2">
+                  {% set preview = (it.body|striptags if it.body_format == 'html' else it.body)|string %}
+                  {{ preview[:180] }}{% if preview|length > 180 %}...{% endif %}
+                </div>
+              </div>
+
+              <div class="d-flex flex-column align-items-end gap-2">
+                <span class="badge bg-{% if level=='danger' %}danger{% elif level=='warning' %}warning text-dark{% elif level=='success' %}success{% else %}secondary{% endif %}">
+                  {{ level }}
+                </span>
+                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#messageModal_{{ it.kind }}_{{ it.id }}">
+                  <i class="bi bi-eye me-1"></i>Open
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="modal fade" id="messageModal_{{ it.kind }}_{{ it.id }}" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-scrollable">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <div>
+                    <div class="text-muted fs-xs text-uppercase">{{ 'Broadcast' if it.kind == 'broadcast' else 'Direct message' }}</div>
+                    <h5 class="modal-title mb-0">{{ it.title }}</h5>
+                  </div>
+                  <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                  <div class="d-flex gap-2 flex-wrap mb-3">
+                    <span class="badge bg-{% if level=='danger' %}danger{% elif level=='warning' %}warning text-dark{% elif level=='success' %}success{% else %}secondary{% endif %}">{{ level }}</span>
+                    <span class="badge bg-light text-dark border">{{ it.created_at.strftime('%Y-%m-%d %H:%M') if it.created_at else '' }}</span>
+                    {% if not it.is_read %}
+                    <span class="badge bg-primary-subtle text-primary border">Unread</span>
+                    {% endif %}
+                  </div>
+                  {% if it.body_format == 'html' %}
+                  <div class="rich-html">{{ it.body|safe }}</div>
+                  {% else %}
+                  <div class="text-muted" style="white-space:pre-wrap;">{{ it.body }}</div>
+                  {% endif %}
+                </div>
+                <div class="modal-footer justify-content-between">
+                  <div>
+                    {% if it.action_url %}
+                    <a href="{{ it.action_url }}" class="btn btn-outline-primary btn-sm" target="_blank" rel="noopener">
+                      <i class="bi bi-box-arrow-up-right me-1"></i>{{ it.action_label or 'Open link' }}
+                    </a>
+                    {% endif %}
+                  </div>
+                  <div class="d-flex gap-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+                    {% if not it.is_read %}
+                      {% if it.kind == 'broadcast' %}
+                      <form method="post" action="{{ url_for('main.mark_broadcast_read', message_id=it.id, filter=filter, kind=kind) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-check2 me-1"></i>Mark as read</button>
+                      </form>
+                      {% else %}
+                      <form method="post" action="{{ url_for('main.mark_user_message_read', message_id=it.id, filter=filter, kind=kind) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-check2 me-1"></i>Mark as read</button>
+                      </form>
+                      {% endif %}
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

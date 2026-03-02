@@ -1,0 +1,531 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebApp UI Template · Runtime Settings</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="./static/css/app.css" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #2563eb;
+      --sidebar-w: 260px;
+      --topbar-h: 56px;
+      --radius: 10px;
+      --body-bg: #f0f4f8;
+      --text-color: #1e293b;
+      --text-muted: #6b7a8d;
+      --card-bg: #ffffff;
+      --card-border: #e5eaf0;
+      --topbar-bg: #0f1923;
+      --topbar-border: #1e2f40;
+      --sidebar-bg: #0f1923;
+      --sidebar-text: #8fa3b8;
+      --sidebar-active: #ffffff;
+      --sidebar-section: #4a6080;
+      --sidebar-hover-bg: rgba(255,255,255,.06);
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --info: #0891b2;
+      --accent-light: #eff4ff;
+    }
+  </style>
+</head>
+<body class="app-body">
+  <header class="topbar" id="topbar">
+    <div class="topbar-brand">WebApp<span class="topbar-version ms-1 brand-accent">v1.0.0</span></div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <div class="dropdown">
+        <button class="btn btn-outline-light btn-sm dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+          <i class="bi bi-translate me-1"></i>EN
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item active" href="#" onclick="return false;">English</a></li>
+          <li><a class="dropdown-item" href="#" onclick="return false;">Italiano</a></li>
+        </ul>
+      </div>
+      <a class="btn btn-outline-light btn-sm position-relative" href="#" onclick="return false;" title="Messages">
+        <i class="bi bi-bell"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">4</span>
+      </a>
+      <span class="topbar-meta d-none d-sm-block">
+        Admin Demo
+        <span class="badge ms-1 topbar-role-badge bg-warning text-dark">admin</span>
+      </span>
+      <div class="topbar-avatar" title="admin@test.com">A</div>
+      <a class="btn btn-outline-danger btn-sm" href="#" onclick="return false;">
+        <i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline"> Logout</span>
+      </a>
+    </div>
+  </header>
+
+  <nav class="mobile-topnav d-md-none" id="mobileTopnav" aria-label="Mobile navigation">
+    <div class="mobile-topnav-bar">
+      <button class="mobile-topnav-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavDrawer" aria-controls="mobileNavDrawer" aria-label="Open navigation">
+        <i class="bi bi-list"></i>
+      </button>
+      <a href="./index.html" class="mobile-topnav-brand">
+        <span class="mobile-topnav-brand-title">WebApp</span>
+        <span class="mobile-topnav-brand-subtitle">Admin workspace</span>
+      </a>
+      <a class="mobile-topnav-icon" href="#" onclick="return false;" aria-label="Messages">
+        <i class="bi bi-bell"></i>
+        <em class="mobile-topnav-pill">4</em>
+      </a>
+    </div>
+  </nav>
+
+  <div class="offcanvas offcanvas-start mobile-nav-drawer d-md-none" tabindex="-1" id="mobileNavDrawer" aria-labelledby="mobileNavDrawerLabel">
+    <div class="offcanvas-header mobile-nav-drawer-head">
+      <div class="mobile-topnav-user">
+        <div class="mobile-topnav-avatar" title="admin@test.com">A</div>
+        <div class="mobile-topnav-copy">
+          <div class="mobile-topnav-title">Admin Demo</div>
+          <div class="mobile-topnav-subtitle">admin@test.com</div>
+        </div>
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body mobile-nav-drawer-body">
+      <div class="mobile-topnav-section">
+        <div class="mobile-topnav-section-title">Workspace</div>
+        <div class="mobile-topnav-grid">
+          <a href="./index.html" class="mobile-topnav-link"><i class="bi bi-house"></i><span>Dashboard</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-envelope"></i><span>Messages</span><em class="mobile-topnav-pill">4</em></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-person-gear"></i><span>Account</span></a>
+        </div>
+      </div>
+      <div class="mobile-topnav-section">
+        <div class="mobile-topnav-section-title">Add-ons</div>
+        <div class="mobile-topnav-grid">
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-chat-dots"></i><span>Hello</span></a>
+          <a href="./index.html" class="mobile-topnav-link"><i class="bi bi-grid-3x3-gap"></i><span>Widget &amp; UI</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-book"></i><span>Docs</span></a>
+        </div>
+      </div>
+      <div class="mobile-topnav-section">
+        <div class="mobile-topnav-section-title">Admin</div>
+        <div class="mobile-topnav-grid">
+          <a href="./settings.html" class="mobile-topnav-link active"><i class="bi bi-sliders"></i><span>Settings</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-people"></i><span>Users</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-journal-text"></i><span>Logs</span></a>
+          <a href="./communications.html" class="mobile-topnav-link"><i class="bi bi-megaphone"></i><span>Comms</span></a>
+          <a href="./database.html" class="mobile-topnav-link"><i class="bi bi-hdd"></i><span>Database</span></a>
+        </div>
+      </div>
+      <div class="mobile-topnav-section">
+        <a class="mobile-topnav-logout" href="#" onclick="return false;">
+          <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-section">Workspace</div>
+        <a href="./index.html" class="sidebar-link"><i class="bi bi-house sidebar-icon"></i> Dashboard</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-envelope sidebar-icon"></i> Messages</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-person-gear sidebar-icon"></i> Account</a>
+        <div class="sidebar-section">Add-on</div>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-chat-dots sidebar-icon"></i> Hello World</a>
+        <a href="./index.html" class="sidebar-link"><i class="bi bi-grid-3x3-gap sidebar-icon"></i> Widget &amp; UI</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-book sidebar-icon"></i> Documentation</a>
+        <div class="sidebar-section">Admin</div>
+        <a href="./settings.html" class="sidebar-link active"><i class="bi bi-sliders sidebar-icon"></i> WebApp Config</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-people sidebar-icon"></i> Users</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-journal-text sidebar-icon"></i> Event Logs</a>
+        <a href="./communications.html" class="sidebar-link"><i class="bi bi-megaphone sidebar-icon"></i> Communications</a>
+        <a href="./database.html" class="sidebar-link"><i class="bi bi-hdd sidebar-icon"></i> Database</a>
+      </div>
+      <div class="sidebar-footer">
+        <a href="#" onclick="return false;" class="sidebar-link sidebar-footer-link">
+          <i class="bi bi-shield-check sidebar-icon"></i> Privacy Policy
+        </a>
+      </div>
+    </aside>
+
+    <main class="content-area">
+      <div class="page-header settings-page-header">
+        <div class="page-breadcrumb"><i class="bi bi-shield me-1"></i>Admin</div>
+        <div class="settings-header-row">
+          <div class="min-w-0">
+            <h1>Runtime settings</h1>
+            <p class="text-muted settings-header-copy">Database-backed runtime configuration for <strong>WebApp</strong>. Deploy-only secrets remain in <code>.env</code>.</p>
+          </div>
+          <div class="settings-header-badges">
+            <span class="badge text-bg-light border">DB-backed</span>
+            <span class="badge text-bg-light border">live apply</span>
+            <span class="badge text-bg-light border">revision 1.0.0</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="adaptive-card-grid adaptive-card-grid--compact mb-3 settings-kpi-row">
+        <div>
+          <div class="stat-card success stat-card-compact settings-kpi-card settings-kpi-card-modern">
+            <div class="settings-kpi-strip"></div>
+            <div class="settings-kpi-top">
+              <div class="settings-kpi-topline">
+                <div class="settings-kpi-eyebrow">Add-ons</div>
+                <div class="settings-kpi-helper">live runtime</div>
+              </div>
+              <span class="settings-kpi-icon-wrap"><i class="bi bi-puzzle settings-kpi-icon"></i></span>
+            </div>
+            <div class="settings-kpi-body">
+              <div class="stat-val">3</div>
+              <div class="stat-lbl">Enabled add-ons</div>
+            </div>
+            <div class="settings-kpi-meta">Navigation and route modules currently active.</div>
+          </div>
+        </div>
+        <div>
+          <div class="stat-card warning stat-card-compact settings-kpi-card settings-kpi-card-modern">
+            <div class="settings-kpi-strip"></div>
+            <div class="settings-kpi-top">
+              <div class="settings-kpi-topline">
+                <div class="settings-kpi-eyebrow">Release</div>
+                <div class="settings-kpi-helper">identity</div>
+              </div>
+              <span class="settings-kpi-icon-wrap"><i class="bi bi-box-seam settings-kpi-icon"></i></span>
+            </div>
+            <div class="settings-kpi-body">
+              <div class="stat-val settings-kpi-code">1.0.0</div>
+              <div class="stat-lbl">App version</div>
+            </div>
+            <div class="settings-kpi-meta">WebApp</div>
+          </div>
+        </div>
+        <div>
+          <div class="stat-card stat-card-compact settings-kpi-card settings-kpi-card-modern">
+            <div class="settings-kpi-strip"></div>
+            <div class="settings-kpi-top">
+              <div class="settings-kpi-topline">
+                <div class="settings-kpi-eyebrow">Source</div>
+                <div class="settings-kpi-helper">storage</div>
+              </div>
+              <span class="settings-kpi-icon-wrap"><i class="bi bi-database settings-kpi-icon"></i></span>
+            </div>
+            <div class="settings-kpi-body">
+              <div class="stat-val settings-kpi-code">DB</div>
+              <div class="stat-lbl">Runtime source</div>
+            </div>
+            <div class="settings-kpi-meta">Live settings come from PostgreSQL.</div>
+          </div>
+        </div>
+        <div>
+          <div class="stat-card stat-card-compact settings-kpi-card settings-kpi-card-modern">
+            <div class="settings-kpi-strip"></div>
+            <div class="settings-kpi-top">
+              <div class="settings-kpi-topline">
+                <div class="settings-kpi-eyebrow">Portability</div>
+                <div class="settings-kpi-helper">snapshot</div>
+              </div>
+              <span class="settings-kpi-icon-wrap"><i class="bi bi-arrow-left-right settings-kpi-icon"></i></span>
+            </div>
+            <div class="settings-kpi-body">
+              <div class="stat-val settings-kpi-code">JSON</div>
+              <div class="stat-lbl">Import / export</div>
+            </div>
+            <div class="settings-kpi-meta">Move runtime config between demos and environments.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3 settings-layout-row">
+        <div class="col-12 col-lg-8 col-xxl-9 settings-main-col">
+          <div class="settings-section-stack">
+            <div class="card mb-3 settings-panel-card">
+              <div class="card-header"><i class="bi bi-app me-2 text-primary"></i>Application</div>
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label">App name</label>
+                    <input type="text" class="form-control form-control-sm" value="WebApp">
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <label class="form-label">Version</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" value="1.0.0">
+                  </div>
+                  <div class="col-12 col-md-5">
+                    <label class="form-label">Base URL</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" value="http://127.0.0.1:5000" disabled>
+                    <div class="form-text">Runtime base URL is managed outside this screen.</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3 settings-panel-card">
+              <div class="card-header"><i class="bi bi-shield-lock me-2 text-danger"></i>Security</div>
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label">Login rate limit</label>
+                    <input type="text" class="form-control form-control-sm" value="5/minute">
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label">Session timeout (min)</label>
+                    <input type="number" class="form-control form-control-sm" value="60">
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label">CSRF TTL (sec)</label>
+                    <input type="number" class="form-control form-control-sm" value="3600">
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Allowed hosts</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" value="127.0.0.1,localhost">
+                  </div>
+                </div>
+                <div class="row g-2 mt-1">
+                  <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">CSRF enabled</label></div></div>
+                  <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">Security audit</label></div></div>
+                  <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">Mask sensitive logs</label></div></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3 settings-panel-card">
+              <div class="card-header"><i class="bi bi-envelope me-2 text-success"></i>Email</div>
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-12 col-md-4">
+                    <label class="form-label">Mode</label>
+                    <select class="form-select form-select-sm">
+                      <option>smtp</option>
+                      <option>sendmail</option>
+                      <option>disabled</option>
+                    </select>
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label">From email</label>
+                    <input type="email" class="form-control form-control-sm" value="noreply@test.local">
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label">Reply-to</label>
+                    <input type="email" class="form-control form-control-sm" value="support@test.local">
+                  </div>
+                  <div class="col-12 col-md-4">
+                    <label class="form-label">SMTP host</label>
+                    <input type="text" class="form-control form-control-sm font-monospace" value="smtp.test.local">
+                  </div>
+                  <div class="col-6 col-md-2">
+                    <label class="form-label">SMTP port</label>
+                    <input type="number" class="form-control form-control-sm" value="587">
+                  </div>
+                  <div class="col-6 col-md-3">
+                    <label class="form-label">SMTP username</label>
+                    <input type="text" class="form-control form-control-sm" value="webapp">
+                  </div>
+                  <div class="col-12 col-md-3">
+                    <label class="form-label">SMTP password</label>
+                    <input type="password" class="form-control form-control-sm" value="secret">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card mb-3 settings-panel-card">
+              <div class="card-header"><i class="bi bi-palette me-2 text-primary"></i>Theme and visual</div>
+              <div class="card-body">
+                <div class="adaptive-card-grid adaptive-card-grid--compact">
+                  <div class="card h-100">
+                    <div class="card-header"><i class="bi bi-droplet-half me-2 text-primary"></i>Color system</div>
+                    <div class="card-body">
+                      <label class="form-label">Brand accent</label>
+                      <div class="d-flex gap-2 flex-wrap">
+                        <button class="btn p-0 border-0 rounded-circle" style="width:28px;height:28px;background:#2563eb;" type="button"></button>
+                        <button class="btn p-0 border-0 rounded-circle" style="width:28px;height:28px;background:#0891b2;" type="button"></button>
+                        <button class="btn p-0 border-0 rounded-circle" style="width:28px;height:28px;background:#16a34a;" type="button"></button>
+                        <button class="btn p-0 border-0 rounded-circle" style="width:28px;height:28px;background:#d97706;" type="button"></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="card h-100">
+                    <div class="card-header"><i class="bi bi-bounding-box me-2 text-primary"></i>Layout metrics</div>
+                    <div class="card-body">
+                      <label class="form-label">Sidebar width</label>
+                      <input type="range" class="form-range" min="220" max="340" value="260">
+                      <label class="form-label">Topbar height</label>
+                      <input type="range" class="form-range" min="48" max="72" value="56">
+                    </div>
+                  </div>
+                  <div class="card h-100">
+                    <div class="card-header"><i class="bi bi-grid me-2 text-primary"></i>Dashboard caps</div>
+                    <div class="card-body">
+                      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">Compact cards</label></div>
+                      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">Show badge chips</label></div>
+                      <div class="form-check form-switch"><input class="form-check-input" type="checkbox" checked><label class="form-check-label">Enable motion hints</label></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card settings-panel-card">
+              <div class="card-header"><i class="bi bi-puzzle me-2 text-primary"></i>Add-ons</div>
+              <div class="card-body">
+                <div class="adaptive-card-grid adaptive-card-grid--compact">
+                  <div class="addon-card">
+                    <div class="addon-card-head">
+                      <div class="addon-card-icon"><i class="bi bi-chat-dots"></i></div>
+                      <div class="addon-card-copy">
+                        <h3>Hello World</h3>
+                        <p>Small starter add-on surface.</p>
+                      </div>
+                      <span class="badge bg-success-subtle text-success-emphasis">Enabled</span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap mt-3">
+                      <button class="btn btn-sm btn-primary" type="button">Config</button>
+                      <button class="btn btn-sm btn-outline-secondary" type="button">Export</button>
+                    </div>
+                  </div>
+                  <div class="addon-card">
+                    <div class="addon-card-head">
+                      <div class="addon-card-icon"><i class="bi bi-grid-3x3-gap"></i></div>
+                      <div class="addon-card-copy">
+                        <h3>Widget &amp; UI</h3>
+                        <p>Reference visual system for shell and widgets.</p>
+                      </div>
+                      <span class="badge bg-success-subtle text-success-emphasis">Enabled</span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap mt-3">
+                      <button class="btn btn-sm btn-primary" type="button">Config</button>
+                      <button class="btn btn-sm btn-outline-secondary" type="button">Export</button>
+                    </div>
+                  </div>
+                  <div class="addon-card">
+                    <div class="addon-card-head">
+                      <div class="addon-card-icon"><i class="bi bi-book"></i></div>
+                      <div class="addon-card-copy">
+                        <h3>Documentation</h3>
+                        <p>Reader surface for markdown and technical content.</p>
+                      </div>
+                      <span class="badge bg-warning-subtle text-warning-emphasis">Pending restart</span>
+                    </div>
+                    <div class="d-flex gap-2 flex-wrap mt-3">
+                      <button class="btn btn-sm btn-primary" type="button">Config</button>
+                      <button class="btn btn-sm btn-outline-danger" type="button" data-demo-confirm>Disable</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-lg-4 col-xxl-3 settings-side-col">
+          <div class="settings-action-rail">
+            <div class="card settings-panel-card">
+              <div class="card-header"><i class="bi bi-lightning-charge me-2 text-primary"></i>Actions</div>
+              <div class="card-body d-grid gap-2">
+                <button class="btn btn-primary" type="button" data-toast-msg="Runtime settings applied" data-toast-type="success"><i class="bi bi-save me-1"></i>Save settings</button>
+                <button class="btn btn-outline-secondary" type="button" data-toast-msg="Exported runtime snapshot" data-toast-type="info"><i class="bi bi-download me-1"></i>Export JSON</button>
+                <button class="btn btn-outline-secondary" type="button" data-toast-msg="Imported runtime snapshot" data-toast-type="success"><i class="bi bi-upload me-1"></i>Import JSON</button>
+                <button class="btn btn-outline-dark" type="button" data-demo-runtime-refresh><i class="bi bi-arrow-repeat me-1"></i>Restart server</button>
+              </div>
+            </div>
+            <div class="card settings-panel-card mt-3">
+              <div class="card-header"><i class="bi bi-file-earmark-zip me-2 text-primary"></i>Install add-on ZIP</div>
+              <div class="card-body">
+                <p class="text-muted fs-sm">Validated archive upload with progress, settings apply, and controlled restart workflow.</p>
+                <button class="btn btn-primary w-100" type="button" data-demo-nav-loading><i class="bi bi-box-arrow-in-down me-1"></i>Install add-on</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+  <script type="application/json" id="flashMessagesData">[["success","Settings page template loaded"],["info","This static page mirrors the admin runtime configuration surface."]]</script>
+
+  <div class="cookie-banner" id="cookieBanner">
+    <span><i class="bi bi-cookie me-2"></i>
+      We use essential technical cookies for site operation only.
+      <a href="#" onclick="return false;">Privacy Policy</a>
+    </span>
+    <button class="btn btn-sm btn-outline-light flex-shrink-0" id="cookieAccept">Accept</button>
+  </div>
+
+  <div class="modal fade" id="confirmActionModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmActionTitle"><i class="bi bi-exclamation-circle me-2 text-warning"></i>Confirm action</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="confirmActionBody">Confirm this action?</div>
+        <div class="modal-footer">
+          <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-danger" id="confirmActionOkBtn"><i class="bi bi-check2 me-1"></i>Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="navLoadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered modal-sm">
+      <div class="modal-content">
+        <div class="modal-body text-center py-4">
+          <div class="spinner-border text-primary mb-3" role="status" aria-hidden="true"></div>
+          <div class="fw-semibold mb-1">Installing add-on</div>
+          <div class="text-muted fs-sm">Validating ZIP, applying settings, and preparing restart.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="logDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-journal-text me-2"></i>Log detail</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body" id="logDetailBody">
+          <div class="code-wrap">
+            <pre class="mb-0"><code>{
+  "event": "settings.apply",
+  "revision": 24,
+  "message": "Runtime configuration committed and applied."
+}</code></pre>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="runtimeRefreshModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-arrow-repeat me-2 text-warning"></i>Refreshing workspace</h5>
+        </div>
+        <div class="modal-body">
+          <div class="fw-semibold mb-2" id="runtimeRefreshTitle">A refresh is required.</div>
+          <div class="text-muted small" id="runtimeRefreshBody">The server runtime changed. This page will reload automatically in the real app.</div>
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-primary btn-sm" id="runtimeRefreshNowBtn" type="button">
+            <i class="bi bi-arrow-clockwise me-1"></i>Refresh now
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./static/js/utils.js"></script>
+  <script src="./static/js/sidebar-cookie.js"></script>
+  <script src="./static/js/toast.js"></script>
+  <script src="./static/js/confirm-modal.js"></script>
+  <script src="./static/js/nav-loading.js"></script>
+  <script src="./static/js/app.js"></script>
+  <script src="./static/js/template.js"></script>
+</body>
+</html>

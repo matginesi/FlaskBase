@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %} · Hello World{% endblock %}
+{% block content %}
+<div class="page-header" data-addon-page="hello-world-{{ view_mode or 'user' }}">
+  <div class="page-breadcrumb"><i class="bi bi-emoji-smile me-1"></i> Add-on</div>
+  <h1>Hello World</h1>
+  <p>{% if view_mode == 'admin' %}Vista amministrativa dell'add-on.{% else %}Vista utente dell'add-on.{% endif %} Questo add-on minimale riusa i template core.</p>
+</div>
+
+{% if current_user.is_admin() %}
+<div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+  <a href="{{ user_url }}" class="btn btn-sm {% if view_mode != 'admin' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+    <i class="bi bi-person me-1"></i>User page
+  </a>
+  <a href="{{ admin_url }}" class="btn btn-sm {% if view_mode == 'admin' %}btn-warning{% else %}btn-outline-warning{% endif %}">
+    <i class="bi bi-shield-lock me-1"></i>Admin page
+  </a>
+</div>
+{% endif %}
+
+<div class="card shadow-sm">
+  <div class="card-body">
+    <div class="d-flex align-items-center gap-2 mb-2">
+      <span class="badge bg-primary-subtle text-primary">hello_world</span>
+      <span class="badge {% if view_mode == 'admin' %}bg-warning-subtle text-warning-emphasis{% else %}bg-success-subtle text-success-emphasis{% endif %}">{{ view_mode or 'user' }}</span>
+      <span class="text-muted small">base.html + UI kit core</span>
+    </div>
+    <p class="mb-0">{% if view_mode == 'admin' %}Qui puoi esporre strumenti di setup, diagnostica e configurazione del tuo add-on.{% else %}Qui puoi esporre l'esperienza utente del tuo add-on.{% endif %}</p>
+  </div>
+</div>
+{% endblock %}

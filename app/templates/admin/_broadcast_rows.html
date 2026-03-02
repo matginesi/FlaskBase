@@ -1,0 +1,32 @@
+{% for b in broadcasts %}
+<tr>
+  <td class="text-muted small">{{ b.created_at.strftime('%Y-%m-%d %H:%M') if b.created_at else '' }}</td>
+  <td>
+    <div class="fw-semibold">{{ b.title }}</div>
+    <div class="text-muted fs-xs">{{ b.level }} · {{ b.body_format }}</div>
+  </td>
+  <td class="fs-xs">
+    {% if b.email_requested %}
+      <div>{{ b.email_template_key or 'default' }}</div>
+      <div class="text-muted">{{ b.email_subject or b.title }}</div>
+    {% else %}
+      <span class="text-muted">not requested</span>
+    {% endif %}
+  </td>
+  <td class="fs-xs">
+    {% if b.email_error %}
+    <span class="badge bg-warning text-dark">partial failure</span>
+    <div class="text-muted mt-1">{{ b.email_error }}</div>
+    {% elif b.email_sent_at %}
+    <span class="badge bg-success">sent</span>
+    <div class="text-muted mt-1">{{ b.email_sent_at.strftime('%Y-%m-%d %H:%M') if b.email_sent_at else '' }}</div>
+    {% elif b.email_requested %}
+    <span class="badge bg-secondary">queued/manual</span>
+    {% else %}
+    <span class="badge bg-light text-dark border">inbox only</span>
+    {% endif %}
+  </td>
+</tr>
+{% else %}
+<tr><td colspan="4" class="p-3 text-muted">No broadcasts yet.</td></tr>
+{% endfor %}

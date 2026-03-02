@@ -1,0 +1,10 @@
+{
+  "title": "API Tester",
+  "icon": "terminal",
+  "description": "Testa endpoint HTTP direttamente dal browser.",
+  "fields": [
+    {"key": "timeout_sec", "label": "Timeout (sec)", "type": "number", "min": 1, "max": 120},
+    {"key": "max_response_kb", "label": "Max risposta (KB)", "type": "number", "min": 10, "max": 10240},
+    {"key": "pretty_json", "label": "Formatta JSON", "type": "checkbox"}
+  ]
+}

@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="{{ g.ui_lang | default('en') }}">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{ g.app_name }}{% block title %}{% endblock %}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
+  <style nonce="{{ g.csp_nonce }}">
+    :root {
+      --accent: {{ g.theme.brand_color | default('#2563eb') }};
+      --sidebar-w: {{ g.theme.sidebar_width_px | default(260) }}px;
+      --topbar-h: {{ g.theme.topbar_height_px | default(56) }}px;
+      --radius: {{ g.theme.radius_px | default(10) }}px;
+      --font-base: {{ g.theme.font_family_base | default('system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif') }};
+      --font-mono: {{ g.theme.font_family_mono | default('ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace') }};
+      --font-size-base: {{ g.theme.font_size_base_px | default(14) }}px;
+      --line-height-base: {{ g.theme.line_height_base | default(1.45) }};
+      --page-title-size: {{ g.theme.page_title_font_size_rem | default(1.26) }}rem;
+      --card-header-size: {{ g.theme.card_header_font_size_rem | default(0.80) }}rem;
+      --btn-font-size: {{ g.theme.button_font_size_rem | default(0.82) }}rem;
+      --btn-py: {{ g.theme.button_padding_y_rem | default(0.24) }}rem;
+      --btn-px: {{ g.theme.button_padding_x_rem | default(0.58) }}rem;
+      --btn-sm-font-size: {{ g.theme.button_sm_font_size_rem | default(0.79) }}rem;
+      --btn-sm-py: {{ g.theme.button_sm_padding_y_rem | default(0.20) }}rem;
+      --btn-sm-px: {{ g.theme.button_sm_padding_x_rem | default(0.48) }}rem;
+      --body-bg: {{ g.theme.body_bg | default('#f0f4f8') }};
+      --text-color: {{ g.theme.text_color | default('#1e293b') }};
+      --text-muted: {{ g.theme.text_muted | default('#6b7a8d') }};
+      --card-bg: {{ g.theme.card_bg | default('#ffffff') }};
+      --card-border: {{ g.theme.card_border | default('#e5eaf0') }};
+      --topbar-bg: {{ g.theme.topbar_bg | default('#0f1923') }};
+      --topbar-border: {{ g.theme.topbar_border | default('#1e2f40') }};
+      --sidebar-bg: {{ g.theme.sidebar_bg | default('#0f1923') }};
+      --sidebar-text: {{ g.theme.sidebar_text | default('#8fa3b8') }};
+      --sidebar-active: {{ g.theme.sidebar_active | default('#ffffff') }};
+      --sidebar-section: {{ g.theme.sidebar_section | default('#4a6080') }};
+      --sidebar-hover-bg: {{ g.theme.sidebar_hover_bg | default('rgba(255,255,255,.06)') }};
+      --success: {{ g.theme.success | default('#16a34a') }};
+      --warning: {{ g.theme.warning | default('#d97706') }};
+      --danger: {{ g.theme.danger | default('#dc2626') }};
+      --info: {{ g.theme.info | default('#0891b2') }};
+      --accent-light: {{ g.theme.accent_light | default('#eff4ff') }};
+    }
+  </style>
+  <meta name="csrf-token" content="{{ csrf_token() }}">
+  {% block head %}{% endblock %}
+</head>
+<body class="app-body">
+
+<header class="topbar" id="topbar">
+  <div class="topbar-brand">{{ g.app_name }}<span class="topbar-version ms-1 brand-accent">v{{ g.app_version }}</span></div>
+  <div class="ms-auto d-flex align-items-center gap-2">
+    {% block topbar_extra %}{% endblock %}
+    <a class="btn btn-outline-light btn-sm position-relative" href="{{ url_for('main.messages') }}" title="{{ tr('topbar.messages', 'Messages') }}">
+      <i class="bi bi-bell"></i>
+      {% if g.message_counts.unread_total %}
+      <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">{{ g.message_counts.unread_total }}</span>
+      {% endif %}
+    </a>
+    <div class="topbar-meta d-none d-sm-block">
+      {{ current_user.name }}
+      <span class="badge ms-1 topbar-role-badge {% if current_user.role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ current_user.role }}</span>
+    </div>
+    <div class="topbar-avatar" title="{{ current_user.email }}">{{ current_user.name[:1].upper() }}</div>
+    <a class="btn btn-outline-danger btn-sm" href="{{ url_for('auth.logout') }}">
+      <i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline"> {{ tr('topbar.logout', 'Logout') }}</span>
+    </a>
+  </div>
+</header>
+
+<nav class="mobile-topnav d-md-none" id="mobileTopnav" aria-label="Mobile navigation">
+  <div class="mobile-topnav-bar">
+    <button class="mobile-topnav-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavDrawer" aria-controls="mobileNavDrawer" aria-label="{{ tr('topbar.open_navigation', 'Open navigation') }}">
+      <i class="bi bi-list"></i>
+    </button>
+    <a href="{{ url_for('main.dashboard') }}" class="mobile-topnav-brand">
+      <span class="mobile-topnav-brand-title">{{ g.app_name }}</span>
+      <span class="mobile-topnav-brand-subtitle">{{ current_user.role|capitalize }} {{ tr('workspace.user', 'workspace') }}</span>
+    </a>
+    <a class="mobile-topnav-icon {% if request.endpoint == 'main.messages' %}active{% endif %}" href="{{ url_for('main.messages') }}" aria-label="{{ tr('nav.messages', 'Messages') }}">
+      <i class="bi bi-bell"></i>
+      {% if g.message_counts.unread_total %}
+      <em class="mobile-topnav-pill">{{ g.message_counts.unread_total }}</em>
+      {% endif %}
+    </a>
+  </div>
+</nav>
+
+<div class="offcanvas offcanvas-start mobile-nav-drawer d-md-none" tabindex="-1" id="mobileNavDrawer" aria-labelledby="mobileNavDrawerLabel">
+  <div class="offcanvas-header mobile-nav-drawer-head">
+    <div class="mobile-topnav-user">
+      <div class="mobile-topnav-avatar" title="{{ current_user.email }}">{{ current_user.name[:1].upper() }}</div>
+      <div class="mobile-topnav-copy">
+        <div class="mobile-topnav-title">{{ current_user.name }}</div>
+        <div class="mobile-topnav-subtitle">{{ current_user.email }}</div>
+      </div>
+    </div>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="{{ tr('topbar.close', 'Close') }}"></button>
+  </div>
+  <div class="offcanvas-body mobile-nav-drawer-body">
+    <div class="mobile-topnav-section">
+      <div class="mobile-topnav-section-title">{{ tr('nav.workspace', 'Workspace') }}</div>
+      <div class="mobile-topnav-grid">
+        <a href="{{ url_for('main.dashboard') }}" class="mobile-topnav-link {% if request.endpoint in ('main.dashboard','admin.dashboard') %}active{% endif %}">
+          <i class="bi bi-house"></i><span>{{ tr('nav.dashboard', 'Dashboard') }}</span>
+        </a>
+        <a href="{{ url_for('main.messages') }}" class="mobile-topnav-link {% if request.endpoint == 'main.messages' %}active{% endif %}">
+          <i class="bi bi-envelope"></i><span>{{ tr('nav.messages', 'Messages') }}</span>
+          {% if g.message_counts.unread_total %}
+          <em class="mobile-topnav-pill">{{ g.message_counts.unread_total }}</em>
+          {% endif %}
+        </a>
+        <a href="{{ url_for('auth.settings') }}" class="mobile-topnav-link {% if request.endpoint == 'auth.settings' %}active{% endif %}">
+          <i class="bi bi-person-gear"></i><span>{{ tr('nav.account', 'Account') }}</span>
+        </a>
+      </div>
+    </div>
+
+    {% set user_nav = (g.addon_nav.get('user', []) if g.addon_nav else []) %}
+    {% if user_nav %}
+    <div class="mobile-topnav-section">
+      <div class="mobile-topnav-section-title">{{ tr('nav.addons', 'Add-ons') }}</div>
+      <div class="mobile-topnav-grid">
+        {% for item in user_nav %}
+        {% set _addon_key = (item.addon_id if item.addon_id is defined and item.addon_id else item.id) %}
+        {% if g.addon_access.get(_addon_key, True) %}
+        <a href="{{ item.href }}" class="mobile-topnav-link {% if request.path.startswith(item.active_prefix or item.href) %}active{% endif %}">
+          <i class="bi bi-{{ item.icon }}"></i><span>{{ item.label }}</span>
+        </a>
+        {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if current_user.role == 'admin' %}
+    <div class="mobile-topnav-section">
+      <div class="mobile-topnav-section-title">{{ tr('nav.admin', 'Admin') }}</div>
+      <div class="mobile-topnav-grid">
+        <a href="{{ url_for('admin.settings') }}" class="mobile-topnav-link {% if request.endpoint == 'admin.settings' %}active{% endif %}">
+          <i class="bi bi-sliders"></i><span>{{ tr('nav.settings', 'Settings') }}</span>
+        </a>
+        <a href="{{ url_for('admin.users') }}" class="mobile-topnav-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
+          <i class="bi bi-people"></i><span>{{ tr('nav.users', 'Users') }}</span>
+        </a>
+        <a href="{{ url_for('admin.logs') }}" class="mobile-topnav-link {% if request.endpoint == 'admin.logs' %}active{% endif %}">
+          <i class="bi bi-journal-text"></i><span>{{ tr('nav.logs', 'Logs') }}</span>
+        </a>
+        <a href="{{ url_for('admin.broadcasts') }}" class="mobile-topnav-link {% if request.endpoint == 'admin.broadcasts' %}active{% endif %}">
+          <i class="bi bi-megaphone"></i><span>{{ tr('nav.comms', 'Comms') }}</span>
+        </a>
+        <a href="{{ url_for('admin.database') }}" class="mobile-topnav-link {% if request.endpoint == 'admin.database' %}active{% endif %}">
+          <i class="bi bi-hdd"></i><span>{{ tr('nav.database', 'Database') }}</span>
+        </a>
+        <a href="{{ url_for('admin.deploy_health') }}" class="mobile-topnav-link {% if request.endpoint == 'admin.deploy_health' %}active{% endif %}">
+          <i class="bi bi-shield-check"></i><span>{{ tr('nav.deploy_health', 'Deploy Health') }}</span>
+        </a>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="mobile-topnav-section">
+      <a class="mobile-topnav-logout" href="{{ url_for('auth.logout') }}">
+        <i class="bi bi-box-arrow-right"></i><span>{{ tr('nav.logout', 'Logout') }}</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<div class="app-shell" id="appShell">
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-section">{{ tr('nav.workspace', 'Workspace') }}</div>
+      {% if g.pages.get('pages', {}).get('user', {}).get('dashboard', {}).get('enabled', True) %}
+      <a href="{{ url_for('main.dashboard') }}" class="sidebar-link {% if request.endpoint in ('main.dashboard','admin.dashboard') %}active{% endif %}">
+        <i class="bi bi-house sidebar-icon"></i> {{ tr('nav.dashboard', 'Dashboard') }}
+      </a>
+
+      <a href="{{ url_for('main.messages') }}" class="sidebar-link {% if request.endpoint == 'main.messages' %}active{% endif %}">
+        <i class="bi bi-envelope sidebar-icon"></i> {{ tr('nav.messages', 'Messages') }}
+        {% if g.message_counts.unread_total %}
+        <span class="badge bg-danger ms-auto">{{ g.message_counts.unread_total }}</span>
+        {% endif %}
+      </a>
+      {% endif %}
+      {% if g.pages.get('pages', {}).get('user', {}).get('account_settings', {}).get('enabled', True) %}
+      <a href="{{ url_for('auth.settings') }}" class="sidebar-link {% if request.endpoint == 'auth.settings' %}active{% endif %}">
+        <i class="bi bi-person-gear sidebar-icon"></i> Account
+      </a>
+      {% endif %}
+      <div class="sidebar-section">{{ tr('nav.addons', 'Add-ons') }}</div>
+      {% for item in (g.addon_nav.get('user', []) if g.addon_nav else []) %}
+      {% set item_page_ok = (not item.page_key) or g.pages.get('pages', {}).get('user', {}).get(item.page_key, {}).get('enabled', True) %}
+      {% set item_feature_ok = (not item.feature_key) or g.runtime_features.get(item.feature_key, True) %}
+      {% set _addon_key = (item.addon_id if item.addon_id is defined and item.addon_id else item.id) %}
+      {% set item_access_ok = (g.addon_access.get(_addon_key, True) if g.addon_access is defined else True) %}
+      {% if item_page_ok and item_feature_ok and item_access_ok %}
+      <a href="{{ item.href }}" class="sidebar-link {% if request.path.startswith(item.active_prefix or item.href) %}active{% endif %}">
+        <i class="bi bi-{{ item.icon }} sidebar-icon"></i> {{ item.label }}
+      </a>
+      {% endif %}
+      {% endfor %}
+      {% if current_user.role == 'admin' %}
+      <div class="sidebar-section">{{ tr('nav.admin', 'Admin') }}</div>
+      {% if g.pages.get('pages', {}).get('admin', {}).get('admin_settings', {}).get('enabled', True) %}
+      <a href="{{ url_for('admin.settings') }}" class="sidebar-link {% if request.endpoint == 'admin.settings' %}active{% endif %}">
+        <i class="bi bi-sliders sidebar-icon"></i> {{ tr('nav.webapp_config', 'WebApp Config') }}
+      </a>
+      {% endif %}
+      {% if g.pages.get('pages', {}).get('admin', {}).get('admin_users', {}).get('enabled', True) %}
+      <a href="{{ url_for('admin.users') }}" class="sidebar-link {% if request.endpoint == 'admin.users' %}active{% endif %}">
+        <i class="bi bi-people sidebar-icon"></i> {{ tr('nav.users', 'Users') }}
+      </a>
+      {% endif %}
+      {% if g.pages.get('pages', {}).get('admin', {}).get('admin_logs', {}).get('enabled', True) %}
+      <a href="{{ url_for('admin.logs') }}" class="sidebar-link {% if request.endpoint == 'admin.logs' %}active{% endif %}">
+        <i class="bi bi-journal-text sidebar-icon"></i> {{ tr('nav.event_logs', 'Event Logs') }}
+      </a>
+      {% endif %}
+      {% if g.pages.get('pages', {}).get('admin', {}).get('admin_broadcasts', {}).get('enabled', True) %}
+      <a href="{{ url_for('admin.broadcasts') }}" class="sidebar-link {% if request.endpoint == 'admin.broadcasts' %}active{% endif %}">
+        <i class="bi bi-megaphone sidebar-icon"></i> {{ tr('nav.comms', 'Comms') }}
+      </a>
+      {% endif %}
+      {% if g.pages.get('pages', {}).get('admin', {}).get('admin_database', {}).get('enabled', True) %}
+      <a href="{{ url_for('admin.database') }}" class="sidebar-link {% if request.endpoint == 'admin.database' %}active{% endif %}">
+        <i class="bi bi-hdd sidebar-icon"></i> {{ tr('nav.database', 'Database') }}
+      </a>
+      {% endif %}
+      {% if g.pages.get('pages', {}).get('admin', {}).get('admin_deploy_health', {}).get('enabled', True) %}
+      <a href="{{ url_for('admin.deploy_health') }}" class="sidebar-link {% if request.endpoint == 'admin.deploy_health' %}active{% endif %}">
+        <i class="bi bi-shield-check sidebar-icon"></i> {{ tr('nav.deploy_health', 'Deploy Health') }}
+      </a>
+      {% endif %}
+      {% endif %}  {# chiude if current_user.role == 'admin' #}
+    </div>
+    <div class="sidebar-footer">
+      <a href="{{ url_for('main.privacy') }}" class="sidebar-link sidebar-footer-link">
+        <i class="bi bi-shield-check sidebar-icon"></i> {{ tr('nav.privacy_policy', 'Privacy Policy') }}
+      </a>
+    </div>
+  </aside>
+
+  <main class="content-area">
+    {% include "partials/flash_totems.html" %}
+    {% block content %}{% endblock %}
+  </main>
+</div>
+
+<!-- Toast Stack -->
+<div class="toast-stack" id="toastStack"></div>
+
+<!-- Cookie Banner -->
+{% if g.cookie_banner_enabled %}
+<div class="cookie-banner" id="cookieBanner">
+  <span><i class="bi bi-cookie me-2"></i>
+  {{ tr('cookie.notice', 'We use essential technical cookies for site operation only. No profiling cookies are used.') }}
+  <a href="{{ url_for('main.privacy') }}">{{ tr('nav.privacy_policy', 'Privacy Policy') }}</a></span>
+  <button class="btn btn-sm btn-outline-light flex-shrink-0" id="cookieAccept">{{ tr('cookie.accept', 'Accept') }}</button>
+</div>
+{% endif %}
+
+<!-- Log Detail Modal -->
+<div class="modal fade" id="logDetailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-journal-text me-2"></i>Dettaglio Log</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="logDetailBody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Action Modal -->
+<div class="modal fade" id="confirmActionModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="confirmActionTitle"><i class="bi bi-exclamation-circle me-2 text-warning"></i>{{ tr('modal.confirm_action', 'Confirm action') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="confirmActionBody">Confermi l'operazione?</div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ tr('modal.cancel', 'Cancel') }}</button>
+        <button class="btn btn-danger" id="confirmActionOkBtn">
+          <i class="bi bi-check2 me-1"></i>{{ tr('modal.confirm', 'Confirm') }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Navigation Loading Modal -->
+<div class="modal fade" id="navLoadingModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-sm">
+    <div class="modal-content">
+      <div class="modal-body py-4 text-center">
+        <div class="spinner-border text-primary mb-2" role="status" aria-hidden="true"></div>
+        <div class="fw-semibold">Opening RAG...</div>
+        <div class="small text-muted">Loading workspace data</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="runtimeRefreshModal" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-arrow-repeat me-2 text-warning"></i>Refreshing workspace</h5>
+      </div>
+      <div class="modal-body">
+        <div class="fw-semibold mb-2" id="runtimeRefreshTitle">A refresh is required.</div>
+        <div class="text-muted small" id="runtimeRefreshBody">The server runtime changed. This page will reload automatically.</div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-primary btn-sm" id="runtimeRefreshNowBtn" type="button">
+          <i class="bi bi-arrow-clockwise me-1"></i>Refresh now
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="{{ url_for('static', filename='js/core/utils.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/sidebar-cookie.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/toast.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/confirm-modal.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/nav-loading.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/runtime-refresh.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/chat.js') }}"></script>
+<script src="{{ url_for('static', filename='js/features/password-strength.js') }}"></script>
+<script nonce="{{ g.csp_nonce }}">
+  window.__WEBAPP_RUNTIME_REFRESH__ = {
+    token: {{ (g.runtime_refresh_token or '') | tojson }},
+    message: {{ (g.runtime_refresh_message or '') | tojson }},
+    endpoint: {{ url_for('main.runtime_client_state') | tojson }}
+  };
+</script>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

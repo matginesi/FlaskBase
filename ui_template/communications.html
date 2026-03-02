@@ -1,0 +1,361 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WebApp UI Template · Communications</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="./static/css/app.css" rel="stylesheet">
+  <style>
+    :root {
+      --accent: #2563eb;
+      --sidebar-w: 260px;
+      --topbar-h: 56px;
+      --radius: 10px;
+      --body-bg: #f0f4f8;
+      --text-color: #1e293b;
+      --text-muted: #6b7a8d;
+      --card-bg: #ffffff;
+      --card-border: #e5eaf0;
+      --topbar-bg: #0f1923;
+      --topbar-border: #1e2f40;
+      --sidebar-bg: #0f1923;
+      --sidebar-text: #8fa3b8;
+      --sidebar-active: #ffffff;
+      --sidebar-section: #4a6080;
+      --sidebar-hover-bg: rgba(255,255,255,.06);
+      --success: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
+      --info: #0891b2;
+      --accent-light: #eff4ff;
+    }
+  </style>
+</head>
+<body class="app-body">
+  <header class="topbar" id="topbar">
+    <div class="topbar-brand">WebApp<span class="topbar-version ms-1 brand-accent">v1.0.0</span></div>
+    <div class="ms-auto d-flex align-items-center gap-2">
+      <a class="btn btn-outline-light btn-sm position-relative" href="#" onclick="return false;" title="Messages">
+        <i class="bi bi-bell"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">4</span>
+      </a>
+      <span class="topbar-meta d-none d-sm-block">
+        Admin Demo
+        <span class="badge ms-1 topbar-role-badge bg-warning text-dark">admin</span>
+      </span>
+      <div class="topbar-avatar" title="admin@test.com">A</div>
+      <a class="btn btn-outline-danger btn-sm" href="#" onclick="return false;">
+        <i class="bi bi-box-arrow-right"></i><span class="d-none d-sm-inline"> Logout</span>
+      </a>
+    </div>
+  </header>
+
+  <nav class="mobile-topnav d-md-none" id="mobileTopnav" aria-label="Mobile navigation">
+    <div class="mobile-topnav-bar">
+      <button class="mobile-topnav-menu" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileNavDrawer" aria-controls="mobileNavDrawer" aria-label="Open navigation">
+        <i class="bi bi-list"></i>
+      </button>
+      <a href="./index.html" class="mobile-topnav-brand">
+        <span class="mobile-topnav-brand-title">WebApp</span>
+        <span class="mobile-topnav-brand-subtitle">Admin workspace</span>
+      </a>
+      <a class="mobile-topnav-icon" href="#" onclick="return false;" aria-label="Messages">
+        <i class="bi bi-bell"></i>
+        <em class="mobile-topnav-pill">4</em>
+      </a>
+    </div>
+  </nav>
+
+  <div class="offcanvas offcanvas-start mobile-nav-drawer d-md-none" tabindex="-1" id="mobileNavDrawer" aria-labelledby="mobileNavDrawerLabel">
+    <div class="offcanvas-header mobile-nav-drawer-head">
+      <div class="mobile-topnav-user">
+        <div class="mobile-topnav-avatar" title="admin@test.com">A</div>
+        <div class="mobile-topnav-copy">
+          <div class="mobile-topnav-title">Admin Demo</div>
+          <div class="mobile-topnav-subtitle">admin@test.com</div>
+        </div>
+      </div>
+      <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+    </div>
+    <div class="offcanvas-body mobile-nav-drawer-body">
+      <div class="mobile-topnav-section">
+        <div class="mobile-topnav-section-title">Workspace</div>
+        <div class="mobile-topnav-grid">
+          <a href="./index.html" class="mobile-topnav-link"><i class="bi bi-house"></i><span>Dashboard</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-envelope"></i><span>Messages</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-person-gear"></i><span>Account</span></a>
+        </div>
+      </div>
+      <div class="mobile-topnav-section">
+        <div class="mobile-topnav-section-title">Admin</div>
+        <div class="mobile-topnav-grid">
+          <a href="./settings.html" class="mobile-topnav-link"><i class="bi bi-sliders"></i><span>Settings</span></a>
+          <a href="./communications.html" class="mobile-topnav-link active"><i class="bi bi-megaphone"></i><span>Comms</span></a>
+          <a href="./database.html" class="mobile-topnav-link"><i class="bi bi-hdd"></i><span>Database</span></a>
+        </div>
+      </div>
+      <div class="mobile-topnav-section">
+        <a class="mobile-topnav-logout" href="#" onclick="return false;">
+          <i class="bi bi-box-arrow-right"></i><span>Logout</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="app-shell" id="appShell">
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-section">Workspace</div>
+        <a href="./index.html" class="sidebar-link"><i class="bi bi-house sidebar-icon"></i> Dashboard</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-envelope sidebar-icon"></i> Messages</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-person-gear sidebar-icon"></i> Account</a>
+        <div class="sidebar-section">Admin</div>
+        <a href="./settings.html" class="sidebar-link"><i class="bi bi-sliders sidebar-icon"></i> WebApp Config</a>
+        <a href="./communications.html" class="sidebar-link active"><i class="bi bi-megaphone sidebar-icon"></i> Communications</a>
+        <a href="./database.html" class="sidebar-link"><i class="bi bi-hdd sidebar-icon"></i> Database</a>
+      </div>
+      <div class="sidebar-footer">
+        <a href="#" onclick="return false;" class="sidebar-link sidebar-footer-link">
+          <i class="bi bi-shield-check sidebar-icon"></i> Privacy Policy
+        </a>
+      </div>
+    </aside>
+
+    <main class="content-area">
+      <div class="page-header settings-page-header">
+        <div class="settings-header-row">
+          <div class="min-w-0">
+            <div class="page-breadcrumb"><i class="bi bi-megaphone me-1"></i>Admin</div>
+            <h1>Communications</h1>
+            <p class="settings-header-copy">Static replica of the unified communications workspace: direct inbox messages and HTML email sends share the same Widget &amp; UI visual system.</p>
+          </div>
+          <div class="settings-header-badges">
+            <span class="badge text-bg-light border">messages</span>
+            <span class="badge text-bg-light border">email templates</span>
+            <span class="badge text-bg-light border">broadcast</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="adaptive-card-grid adaptive-card-grid--compact mb-3 settings-kpi-row">
+        <div>
+          <div class="stat-card stat-card-compact settings-kpi-card settings-kpi-card-modern">
+            <div class="settings-kpi-strip"></div>
+            <div class="settings-kpi-top">
+              <div class="settings-kpi-topline">
+                <div class="settings-kpi-eyebrow">Broadcasts</div>
+                <div class="settings-kpi-helper">recent sends</div>
+              </div>
+              <span class="settings-kpi-icon-wrap"><i class="bi bi-broadcast-pin settings-kpi-icon"></i></span>
+            </div>
+            <div class="settings-kpi-body">
+              <div class="stat-val">14</div>
+              <div class="stat-lbl">Recent broadcasts</div>
+            </div>
+            <div class="settings-kpi-meta">Public or system-wide communication records.</div>
+          </div>
+        </div>
+        <div>
+          <div class="stat-card success stat-card-compact settings-kpi-card settings-kpi-card-modern">
+            <div class="settings-kpi-strip"></div>
+            <div class="settings-kpi-top">
+              <div class="settings-kpi-topline">
+                <div class="settings-kpi-eyebrow">Direct</div>
+                <div class="settings-kpi-helper">single user flow</div>
+              </div>
+              <span class="settings-kpi-icon-wrap"><i class="bi bi-person-lines-fill settings-kpi-icon"></i></span>
+            </div>
+            <div class="settings-kpi-body">
+              <div class="stat-val">28</div>
+              <div class="stat-lbl">Direct messages</div>
+            </div>
+            <div class="settings-kpi-meta">Latest targeted inbox or email communications.</div>
+          </div>
+        </div>
+        <div>
+          <div class="stat-card warning stat-card-compact settings-kpi-card settings-kpi-card-modern">
+            <div class="settings-kpi-strip"></div>
+            <div class="settings-kpi-top">
+              <div class="settings-kpi-topline">
+                <div class="settings-kpi-eyebrow">Templates</div>
+                <div class="settings-kpi-helper">html presets</div>
+              </div>
+              <span class="settings-kpi-icon-wrap"><i class="bi bi-envelope-paper-heart settings-kpi-icon"></i></span>
+            </div>
+            <div class="settings-kpi-body">
+              <div class="stat-val">3</div>
+              <div class="stat-lbl">Email templates</div>
+            </div>
+            <div class="settings-kpi-meta">Server-side layouts ready for branded sends.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-12 col-xxl-5">
+          <div class="card settings-panel-card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <span>Composer</span>
+              <span class="badge bg-light text-dark border">2 channels</span>
+            </div>
+            <div class="card-body">
+              <ul class="nav nav-tabs-segment mb-3" role="tablist">
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#demo-messages" type="button" role="tab">
+                    <i class="bi bi-chat-left-text me-1"></i>Messaggi
+                  </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#demo-email" type="button" role="tab">
+                    <i class="bi bi-envelope-paper me-1"></i>Email
+                  </button>
+                </li>
+              </ul>
+
+              <div class="tab-content tab-content-surface tab-content-surface-compact">
+                <div class="tab-pane fade show active" id="demo-messages" role="tabpanel">
+                  <div class="d-grid gap-3">
+                    <div class="comms-recipient-panel">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-semibold">Destinatari</div>
+                        <span class="badge bg-light text-dark border">max 10 righe</span>
+                      </div>
+                      <div class="row g-2">
+                        <div class="col-12 col-md-4">
+                          <div class="d-grid gap-2">
+                            <label class="border rounded px-2 py-2 bg-white"><input class="form-check-input me-2" type="radio" checked>Un utente</label>
+                            <label class="border rounded px-2 py-2 bg-white"><input class="form-check-input me-2" type="radio">Broadcast</label>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-8">
+                          <select class="form-select form-select-sm" size="10">
+                            <option>Anna Verdi · anna@example.com</option>
+                            <option>Marco Bianchi · marco@example.com</option>
+                            <option>Giulia Neri · giulia@example.com</option>
+                            <option>Luca Riva · luca@example.com</option>
+                            <option>Sara Fontana · sara@example.com</option>
+                            <option>Paolo Galli · paolo@example.com</option>
+                            <option>Elena Costa · elena@example.com</option>
+                            <option>Fabio Villa · fabio@example.com</option>
+                            <option>Marta Sala · marta@example.com</option>
+                            <option>Davide Serra · davide@example.com</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <input class="form-control form-control-sm" value="Maintenance notice">
+                    <textarea class="form-control form-control-sm" rows="7">Planned maintenance tonight from 22:00 to 22:30. Please save your work before the window starts.</textarea>
+                    <div class="row g-2">
+                      <div class="col-6"><select class="form-select form-select-sm"><option>warning</option></select></div>
+                      <div class="col-6"><select class="form-select form-select-sm"><option>text</option><option>html</option></select></div>
+                    </div>
+                    <button class="btn btn-primary btn-sm" type="button"><i class="bi bi-send me-1"></i>Invia messaggio</button>
+                  </div>
+                </div>
+
+                <div class="tab-pane fade" id="demo-email" role="tabpanel">
+                  <div class="d-grid gap-3">
+                    <div class="comms-recipient-panel">
+                      <div class="d-flex align-items-center justify-content-between mb-2">
+                        <div class="fw-semibold">Destinatari</div>
+                        <span class="badge bg-light text-dark border">max 10 righe</span>
+                      </div>
+                      <div class="row g-2">
+                        <div class="col-12 col-md-4">
+                          <div class="d-grid gap-2">
+                            <label class="border rounded px-2 py-2 bg-white"><input class="form-check-input me-2" type="radio" checked>Un utente</label>
+                            <label class="border rounded px-2 py-2 bg-white"><input class="form-check-input me-2" type="radio">Broadcast</label>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-8">
+                          <select class="form-select form-select-sm" size="10">
+                            <option>Anna Verdi · anna@example.com</option>
+                            <option>Marco Bianchi · marco@example.com</option>
+                            <option>Giulia Neri · giulia@example.com</option>
+                            <option>Luca Riva · luca@example.com</option>
+                            <option>Sara Fontana · sara@example.com</option>
+                            <option>Paolo Galli · paolo@example.com</option>
+                            <option>Elena Costa · elena@example.com</option>
+                            <option>Fabio Villa · fabio@example.com</option>
+                            <option>Marta Sala · marta@example.com</option>
+                            <option>Davide Serra · davide@example.com</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="row g-2">
+                      <div class="col-6"><select class="form-select form-select-sm"><option>Default</option><option>Alert</option><option>Success</option></select></div>
+                      <div class="col-6"><input class="form-control form-control-sm" value="Weekly product update"></div>
+                    </div>
+                    <input class="form-control form-control-sm" value="Everything new this week in one recap">
+                    <textarea class="form-control form-control-sm" rows="8"><p>Hello team,</p><p>Here is the weekly product update with the latest UI improvements and deployment notes.</p></textarea>
+                    <div class="row g-2">
+                      <div class="col-5"><input class="form-control form-control-sm" value="Open dashboard"></div>
+                      <div class="col-7"><input class="form-control form-control-sm" value="https://example.com/dashboard"></div>
+                    </div>
+                    <button class="btn btn-success btn-sm" type="button"><i class="bi bi-envelope-check me-1"></i>Invia email HTML</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-12 col-xxl-7">
+          <div class="card settings-panel-card mb-3">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <span>Storico broadcast</span>
+              <span class="badge bg-light text-dark border">14 recenti</span>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-sm table-compact align-middle mb-0">
+                  <thead>
+                    <tr><th>Data</th><th>Titolo</th><th>Email</th><th>Stato</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="text-muted small">2026-03-02 10:15</td><td><div class="fw-semibold">Weekly digest</div><div class="text-muted fs-xs">info · html</div></td><td class="fs-xs"><div>alert</div><div class="text-muted">Weekly digest is ready</div></td><td><span class="badge bg-secondary">queued/manual</span></td></tr>
+                    <tr><td class="text-muted small">2026-03-01 18:00</td><td><div class="fw-semibold">Maintenance</div><div class="text-muted fs-xs">warning · text</div></td><td class="fs-xs"><span class="text-muted">not requested</span></td><td><span class="badge bg-light text-dark border">inbox only</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <div class="card settings-panel-card">
+            <div class="card-header d-flex align-items-center justify-content-between">
+              <span>Messaggi diretti recenti</span>
+              <span class="badge bg-light text-dark border">28 recenti</span>
+            </div>
+            <div class="card-body p-0">
+              <div class="table-responsive">
+                <table class="table table-sm table-compact align-middle mb-0">
+                  <thead>
+                    <tr><th>Data</th><th>Utente</th><th>Titolo</th><th>Letto</th><th>Email</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="text-muted small">2026-03-02 09:42</td><td>Anna Verdi</td><td><div class="fw-semibold">Billing follow-up</div><div class="text-muted fs-xs">info · html</div></td><td><span class="badge bg-primary-subtle text-primary border">unread</span></td><td><span class="badge bg-success">sent</span></td></tr>
+                    <tr><td class="text-muted small">2026-03-01 15:11</td><td>Marco Bianchi</td><td><div class="fw-semibold">Profile review</div><div class="text-muted fs-xs">success · text</div></td><td><span class="badge bg-success">read</span></td><td><span class="badge bg-light text-dark border">inbox only</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast-stack" id="toastStack"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="./static/js/utils.js"></script>
+  <script src="./static/js/toast.js"></script>
+  <script src="./static/js/confirm-modal.js"></script>
+  <script src="./static/js/sidebar-cookie.js"></script>
+  <script src="./static/js/nav-loading.js"></script>
+  <script src="./static/js/template.js"></script>
+</body>
+</html>

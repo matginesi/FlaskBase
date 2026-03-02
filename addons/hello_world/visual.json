@@ -1,0 +1,8 @@
+{
+  "title": "Hello World",
+  "icon": "emoji-smile",
+  "description": "Esempio minimale di add-on.",
+  "fields": [
+    {"key": "message", "label": "Messaggio", "type": "text"}
+  ]
+}

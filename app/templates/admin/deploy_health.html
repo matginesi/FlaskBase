@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block title %} · {{ tr('nav.deploy_health', 'Deploy Health') }}{% endblock %}
+{% block content %}
+<div class="page-header settings-page-header">
+  <div class="settings-header-row">
+    <div class="min-w-0">
+      <div class="page-breadcrumb"><i class="bi bi-hdd-stack me-1"></i>{{ tr('nav.admin', 'Admin') }} / {{ tr('nav.database', 'Database') }}</div>
+      <h1>{{ tr('deploy_health.title', 'Deployment health') }}</h1>
+      <p class="settings-header-copy">{{ tr('deploy_health.subtitle', 'A practical checklist to validate BASE_URL, host allow-list, proxy headers, cookie flags, and runtime limits.') }}</p>
+    </div>
+  </div>
+</div>
+
+{% if warnings and warnings|length %}
+<div class="card card-soft mb-3">
+  <div class="card-header d-flex align-items-center justify-content-between">
+    <span><i class="bi bi-exclamation-triangle me-2 text-warning"></i>{{ tr('deploy_health.warnings', 'Warnings') }}</span>
+    <span class="text-muted fs-xs">{{ tr('deploy_health.fix_before_done', 'Fix these before you call it done.') }}</span>
+  </div>
+  <div class="card-body">
+    <div class="d-grid gap-2">
+      {% for w in warnings %}
+      <div class="alert alert-{% if w.level == 'danger' %}danger{% elif w.level == 'warning' %}warning{% else %}info{% endif %} mb-0">
+        <div class="fw-600">{{ w.title }}</div>
+        <div class="fs-sm">{{ w.detail }}</div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="alert alert-success mb-3">
+  <div class="fw-600">{{ tr('deploy_health.looks_good', 'Looks good.') }}</div>
+  <div class="fs-sm">{{ tr('deploy_health.no_warnings', 'No deployment warnings detected for the current request context.') }}</div>
+</div>
+{% endif %}
+
+<div class="row g-3">
+  <div class="col-12 col-xl-6">
+    <div class="card card-soft h-100">
+      <div class="card-header"><i class="bi bi-link-45deg me-2"></i>{{ tr('deploy_health.request_host', 'Request & host') }}</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-compact mb-0">
+            <tbody>
+              <tr><th class="text-muted">{{ tr('deploy_health.host', 'Host') }}</th><td class="text-break">{{ report.request.host }}</td></tr>
+              <tr><th class="text-muted">{{ tr('deploy_health.url_root', 'URL root') }}</th><td class="text-break">{{ report.request.url_root }}</td></tr>
+              <tr><th class="text-muted">{{ tr('deploy_health.client_ip', 'Client IP') }}</th><td>{{ report.request.client_ip or report.request.remote_addr }}</td></tr>
+              <tr><th class="text-muted">{{ tr('deploy_health.allowed', 'Allowed') }}</th>
+                  <td>
+                    {% if report.host_allowlist.host_allowed %}
+                      <span class="badge text-bg-success">{{ tr('deploy_health.yes', 'yes') }}</span>
+                    {% else %}
+                      <span class="badge text-bg-danger">{{ tr('deploy_health.no', 'no') }}</span>
+                    {% endif %}
+                  </td>
+              </tr>
+              <tr><th class="text-muted">{{ tr('deploy_health.allowlist', 'Allowlist') }}</th><td class="text-break">{{ report.host_allowlist.allowed_hosts|join(', ') if report.host_allowlist.allowed_hosts else '—' }}</td></tr>
+              <tr><th class="text-muted">EXTRA_ALLOWED_HOSTS</th><td class="text-break">{{ report.host_allowlist.extra_allowed_hosts_env or '—' }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <div class="card card-soft h-100">
+      <div class="card-header"><i class="bi bi-globe2 me-2"></i>{{ tr('deploy_health.base_url_proxy', 'BASE_URL & proxy') }}</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-compact mb-0">
+            <tbody>
+              <tr><th class="text-muted">BASE_URL</th><td class="text-break">{{ report.base_url or '—' }}</td></tr>
+              <tr><th class="text-muted">ProxyFix</th><td class="text-break">x_for={{ report.proxy_fix.x_for or 0 }}, x_proto={{ report.proxy_fix.x_proto or 0 }}, x_host={{ report.proxy_fix.x_host or 0 }}, x_port={{ report.proxy_fix.x_port or 0 }}</td></tr>
+              <tr><th class="text-muted">X-Forwarded-Proto</th><td>{{ report.forwarded.x_forwarded_proto or '—' }}</td></tr>
+              <tr><th class="text-muted">X-Forwarded-Host</th><td class="text-break">{{ report.forwarded.x_forwarded_host or '—' }}</td></tr>
+              <tr><th class="text-muted">X-Forwarded-For</th><td class="text-break">{{ report.forwarded.x_forwarded_for or '—' }}</td></tr>
+              <tr><th class="text-muted">X-Forwarded-Port</th><td>{{ report.forwarded.x_forwarded_port or '—' }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="text-muted fs-xs mt-2">{{ tr('deploy_health.proxy_tip', 'Tip: enable PROXY_FIX_* only if you are behind a reverse proxy setting these headers.') }}</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <div class="card card-soft h-100">
+      <div class="card-header"><i class="bi bi-cookie me-2"></i>{{ tr('deploy_health.cookie_flags', 'Cookie flags') }}</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-compact mb-0">
+            <tbody>
+              <tr><th class="text-muted">SESSION_COOKIE_SECURE</th><td>{{ 'true' if report.cookies.session_cookie_secure else 'false' }}</td></tr>
+              <tr><th class="text-muted">REMEMBER_COOKIE_SECURE</th><td>{{ 'true' if report.cookies.remember_cookie_secure else 'false' }}</td></tr>
+              <tr><th class="text-muted">SESSION_COOKIE_SAMESITE</th><td>{{ report.cookies.session_cookie_samesite }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-xl-6">
+    <div class="card card-soft h-100">
+      <div class="card-header"><i class="bi bi-speedometer2 me-2"></i>{{ tr('deploy_health.rate_limiting', 'Rate limiting') }}</div>
+      <div class="card-body">
+        <div class="table-responsive">
+          <table class="table table-compact mb-0">
+            <tbody>
+              <tr><th class="text-muted">{{ tr('deploy_health.enabled', 'Enabled') }}</th><td>{{ 'true' if report.rate_limit.enabled else 'false' }}</td></tr>
+              <tr><th class="text-muted">{{ tr('deploy_health.storage', 'Storage') }}</th><td class="text-break">{{ report.rate_limit.storage_uri or '—' }}</td></tr>
+              <tr><th class="text-muted">LOGIN_RATE_LIMIT</th><td>{{ report.rate_limit.login_rate_limit or '—' }}</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="text-muted fs-xs mt-2">{{ tr('deploy_health.rate_limit_tip', 'In production, use Redis or Memcached storage if you run multiple workers.') }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

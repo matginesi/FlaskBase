@@ -1,0 +1,7 @@
+{
+  "display_name": "API Tester",
+  "icon": "plug",
+  "timeout_sec": 30,
+  "max_response_kb": 512,
+  "pretty_json": true
+}

@@ -1,0 +1,12 @@
+{% extends "email/messages/layouts/base.html" %}
+{% block email_body %}
+<p style="margin:0 0 14px 0;">Hello {{ recipient_name }},</p>
+<p style="margin:0 0 18px 0;">A message requiring attention was sent to your WebApp inbox.</p>
+<div style="padding:16px 18px;border:1px solid #fdcaca;border-radius:14px;background:#fff7f7;">
+  {% if body_format == 'html' %}
+  <div>{{ body|sanitize_html_fragment }}</div>
+  {% else %}
+  <div style="white-space:pre-wrap;color:#7f1d1d;">{{ body }}</div>
+  {% endif %}
+</div>
+{% endblock %}

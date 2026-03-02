@@ -1,0 +1,9 @@
+{
+  "title": "Widget & UI",
+  "icon": "grid-3x3-gap",
+  "description": "Opzioni visuali per la pagina demo widgets.",
+  "fields": [
+    {"key": "enable_demo_effects", "label": "Abilita effetti demo", "type": "checkbox"},
+    {"key": "show_advanced_examples", "label": "Mostra esempi avanzati", "type": "checkbox"}
+  ]
+}

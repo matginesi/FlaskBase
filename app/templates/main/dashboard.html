@@ -1,0 +1,381 @@
+{% extends "base.html" %}
+{% block title %} · Dashboard{% endblock %}
+{% block content %}
+<div class="page-header">
+  <div class="page-breadcrumb"><i class="bi bi-house me-1"></i> {{ tr('dashboard.breadcrumb_admin', 'Admin') if current_user.role == 'admin' else tr('dashboard.breadcrumb_home', 'Home') }}</div>
+  <h1>{{ tr('dashboard.welcome', 'Welcome') }}, {{ current_user.name }} 👋</h1>
+  <p>{{ tr('dashboard.operational_overview', 'Operational overview') if current_user.role == 'admin' else tr('dashboard.user_control_panel', 'Here is your control panel') }}</p>
+
+
+{% if current_user.role == 'admin' and g.deployment_warnings and g.deployment_warnings|length %}
+<div class="alert alert-warning mb-3">
+  <div class="d-flex align-items-start justify-content-between gap-3">
+    <div class="min-w-0">
+      <div class="fw-600"><i class="bi bi-shield-exclamation me-2"></i>{{ tr('deploy_health.attention_needed', 'Deployment settings need attention') }}</div>
+      <div class="fs-sm text-muted">{{ g.deployment_warnings[0].title }} · <span class="text-reset">{{ g.deployment_warnings[0].detail }}</span></div>
+    </div>
+    <div class="text-nowrap">
+      <a class="btn btn-sm btn-outline-dark" href="{{ url_for('admin.deploy_health') }}">{{ tr('deploy_health.open_page', 'Open deploy health') }}</a>
+    </div>
+  </div>
+</div>
+{% endif %}
+</div>
+
+{% if current_user.role == 'admin' %}
+{% set dashv = (visual.DASHBOARD if visual and visual.DASHBOARD else {}) %}
+{% set kmax = (dashv.kpi_max if dashv and dashv.kpi_max else {}) %}
+
+<div class="row g-3 mb-3">
+  <div class="col-12 col-lg-7">
+    <div class="card">
+      <div class="card-header py-2 d-flex align-items-center justify-content-between">
+        <span><i class="bi bi-cpu me-2 text-primary"></i>{{ tr('dashboard.system', 'System') }}</span>
+        <a href="#" class="btn btn-sm btn-outline-secondary" id="dashRefreshBtn" title="{{ tr('dashboard.refresh', 'Refresh') }}" aria-label="{{ tr('dashboard.refresh', 'Refresh') }}">
+          <i class="bi bi-arrow-clockwise"></i>
+        </a>
+      </div>
+      <div class="card-body" id="sysMetrics"
+        data-refresh-sec="{{ dashboard_auto_refresh_sec }}"
+        data-initial-cpu="{{ stats.cpu_pct if stats.cpu_pct is not none else 0 }}"
+        data-initial-load="{{ stats.load_1 if stats.load_1 is not none else 0 }}"
+        data-initial-load5="{{ stats.load_5 if stats.load_5 is not none else 0 }}"
+        data-initial-load15="{{ stats.load_15 if stats.load_15 is not none else 0 }}"
+        data-initial-ram-pct="{{ stats.ram.used_pct if stats.ram else 0 }}"
+        data-initial-ram-used="{{ stats.ram.used_mb if stats.ram else 0 }}"
+        data-initial-ram-total="{{ stats.ram.total_mb if stats.ram else 0 }}"
+        data-initial-disk-pct="{{ stats.disk.used_pct if stats.disk else 0 }}"
+        data-initial-disk-used="{{ stats.disk.used_gb if stats.disk else 0 }}"
+        data-initial-disk-total="{{ stats.disk.total_gb if stats.disk else 0 }}"
+        data-cpu-cores="{{ stats.cpu_cores if stats.cpu_cores is not none else '' }}"
+        data-uptime-s="{{ stats.uptime_s if stats.uptime_s is not none else '' }}"
+        data-gunicorn-workers="{{ stats.gunicorn.workers if stats.gunicorn else 1 }}"
+        data-gunicorn-threads="{{ stats.gunicorn.threads if stats.gunicorn else 1 }}"
+        data-gunicorn-capacity="{{ stats.gunicorn.capacity if stats.gunicorn else 1 }}"
+        data-gunicorn-timeout="{{ stats.gunicorn.timeout if stats.gunicorn else 120 }}"
+        data-job-queued="{{ stats.jobs.queued if stats.jobs else 0 }}"
+        data-job-running="{{ stats.jobs.running if stats.jobs else 0 }}"
+        data-job-completed="{{ stats.jobs.completed_24h if stats.jobs else 0 }}"
+        data-job-failed="{{ stats.jobs.failed_24h if stats.jobs else 0 }}"
+        data-job-queues-enabled="{{ stats.jobs.queues_enabled if stats.jobs else 0 }}"
+        data-job-queues-paused="{{ stats.jobs.queues_paused if stats.jobs else 0 }}"
+        data-job-thread-alive="{{ 'true' if stats.jobs and stats.jobs.runtime and stats.jobs.runtime.thread_alive else 'false' }}"
+        data-job-runtime-mode="{{ stats.jobs.runtime.mode if stats.jobs and stats.jobs.runtime else '' }}"
+        data-job-runtime-backend="{{ stats.jobs.runtime.backend if stats.jobs and stats.jobs.runtime else '' }}"
+      >
+        <div class="dashboard-system-shell">
+        <div class="d-flex align-items-start justify-content-between mb-2">
+          <div>
+            <div class="fw-600">CPU</div>
+            <div class="text-muted fs-xs">
+              {{ tr('dashboard.load', 'Load') }}: <span id="load1Val">{{ stats.load_1 if stats.load_1 is not none else '—' }}</span>
+              · <span id="load5Val">{{ stats.load_5 if stats.load_5 is not none else '—' }}</span>
+              · <span id="load15Val">{{ stats.load_15 if stats.load_15 is not none else '—' }}</span>
+              {% if stats.cpu_cores %} · {{ tr('dashboard.cores', 'Cores') }}: {{ stats.cpu_cores }}{% endif %}
+              {% if stats.uptime_s %} · {{ tr('dashboard.uptime', 'Uptime') }}: {{ (stats.uptime_s // 3600) }}h{% endif %}
+            </div>
+          </div>
+          <div class="text-end">
+            <div class="text-muted fs-xs mb-1">{{ tr('dashboard.cpu_usage', 'CPU usage') }}</div>
+            <div class="fw-700" id="cpuPctVal">{{ (stats.cpu_pct ~ '%') if stats.cpu_pct is not none else '—' }}</div>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <div class="flex-grow-1">
+            <div class="progress progress-thin">
+              <div class="progress-bar" id="cpuPctBar" style="width: {{ stats.cpu_pct if stats.cpu_pct is not none else 0 }}%"></div>
+            </div>
+          </div>
+          <div class="text-nowrap text-muted fs-xs">0–100%</div>
+        </div>
+
+        <div class="metric-charts mb-2">
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <div class="metric-chart-card">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <div class="fw-600 fs-sm">{{ tr('dashboard.cpu_live', 'CPU % (live)') }}</div>
+                  <div class="text-muted fs-xs" id="cpuChartHint">{{ tr('dashboard.last_60s', 'last ~60s') }}</div>
+                </div>
+                <canvas id="cpuChart" height="180" aria-label="Grafico CPU" role="img"></canvas>
+                <div class="metric-chart-meta">
+                  <span>{{ tr('dashboard.current', 'Current') }} <strong id="cpuChartCurrent">{{ (stats.cpu_pct ~ '%') if stats.cpu_pct is not none else '—' }}</strong></span>
+                  <span>{{ tr('dashboard.peak', 'Peak') }} <strong id="cpuChartPeak">{{ (stats.cpu_pct ~ '%') if stats.cpu_pct is not none else '—' }}</strong></span>
+                </div>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="metric-chart-card">
+                <div class="d-flex align-items-center justify-content-between mb-1">
+                  <div class="fw-600 fs-sm">{{ tr('dashboard.load_live', 'Load 1m (live)') }}</div>
+                  <div class="text-muted fs-xs" id="loadChartHint">{{ tr('dashboard.last_60s', 'last ~60s') }}</div>
+                </div>
+                <canvas id="loadChart" height="180" aria-label="Grafico Load" role="img"></canvas>
+                <div class="metric-chart-meta">
+                  <span>{{ tr('dashboard.current', 'Current') }} <strong id="loadChartCurrent">{{ stats.load_1 if stats.load_1 is not none else '—' }}</strong></span>
+                  <span>{{ tr('dashboard.peak', 'Peak') }} <strong id="loadChartPeak">{{ stats.load_1 if stats.load_1 is not none else '—' }}</strong></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="dashboard-resource-grid mt-3">
+          <div class="dashboard-resource-card is-ram">
+            <div class="dashboard-resource-head">
+              <div>
+                <div class="dashboard-resource-label">{{ tr('dashboard.ram', 'RAM') }}</div>
+                <div class="dashboard-resource-copy" id="ramUsageCopy">{% if stats.ram %}{{ stats.ram.used_mb }} / {{ stats.ram.total_mb }} MB{% else %}—{% endif %}</div>
+              </div>
+              <div class="dashboard-resource-value" id="ramPctVal">{% if stats.ram %}{{ stats.ram.used_pct }}%{% else %}—{% endif %}</div>
+            </div>
+            <div class="dashboard-resource-meter">
+              <div class="dashboard-resource-fill" id="ramPctBar" style="width: {{ stats.ram.used_pct if stats.ram else 0 }}%"></div>
+            </div>
+            <div class="dashboard-resource-meta">
+              <span>{{ tr('dashboard.used', 'Used') }} <strong id="ramUsedVal">{% if stats.ram %}{{ stats.ram.used_mb }} MB{% else %}—{% endif %}</strong></span>
+              <span>{{ tr('dashboard.total', 'Total') }} <strong id="ramTotalVal">{% if stats.ram %}{{ stats.ram.total_mb }} MB{% else %}—{% endif %}</strong></span>
+            </div>
+          </div>
+          <div class="dashboard-resource-card is-disk">
+            <div class="dashboard-resource-head">
+              <div>
+                <div class="dashboard-resource-label">{{ tr('dashboard.disk', 'Disk') }}</div>
+                <div class="dashboard-resource-copy" id="diskUsageCopy">{% if stats.disk %}{{ stats.disk.used_gb }} / {{ stats.disk.total_gb }} GB{% else %}—{% endif %}</div>
+              </div>
+              <div class="dashboard-resource-value" id="diskPctVal">{% if stats.disk %}{{ stats.disk.used_pct }}%{% else %}—{% endif %}</div>
+            </div>
+            <div class="dashboard-resource-meter">
+              <div class="dashboard-resource-fill" id="diskPctBar" style="width: {{ stats.disk.used_pct if stats.disk else 0 }}%"></div>
+            </div>
+            <div class="dashboard-resource-meta">
+              <span>{{ tr('dashboard.used', 'Used') }} <strong id="diskUsedVal">{% if stats.disk %}{{ stats.disk.used_gb }} GB{% else %}—{% endif %}</strong></span>
+              <span>{{ tr('dashboard.total', 'Total') }} <strong id="diskTotalVal">{% if stats.disk %}{{ stats.disk.total_gb }} GB{% else %}—{% endif %}</strong></span>
+            </div>
+          </div>
+        </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-12 col-lg-5">
+    <div class="card">
+      <div class="card-header py-2">
+        <span><i class="bi bi-graph-up me-2 text-success"></i>{{ tr('dashboard.application', 'Application') }}</span>
+      </div>
+      <div class="card-body">
+        <div class="dashboard-service-card mb-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-600">{{ tr('nav.database', 'Database') }}</div>
+            <div class="text-muted fs-xs">{{ stats.db.dialect if stats.db and stats.db.dialect else '—' }}</div>
+          </div>
+          <div class="d-flex align-items-center gap-2 mt-2">
+          {% set dbmax = (kmax.db_mb if kmax and kmax.db_mb else 1000) %}
+          {% set dbpct = ((stats.db.size_mb / dbmax) * 100) if (stats.db and stats.db.size_mb is not none and dbmax) else 0 %}
+            <div class="flex-grow-1">
+              <div class="progress progress-thin"><div class="progress-bar" style="width: {{ 100 if dbpct>100 else (dbpct if dbpct>0 else 0) }}%"></div></div>
+            </div>
+            <div class="text-nowrap fw-600">{% if stats.db and stats.db.size_mb is not none %}{{ stats.db.size_mb }} MB{% else %}—{% endif %}</div>
+          </div>
+          {% if stats.db and stats.db.error %}
+            <div class="text-muted fs-xs mt-1">{{ stats.db.error }}</div>
+          {% endif %}
+        </div>
+
+        <div class="dashboard-service-card mb-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-600">Redis</div>
+            <div class="text-muted fs-xs">{{ stats.redis.backend if stats.redis and stats.redis.backend else '—' }}</div>
+          </div>
+          <div class="d-flex align-items-center justify-content-between mt-2">
+            <div class="text-muted fs-xs">
+              {% if stats.redis and stats.redis.enabled %}
+                <span class="badge {% if stats.redis.connected %}bg-success{% else %}bg-warning text-dark{% endif %}">
+                  {% if stats.redis.connected %}{{ tr('dashboard.connected', 'connected') }}{% else %}{{ tr('dashboard.not_connected', 'not connected') }}{% endif %}
+                </span>
+                {% if stats.redis.ping_ms %}<span class="ms-2">{{ stats.redis.ping_ms }} ms</span>{% endif %}
+              {% else %}
+                <span class="badge bg-secondary">{{ tr('dashboard.disabled', 'disabled') }}</span>
+              {% endif %}
+            </div>
+            <div class="text-end">
+              <div class="text-muted fs-xs">{{ tr('dashboard.pending', 'pending') }}</div>
+              <div class="fw-700">{{ stats.redis.pending_jobs if stats.redis and stats.redis.pending_jobs is not none else '—' }}</div>
+            </div>
+          </div>
+          {% if stats.redis and stats.redis.error %}
+            <div class="text-muted fs-xs mt-1">{{ stats.redis.error }}</div>
+          {% endif %}
+        </div>
+        <div class="mt-2">
+          <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('admin.database') }}">{{ tr('database.open_page', 'Open database page') }}</a>
+        </div>
+
+        <div class="dashboard-service-card mb-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-600">Gunicorn</div>
+            <div class="text-muted fs-xs">{% if stats.gunicorn.detected %}live{% else %}config{% endif %}</div>
+          </div>
+          <div class="dashboard-inline-metrics mt-2">
+            <div class="dashboard-inline-metric">
+              <div class="text-muted fs-xs">Workers</div>
+              <div class="fw-700" id="gunicornWorkersVal">{{ stats.gunicorn.workers if stats.gunicorn else '—' }}</div>
+            </div>
+            <div class="dashboard-inline-metric">
+              <div class="text-muted fs-xs">Threads</div>
+              <div class="fw-700" id="gunicornThreadsVal">{{ stats.gunicorn.threads if stats.gunicorn else '—' }}</div>
+            </div>
+            <div class="dashboard-inline-metric">
+              <div class="text-muted fs-xs">Capacity</div>
+              <div class="fw-700" id="gunicornCapacityVal">{{ stats.gunicorn.capacity if stats.gunicorn else '—' }}</div>
+            </div>
+          </div>
+          {% set gunimax = [stats.gunicorn.capacity if stats.gunicorn else 1, 1]|max %}
+          {% set gunipct = (((stats.gunicorn.workers if stats.gunicorn else 1) / gunimax) * 100) %}
+          <div class="dashboard-mini-graph mt-2">
+            <div class="dashboard-mini-bar">
+              <div class="dashboard-mini-bar-fill is-workers" id="gunicornWorkersBar" style="width: {{ gunipct }}%"></div>
+            </div>
+            <div class="dashboard-mini-copy text-muted fs-xs mt-1">timeout <span id="gunicornTimeoutVal">{{ stats.gunicorn.timeout if stats.gunicorn else '—' }}</span>s · reload {{ 'on' if stats.gunicorn.reload else 'off' }}</div>
+          </div>
+        </div>
+
+        <div class="dashboard-service-card mb-3">
+          <div class="d-flex align-items-center justify-content-between">
+            <div class="fw-600">Jobs runtime</div>
+            <div class="text-muted fs-xs">
+              <span id="jobRuntimeModeVal">{{ stats.jobs.runtime.mode if stats.jobs and stats.jobs.runtime else '—' }}</span>
+              ·
+              <span id="jobRuntimeBackendVal">{{ stats.jobs.runtime.backend if stats.jobs and stats.jobs.runtime else '—' }}</span>
+            </div>
+          </div>
+          <div class="dashboard-inline-metrics mt-2">
+            <div class="dashboard-inline-metric">
+              <div class="text-muted fs-xs">Queued</div>
+              <div class="fw-700" id="jobQueuedVal">{{ stats.jobs.queued if stats.jobs else 0 }}</div>
+            </div>
+            <div class="dashboard-inline-metric">
+              <div class="text-muted fs-xs">Running</div>
+              <div class="fw-700" id="jobRunningVal">{{ stats.jobs.running if stats.jobs else 0 }}</div>
+            </div>
+            <div class="dashboard-inline-metric">
+              <div class="text-muted fs-xs">Done 24h</div>
+              <div class="fw-700" id="jobCompletedVal">{{ stats.jobs.completed_24h if stats.jobs else 0 }}</div>
+            </div>
+            <div class="dashboard-inline-metric">
+              <div class="text-muted fs-xs">Fail 24h</div>
+              <div class="fw-700" id="jobFailedVal">{{ stats.jobs.failed_24h if stats.jobs else 0 }}</div>
+            </div>
+          </div>
+          {% set jobs_total_live = (stats.jobs.queued if stats.jobs else 0) + (stats.jobs.running if stats.jobs else 0) %}
+          {% set jobs_total_day = jobs_total_live + (stats.jobs.completed_24h if stats.jobs else 0) + (stats.jobs.failed_24h if stats.jobs else 0) %}
+          {% set jobs_max = [jobs_total_day, 1]|max %}
+          <div class="dashboard-stacked-graph mt-2">
+            <div class="dashboard-stacked-bar">
+              <div class="dashboard-stacked-fill is-queued" id="jobQueuedBar" style="width: {{ ((stats.jobs.queued if stats.jobs else 0) / jobs_max) * 100 }}%"></div>
+              <div class="dashboard-stacked-fill is-running" id="jobRunningBar" style="width: {{ ((stats.jobs.running if stats.jobs else 0) / jobs_max) * 100 }}%"></div>
+              <div class="dashboard-stacked-fill is-completed" id="jobCompletedBar" style="width: {{ ((stats.jobs.completed_24h if stats.jobs else 0) / jobs_max) * 100 }}%"></div>
+              <div class="dashboard-stacked-fill is-failed" id="jobFailedBar" style="width: {{ ((stats.jobs.failed_24h if stats.jobs else 0) / jobs_max) * 100 }}%"></div>
+            </div>
+            <div class="dashboard-legend mt-2">
+              <span><i class="bi bi-square-fill text-warning me-1"></i>queued</span>
+              <span><i class="bi bi-square-fill text-primary me-1"></i>running</span>
+              <span><i class="bi bi-square-fill text-success me-1"></i>done</span>
+              <span><i class="bi bi-square-fill text-danger me-1"></i>fail</span>
+            </div>
+            <div class="dashboard-mini-copy text-muted fs-xs mt-1">queue <span id="jobQueuesEnabledVal">{{ stats.jobs.queues_enabled if stats.jobs else 0 }}</span> attive · paused <span id="jobQueuesPausedVal">{{ stats.jobs.queues_paused if stats.jobs else 0 }}</span> · worker thread <span id="jobThreadAliveVal">{{ 'online' if stats.jobs.runtime.thread_alive else 'offline' }}</span></div>
+          </div>
+        </div>
+
+        <div class="row g-2">
+          <div class="col-6">
+            <div class="dashboard-kpi-tile">
+              <div class="text-muted fs-xs">{{ tr('nav.users', 'Users') }}</div>
+              <div class="fw-700">{{ stats.total_users }}</div>
+              <div class="text-muted fs-xs">{{ tr('dashboard.active', 'Active') }}: {{ stats.active_users }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="dashboard-kpi-tile">
+              <div class="text-muted fs-xs">{{ tr('nav.messages', 'Messages') }}</div>
+              <div class="fw-700">{{ stats.messages_total }}</div>
+              <div class="text-muted fs-xs">{{ tr('dashboard.total_broadcasts', 'Total broadcasts') }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="dashboard-kpi-tile">
+              <div class="text-muted fs-xs">{{ tr('dashboard.logins_today', 'Logins (today)') }}</div>
+              <div class="fw-700">{{ stats.logins_today }}</div>
+              <div class="text-muted fs-xs">{{ tr('dashboard.successes', 'Successes') }}</div>
+            </div>
+          </div>
+          <div class="col-6">
+            <div class="dashboard-kpi-tile">
+              <div class="text-muted fs-xs">{{ tr('dashboard.logs_today', 'Logs (today)') }}</div>
+              <div class="fw-700">{{ stats.log_today }}</div>
+              <div class="text-muted fs-xs">{{ tr('dashboard.warn', 'Warn') }}: {{ stats.warnings }} · {{ tr('dashboard.err', 'Err') }}: {{ stats.errors }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+{% else %}
+
+{% if user_broadcasts_enabled %}
+<div class="card mb-4">
+  <div class="card-header py-2 d-flex align-items-center justify-content-between">
+        <span class="d-flex align-items-center gap-2">
+          <i class="bi bi-envelope me-1 text-primary"></i>{{ tr('nav.messages', 'Messages') }}
+          {% if inbox and inbox.unread_count %}
+            <span class="badge bg-primary-subtle text-primary border">{{ inbox.unread_count }} {{ tr('dashboard.unread', 'unread') }}</span>
+          {% endif %}
+        </span>
+    <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('main.messages') }}">{{ tr('dashboard.open', 'Open') }}</a>
+  </div>
+  <div class="card-body p-0">
+    {% if inbox and inbox.recent and inbox.recent|length %}
+      <div class="list-group list-group-flush">
+        {% for it in inbox.recent %}
+          <div class="list-group-item py-2">
+            <div class="d-flex align-items-start justify-content-between gap-2">
+              <div class="min-w-0">
+                <div class="fw-600 text-truncate">{{ it.title }}</div>
+                <div class="text-muted fs-xs">{{ it.created_at.strftime('%Y-%m-%d %H:%M') if it.created_at else '—' }} · {{ tr('dashboard.user_kind', 'User') if it.kind == 'user' else tr('dashboard.broadcast_kind', 'Broadcast') }}</div>
+              </div>
+              <span class="badge {% if it.level == 'danger' %}bg-danger{% elif it.level == 'warning' %}bg-warning text-dark{% elif it.level == 'success' %}bg-success{% else %}bg-secondary{% endif %}">{{ it.level }}</span>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="p-3 text-muted">{{ tr('dashboard.no_unread_messages', 'No unread messages.') }}</div>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-header py-2">
+    <span><i class="bi bi-lightning-charge me-2 text-primary"></i>{{ tr('dashboard.quick_actions', 'Quick actions') }}</span>
+  </div>
+  <div class="card-body">
+    <div class="d-flex flex-wrap gap-2">
+      <a class="btn btn-outline-primary" href="{{ url_for('auth.settings') }}"><i class="bi bi-person-gear me-1"></i>{{ tr('nav.settings', 'Settings') }}</a>
+      <a class="btn btn-outline-secondary" href="{{ url_for('main.privacy') }}"><i class="bi bi-shield-lock me-1"></i>{{ tr('nav.privacy_policy', 'Privacy Policy') }}</a>
+    </div>
+  </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+
+{% block scripts %}
+  {{ super() }}
+  <script src="{{ url_for('static', filename='js/features/dashboard_metrics.js') }}"></script>
+{% endblock %}

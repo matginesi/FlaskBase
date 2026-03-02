@@ -1,0 +1,451 @@
+{
+  "SETTINGS": {
+    "APP_NAME": "WebApp",
+    "APP_VERSION": "1.0.0",
+    "BASE_URL": "http://127.0.0.1:5000",
+    "SECURITY": {
+      "LOGIN_RATE_LIMIT": "5 per minute",
+      "SESSION_TIMEOUT_MIN": 120,
+      "CSRF_ENABLED": true,
+      "CSRF_TIME_LIMIT_SEC": 3600,
+      "SECURITY_AUDIT_ENABLED": true,
+      "BLOCK_TRACE_TRACK": true,
+      "ALLOWED_HOSTS": "localhost,127.0.0.1,[::1]",
+      "MAX_CONTENT_LENGTH": 16777216,
+      "MAX_FORM_MEMORY_SIZE": 2097152,
+      "API_TOKEN_TOUCH_INTERVAL_SEC": 30,
+      "MASK_SENSITIVE_LOG_DATA": true,
+      "ALLOW_LOG_TEXT_CONTENT": false
+    },
+    "LOGGING": {
+      "LEVEL": "INFO",
+      "DB_LEVEL": "INFO",
+      "FILE": "instance/app.log",
+      "MAX_BYTES": 10485760,
+      "BACKUP_COUNT": 5
+    },
+    "EMAIL": {
+      "ENABLED": true,
+      "MODE": "sendmail",
+      "PUBLIC_BASE_URL": "",
+      "SENDMAIL_PATH": "",
+      "FROM_EMAIL": "noreply@localhost",
+      "FROM_NAME": "WebApp",
+      "REPLY_TO": "noreply@localhost",
+      "CONFIRMATION_TOKEN_TTL_MIN": 60,
+      "ALLOW_BROADCAST_EMAIL": true,
+      "SEND_API_KEY_ON_CONFIRMATION": false
+    },
+    "AUTH": {
+      "SELF_REGISTRATION_ENABLED": true,
+      "EMAIL_CONFIRM_REQUIRED": true,
+      "SEND_API_KEY_NOTICE_ON_SIGNIN": false,
+      "MAX_FAILED_LOGIN_ATTEMPTS": 8,
+      "LOCKOUT_MINUTES": 15,
+      "SIGNUP_RETRY_COOLDOWN_SEC": 900,
+      "MFA_ENABLED": true,
+      "MFA_ISSUER": "WebApp",
+      "MFA_RECOVERY_CODES_COUNT": 10
+    },
+    "API": {
+      "ENABLED": true,
+      "PUBLIC_BASE_URL": "http://127.0.0.1:8000",
+      "DOCS_ENABLED": true,
+      "OPENAPI_ENABLED": true,
+      "REDOC_ENABLED": false,
+      "DOCS_PATH": "/docs",
+      "OPENAPI_PATH": "/openapi.json",
+      "REDOC_PATH": "/redoc",
+      "CORS_ALLOWED_ORIGINS": ""
+    },
+    "DASHBOARD": {
+      "auto_refresh_enabled": true,
+      "auto_refresh_sec": 8
+    },
+    "ADDONS_CONFIG": {
+      "documentation": {
+        "default_doc": "README.md"
+      },
+      "hello_world": {
+        "welcome_copy": "Hello from add-ons!"
+      },
+      "widgets_ui": {
+        "show_advanced_examples": true
+      }
+    }
+  },
+  "ADDONS": {
+    "ITEMS": {
+      "documentation": {
+        "enabled": true
+      },
+      "hello_world": {
+        "enabled": true
+      },
+      "widgets_ui": {
+        "enabled": true
+      }
+    }
+  },
+  "PAGES": {
+    "settings": {
+      "label": "Core settings & pages",
+      "core_pages": {
+        "user": {
+          "dashboard": {
+            "enabled": true,
+            "label": "Dashboard User",
+            "icon": "house",
+            "url": "/dashboard",
+            "description": "Main landing page with runtime KPIs and quick access"
+          },
+          "widgets": {
+            "enabled": true,
+            "label": "Widget & UI",
+            "icon": "grid-3x3-gap",
+            "url": "/widgets",
+            "description": "Interactive UI showcase and component demos"
+          },
+          "chat": {
+            "enabled": true,
+            "label": "Chat",
+            "icon": "chat-dots",
+            "url": "/chat",
+            "description": "Chat interface backed by the app runtime"
+          },
+          "api_playground": {
+            "enabled": true,
+            "label": "API Playground",
+            "icon": "terminal",
+            "url": "/api-playground",
+            "description": "Core page for testing API endpoints with or without tokens"
+          },
+          "free_apis": {
+            "enabled": true,
+            "label": "Free APIs Hub",
+            "icon": "globe2",
+            "url": "/free-apis",
+            "description": "Unified dashboard for free public APIs"
+          },
+          "account_settings": {
+            "enabled": true,
+            "label": "Account Settings",
+            "icon": "person-gear",
+            "url": "/auth/settings",
+            "description": "Manage account profile, password, and personal API keys"
+          },
+          "privacy": {
+            "enabled": true,
+            "label": "Privacy Policy",
+            "icon": "shield-check",
+            "url": "/privacy",
+            "description": "Privacy and cookie policy page"
+          }
+        },
+        "admin": {
+          "admin_dashboard": {
+            "enabled": true,
+            "label": "Admin Dashboard",
+            "icon": "speedometer2",
+            "url": "/admin/dashboard",
+            "description": "Administrative dashboard with system KPIs"
+          },
+          "admin_settings": {
+            "enabled": true,
+            "label": "Config WebApp",
+            "icon": "sliders",
+            "url": "/admin/settings",
+            "description": "Edit runtime settings persisted in PostgreSQL"
+          },
+          "admin_users": {
+            "enabled": true,
+            "label": "User Management",
+            "icon": "people",
+            "url": "/admin/users",
+            "description": "Create, edit, protect, and disable users"
+          },
+          "admin_logs": {
+            "enabled": true,
+            "label": "Event Logs",
+            "icon": "journal-text",
+            "url": "/admin/logs",
+            "description": "Audit and runtime log explorer"
+          },
+          "admin_database": {
+            "enabled": true,
+            "label": "Database",
+            "icon": "hdd",
+            "url": "/admin/database",
+            "description": "Database overview, SQL console, maintenance, and export"
+          },
+          "admin_chat": {
+            "enabled": true,
+            "label": "Admin Chat",
+            "icon": "chat-dots",
+            "url": "/admin/chat",
+            "description": "Administrative chat surface"
+          },
+          "admin_jobs": {
+            "enabled": true,
+            "label": "Jobs & Queue",
+            "icon": "list-task",
+            "url": "/admin/jobs",
+            "description": "Inspect and control async jobs and queues"
+          },
+          "admin_broadcasts": {
+            "enabled": true,
+            "label": "Communications",
+            "icon": "megaphone",
+            "url": "/admin/broadcasts",
+            "description": "Admin communications, broadcasts, and direct messages"
+          }
+        }
+      }
+    },
+    "pages": {
+      "user": {
+        "dashboard": {
+          "enabled": true,
+          "label": "Dashboard User",
+          "icon": "house",
+          "url": "/dashboard",
+          "description": "Main landing page with runtime KPIs and quick access"
+        },
+        "widgets": {
+          "enabled": true,
+          "label": "Widget & UI",
+          "icon": "grid-3x3-gap",
+          "url": "/widgets",
+          "description": "Interactive UI showcase and component demos"
+        },
+        "chat": {
+          "enabled": true,
+          "label": "Chat",
+          "icon": "chat-dots",
+          "url": "/chat",
+          "description": "Chat interface backed by the app runtime"
+        },
+        "api_playground": {
+          "enabled": true,
+          "label": "API Playground",
+          "icon": "terminal",
+          "url": "/api-playground",
+          "description": "Core page for testing API endpoints with or without tokens"
+        },
+        "free_apis": {
+          "enabled": true,
+          "label": "Free APIs Hub",
+          "icon": "globe2",
+          "url": "/free-apis",
+          "description": "Unified dashboard for free public APIs"
+        },
+        "account_settings": {
+          "enabled": true,
+          "label": "Account Settings",
+          "icon": "person-gear",
+          "url": "/auth/settings",
+          "description": "Manage account profile, password, and personal API keys"
+        },
+        "privacy": {
+          "enabled": true,
+          "label": "Privacy Policy",
+          "icon": "shield-check",
+          "url": "/privacy",
+          "description": "Privacy and cookie policy page"
+        }
+      },
+      "admin": {
+        "admin_dashboard": {
+          "enabled": true,
+          "label": "Admin Dashboard",
+          "icon": "speedometer2",
+          "url": "/admin/dashboard",
+          "description": "Administrative dashboard with system KPIs"
+        },
+        "admin_settings": {
+          "enabled": true,
+          "label": "Config WebApp",
+          "icon": "sliders",
+          "url": "/admin/settings",
+          "description": "Edit runtime settings persisted in PostgreSQL"
+        },
+        "admin_users": {
+          "enabled": true,
+          "label": "User Management",
+          "icon": "people",
+          "url": "/admin/users",
+          "description": "Create, edit, protect, and disable users"
+        },
+        "admin_logs": {
+          "enabled": true,
+          "label": "Event Logs",
+          "icon": "journal-text",
+          "url": "/admin/logs",
+          "description": "Audit and runtime log explorer"
+        },
+        "admin_database": {
+          "enabled": true,
+          "label": "Database",
+          "icon": "hdd",
+          "url": "/admin/database",
+          "description": "Database overview, SQL console, maintenance, and export"
+        },
+        "admin_chat": {
+          "enabled": true,
+          "label": "Admin Chat",
+          "icon": "chat-dots",
+          "url": "/admin/chat",
+          "description": "Administrative chat surface"
+        },
+        "admin_jobs": {
+          "enabled": true,
+          "label": "Jobs & Queue",
+          "icon": "list-task",
+          "url": "/admin/jobs",
+          "description": "Inspect and control async jobs and queues"
+        },
+        "admin_broadcasts": {
+          "enabled": true,
+          "label": "Communications",
+          "icon": "megaphone",
+          "url": "/admin/broadcasts",
+          "description": "Admin communications, broadcasts, and direct messages"
+        }
+      }
+    },
+    "services": {
+      "api": {
+        "enabled": true,
+        "label": "API",
+        "icon": "code-slash",
+        "description": "Expose the internal FastAPI surface under /api"
+      },
+      "swagger_ui": {
+        "enabled": true,
+        "label": "Swagger UI",
+        "icon": "braces",
+        "description": "Interactive OpenAPI documentation"
+      },
+      "cookie_banner": {
+        "enabled": true,
+        "label": "Cookie Banner",
+        "icon": "cookie",
+        "description": "Show the cookie consent banner"
+      },
+      "user_registration": {
+        "enabled": false,
+        "label": "Public Registration",
+        "icon": "person-plus",
+        "description": "Allow self-service account registration"
+      },
+      "remember_me": {
+        "enabled": true,
+        "label": "Remember Me",
+        "icon": "clock-history",
+        "description": "Keep the browser session after closing the browser"
+      },
+      "maintenance_mode": {
+        "enabled": false,
+        "label": "Maintenance Mode",
+        "icon": "cone-striped",
+        "description": "Block non-admin access with a maintenance page"
+      }
+    },
+    "addons": {
+      "chat": {
+        "enabled": true,
+        "label": "Chat",
+        "icon": "chat-dots",
+        "url": "/chat",
+        "description": "Full chat add-on surface",
+        "role": "user"
+      },
+      "api_playground": {
+        "enabled": true,
+        "label": "API Playground",
+        "icon": "terminal",
+        "url": "/api-playground",
+        "description": "Interactive API playground",
+        "role": "user"
+      },
+      "widgets": {
+        "enabled": true,
+        "label": "Widget & UI",
+        "icon": "grid-3x3-gap",
+        "url": "/widgets",
+        "description": "UI showcase area",
+        "role": "user"
+      },
+      "free_apis": {
+        "enabled": true,
+        "label": "Free APIs Hub",
+        "icon": "globe2",
+        "url": "/free-apis",
+        "description": "Hub for public third-party APIs",
+        "role": "admin_users"
+      },
+      "docs_viewer": {
+        "enabled": true,
+        "label": "Documentation",
+        "icon": "file-earmark-richtext",
+        "url": "/docs-viewer",
+        "description": "Markdown documentation viewer",
+        "role": "admin_users"
+      },
+      "rag": {
+        "enabled": true,
+        "label": "RAG",
+        "icon": "puzzle",
+        "url": "/rag",
+        "description": "",
+        "role": "user"
+      },
+      "broadcasts": {
+        "enabled": true,
+        "label": "Communications",
+        "icon": "megaphone",
+        "url": "/admin/broadcasts",
+        "description": "Admin communications surface",
+        "role": "admin_users"
+      }
+    },
+    "features": {
+      "api": {
+        "enabled": true,
+        "label": "API",
+        "icon": "code-slash",
+        "description": "Expose the internal FastAPI surface under /api"
+      },
+      "swagger_ui": {
+        "enabled": true,
+        "label": "Swagger UI",
+        "icon": "braces",
+        "description": "Interactive OpenAPI documentation"
+      },
+      "cookie_banner": {
+        "enabled": true,
+        "label": "Cookie Banner",
+        "icon": "cookie",
+        "description": "Show the cookie consent banner"
+      },
+      "user_registration": {
+        "enabled": false,
+        "label": "Public Registration",
+        "icon": "person-plus",
+        "description": "Allow self-service account registration"
+      },
+      "remember_me": {
+        "enabled": true,
+        "label": "Remember Me",
+        "icon": "clock-history",
+        "description": "Keep the browser session after closing the browser"
+      },
+      "maintenance_mode": {
+        "enabled": false,
+        "label": "Maintenance Mode",
+        "icon": "cone-striped",
+        "description": "Block non-admin access with a maintenance page"
+      }
+    }
+  }
+}

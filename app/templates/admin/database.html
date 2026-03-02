@@ -1,0 +1,571 @@
+{% extends "base.html" %}
+{% block title %} · {{ tr('nav.database', 'Database') }}{% endblock %}
+{% block content %}
+<div class="database-page">
+<div class="page-header">
+  <div class="page-breadcrumb"><i class="bi bi-shield me-1"></i>{{ tr('nav.admin', 'Admin') }}</div>
+  <h1>{{ tr('nav.database', 'Database') }}</h1>
+  <p>{{ tr('database.subtitle', 'PostgreSQL runtime overview, maintenance, export, and read-only diagnostics.') }}</p>
+</div>
+
+<div class="adaptive-card-grid adaptive-card-grid--compact mb-3">
+  <div class="stat-card settings-kpi-card settings-kpi-card-modern">
+    <div class="settings-kpi-strip"></div>
+    <div class="settings-kpi-top">
+      <div class="settings-kpi-topline">
+        <div class="settings-kpi-eyebrow">Storage</div>
+        <div class="settings-kpi-helper">current footprint</div>
+      </div>
+      <span class="settings-kpi-icon-wrap"><i class="bi bi-hdd-stack settings-kpi-icon"></i></span>
+    </div>
+    <div class="settings-kpi-body">
+      <div class="stat-val settings-kpi-code">{{ db_info.db_size }}</div>
+      <div class="stat-lbl">{{ tr('database.size', 'Database size') }}</div>
+    </div>
+    <div class="settings-kpi-meta">Total size of the active PostgreSQL database.</div>
+  </div>
+  <div class="stat-card success settings-kpi-card settings-kpi-card-modern">
+    <div class="settings-kpi-strip"></div>
+    <div class="settings-kpi-top">
+      <div class="settings-kpi-topline">
+        <div class="settings-kpi-eyebrow">Tables</div>
+        <div class="settings-kpi-helper">schema map</div>
+      </div>
+      <span class="settings-kpi-icon-wrap"><i class="bi bi-table settings-kpi-icon"></i></span>
+    </div>
+    <div class="settings-kpi-body">
+      <div class="stat-val">{{ db_info.tables }}</div>
+      <div class="stat-lbl">{{ tr('database.registered_tables', 'Registered tables') }}</div>
+    </div>
+    <div class="settings-kpi-meta">Tracked relations currently available in the public schema.</div>
+  </div>
+  <div class="stat-card warning settings-kpi-card settings-kpi-card-modern">
+    <div class="settings-kpi-strip"></div>
+    <div class="settings-kpi-top">
+      <div class="settings-kpi-topline">
+        <div class="settings-kpi-eyebrow">Connections</div>
+        <div class="settings-kpi-helper">session pressure</div>
+      </div>
+      <span class="settings-kpi-icon-wrap"><i class="bi bi-diagram-3 settings-kpi-icon"></i></span>
+    </div>
+    <div class="settings-kpi-body">
+      <div class="stat-val">{{ db_info.connections.total }}</div>
+      <div class="stat-lbl">{{ tr('database.open_connections', 'Open connections') }}</div>
+    </div>
+    <div class="settings-kpi-meta">{{ db_info.connections.active }} active · {{ db_info.connections.idle }} idle.</div>
+  </div>
+  <div class="stat-card settings-kpi-card settings-kpi-card-modern">
+    <div class="settings-kpi-strip"></div>
+    <div class="settings-kpi-top">
+      <div class="settings-kpi-topline">
+        <div class="settings-kpi-eyebrow">Runtime</div>
+        <div class="settings-kpi-helper">config state</div>
+      </div>
+      <span class="settings-kpi-icon-wrap"><i class="bi bi-sliders settings-kpi-icon"></i></span>
+    </div>
+    <div class="settings-kpi-body">
+      <div class="stat-val">{{ db_info.settings_revision or 0 }}</div>
+      <div class="stat-lbl">{{ tr('database.settings_revision', 'Settings revision') }}</div>
+    </div>
+    <div class="settings-kpi-meta">{{ db_info.settings_app_name or 'WebApp' }} {{ db_info.settings_app_version or '1.0.0' }}</div>
+  </div>
+</div>
+
+<div class="adaptive-page-grid adaptive-page-grid--wide mb-3">
+  <div>
+    <div class="card">
+      <div class="card-header"><i class="bi bi-speedometer2 me-2 text-primary"></i>{{ tr('database.overview', 'Overview') }}</div>
+      <div class="card-body database-compact-card-body">
+        <div class="row g-2 database-overview-grid">
+          <div class="col-12 col-md-6">
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Engine</strong></div>
+              <code class="fs-xs text-muted">{{ db_info.engine }} {{ db_info.engine_version }}</code>
+            </div>
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Database</strong></div>
+              <code class="fs-xs text-muted">{{ db_info.database_name }}</code>
+            </div>
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Schema</strong></div>
+              <code class="fs-xs text-muted">{{ db_info.database_schema }}</code>
+            </div>
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Users</strong></div>
+              <span class="fs-xs text-muted">{{ db_info.users }}</span>
+            </div>
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Log events</strong></div>
+              <span class="fs-xs text-muted">{{ db_info.log_events }}</span>
+            </div>
+          </div>
+          <div class="col-12 col-md-6">
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Table storage</strong></div>
+              <span class="fs-xs text-muted">{{ db_info.table_storage }}</span>
+            </div>
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Index storage</strong></div>
+              <span class="fs-xs text-muted">{{ db_info.index_storage }}</span>
+            </div>
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Dead rows</strong></div>
+              <span class="fs-xs text-muted">{{ db_info.dead_rows }}</span>
+            </div>
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Active connections</strong></div>
+              <span class="fs-xs text-muted">{{ db_info.connections.active }}</span>
+            </div>
+            <div class="settings-row database-compact-row">
+              <div class="settings-row-info"><strong class="fs-xs">Idle connections</strong></div>
+              <span class="fs-xs text-muted">{{ db_info.connections.idle }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card">
+      <div class="card-header"><i class="bi bi-sliders me-2 text-primary"></i>{{ tr('database.runtime_settings', 'Runtime settings') }}</div>
+      <div class="card-body database-compact-card-body">
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">App</strong></div>
+          <code class="fs-xs text-muted">{{ db_info.settings_app_name or 'WebApp' }} {{ db_info.settings_app_version or '1.0.0' }}</code>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Revision</strong></div>
+          <code class="fs-xs text-muted">{{ db_info.settings_revision or 'N/A' }}</code>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Updated at</strong></div>
+          <code class="fs-xs text-muted">{{ db_info.settings_updated_at or 'N/A' }}</code>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Seed source</strong></div>
+          <code class="fs-xs text-muted">{{ db_info.settings_seed_source or 'app_config.json' }}</code>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Last import</strong></div>
+          <code class="fs-xs text-muted">{{ db_info.settings_last_imported_at or 'N/A' }}</code>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Last export</strong></div>
+          <code class="fs-xs text-muted">{{ db_info.settings_last_exported_at or 'N/A' }}</code>
+        </div>
+        <div class="small text-muted mt-2">Sensitive deploy values still belong in <code>.env</code>. Runtime JSON settings live in <code>app_settings</code>.</div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header d-flex align-items-center justify-content-between">
+        <span><i class="bi bi-lightning-charge me-2 text-primary"></i>Redis</span>
+        {% if redis_info and redis_info.enabled %}
+          <span class="badge {% if redis_info.connected %}bg-success{% else %}bg-warning text-dark{% endif %}">
+            {% if redis_info.connected %}{{ tr('dashboard.connected', 'connected') }}{% else %}{{ tr('dashboard.not_connected', 'not connected') }}{% endif %}
+          </span>
+        {% else %}
+          <span class="badge bg-secondary">{{ tr('dashboard.disabled', 'disabled') }}</span>
+        {% endif %}
+      </div>
+      <div class="card-body database-compact-card-body">
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Backend</strong></div>
+          <code class="fs-xs text-muted">{{ redis_info.backend if redis_info else '—' }}</code>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">URL</strong></div>
+          <code class="fs-xs text-muted">{{ redis_info.url_masked if redis_info and redis_info.url_masked else '—' }}</code>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Namespace</strong></div>
+          <code class="fs-xs text-muted">{{ redis_info.namespace if redis_info and redis_info.namespace else '—' }}</code>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Queues</strong></div>
+          <span class="fs-xs text-muted">{{ redis_info.queue_keys if redis_info else '—' }} configured · pending {{ redis_info.pending_jobs if redis_info else '—' }}</span>
+        </div>
+        <div class="settings-row database-compact-row">
+          <div class="settings-row-info"><strong class="fs-xs">Rate limit storage</strong></div>
+          <code class="fs-xs text-muted">{{ redis_info.ratelimit_storage_uri if redis_info and redis_info.ratelimit_storage_uri else 'in-memory / default' }}</code>
+        </div>
+        {% if redis_info and redis_info.error %}
+          <div class="text-muted fs-xs mt-1">{{ redis_info.error }}</div>
+        {% endif %}
+
+        <div class="d-flex flex-wrap gap-2 mt-2">
+          <form method="post" action="{{ url_for('admin.redis_ping_endpoint') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="btn btn-sm btn-outline-secondary" type="submit"><i class="bi bi-broadcast me-1"></i>{{ tr('database.ping', 'Ping') }}</button>
+          </form>
+
+          <form method="post" action="{{ url_for('admin.redis_flush_endpoint') }}" class="d-flex align-items-center gap-2">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="text" class="form-control form-control-sm" name="confirm" placeholder="{{ tr('database.type_flush', 'Type FLUSH') }}" style="width: 140px;" aria-label="{{ tr('database.confirm_flush', 'Confirm flush') }}">
+            <button class="btn btn-sm btn-outline-danger" type="submit" {% if not redis_info or not redis_info.enabled %}disabled{% endif %}>
+              <i class="bi bi-trash me-1"></i>{{ tr('database.flush_namespace', 'Flush namespace') }}
+            </button>
+          </form>
+        </div>
+        <div class="text-muted fs-xs mt-2">{{ tr('database.flush_help', 'Flush deletes keys under the configured namespace only.') }}</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="adaptive-page-grid adaptive-page-grid--split">
+  <div>
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-table me-2 text-primary"></i>Tables</div>
+      <div class="card-body p-0">
+        <div class="table-responsive database-scroll-shell">
+          <table class="table table-compact align-middle mb-0">
+            <thead>
+              <tr>
+                <th>Table</th>
+                <th>Rows</th>
+                <th>Dead</th>
+                <th>Size</th>
+                <th>Scans</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for t in db_info.table_details %}
+              <tr>
+                <td>
+                  <code class="fs-xs">{{ t.name }}</code>
+                  <div class="text-muted fs-xs">{{ t.columns|length }} columns</div>
+                </td>
+                <td>{{ t.rows }}</td>
+                <td>{{ t.dead_rows if t.dead_rows is not none else 'N/A' }}</td>
+                <td>
+                  <div class="fs-xs">{{ t.size or 'N/A' }}</div>
+                  <div class="text-muted fs-xs">table {{ t.table_size or 'N/A' }} · index {{ t.index_size or 'N/A' }}</div>
+                </td>
+                <td class="text-muted fs-xs">
+                  seq {{ t.seq_scan if t.seq_scan is not none else 'N/A' }}<br>
+                  idx {{ t.idx_scan if t.idx_scan is not none else 'N/A' }}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="bi bi-terminal me-2 text-info"></i>SQL console</div>
+      <div class="card-body">
+        {% if allow_sql_console %}
+        <p class="text-muted fs-xs mb-2">Read-only console. Only single <code>SELECT</code> queries are allowed.</p>
+        <form id="dbQueryForm" class="d-grid gap-2">
+          <input type="hidden" id="dbQueryUrl" value="{{ url_for('admin.db_query') }}">
+          <input type="hidden" id="dbCsrfToken" value="{{ csrf_token() }}">
+          <textarea id="dbQueryInput" class="form-control font-monospace" rows="5" spellcheck="false">SELECT id, email, role FROM users ORDER BY id ASC LIMIT 10</textarea>
+          <div class="d-flex flex-wrap gap-2">
+            <button type="submit" class="btn btn-primary btn-sm">
+              <i class="bi bi-play-fill me-1"></i>Run query
+            </button>
+            <button type="button" class="btn btn-outline-secondary btn-sm" id="dbQueryReset">
+              <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+            </button>
+          </div>
+        </form>
+        <div id="dbQueryMeta" class="small text-muted mt-3"></div>
+        <div id="dbQueryError" class="alert alert-danger py-2 px-3 mt-3 d-none"></div>
+        <div class="table-responsive mt-3 d-none database-scroll-shell database-scroll-shell--query" id="dbQueryTableWrap">
+          <table class="table table-compact mb-0" id="dbQueryTable"></table>
+        </div>
+        {% else %}
+        <div class="alert alert-warning mb-0">SQL console is disabled for this environment.</div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div>
+    <div class="card mb-3">
+      <div class="card-header"><i class="bi bi-gear me-2 text-secondary"></i>Maintenance</div>
+      <div class="card-body d-grid gap-2">
+        <div class="database-action-tile">
+          <strong class="fs-sm d-block mb-1"><i class="bi bi-filter-circle me-1 text-warning"></i>Purge old logs</strong>
+          <p class="text-muted fs-xs mb-2">Delete log rows older than a retention window.</p>
+          <form method="post" action="{{ url_for('admin.db_purge_logs') }}"
+                data-confirm-title="Purge logs"
+                data-confirm-message="Delete log events older than {value} days?"
+                data-confirm-value-selector="#purge_days"
+                data-confirm-label="Purge"
+                data-confirm-class="btn-warning">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="input-group input-group-sm">
+              <input type="number" name="days" id="purge_days" class="form-control" value="90" min="1" max="3650">
+              <span class="input-group-text">days</span>
+              <button type="submit" class="btn btn-warning btn-sm">Purge</button>
+            </div>
+          </form>
+        </div>
+
+        <div class="database-action-tile database-action-tile-danger">
+          <strong class="fs-sm d-block mb-1"><i class="bi bi-trash3 me-1 text-danger"></i>Clear all logs</strong>
+          <p class="text-muted fs-xs mb-2">Remove every row from <code>log_events</code>.</p>
+          <button type="button" class="btn btn-outline-danger btn-sm w-100" data-bs-toggle="modal" data-bs-target="#clearLogsModal">
+            <i class="bi bi-trash3 me-1"></i>Clear logs
+          </button>
+        </div>
+
+        <div class="database-action-tile">
+          <strong class="fs-sm d-block mb-1"><i class="bi bi-search me-1 text-primary"></i>Analyze</strong>
+          <p class="text-muted fs-xs mb-2">Refresh planner statistics without a full vacuum pass.</p>
+          <form method="post" action="{{ url_for('admin.db_analyze') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-primary btn-sm w-100">
+              <i class="bi bi-search me-1"></i>Run ANALYZE
+            </button>
+          </form>
+        </div>
+
+        <div class="database-action-tile">
+          <strong class="fs-sm d-block mb-1"><i class="bi bi-stars me-1 text-primary"></i>Vacuum analyze</strong>
+          <p class="text-muted fs-xs mb-2">Run <code>VACUUM (ANALYZE)</code> for the current database.</p>
+          <button type="button" class="btn btn-primary btn-sm w-100" data-bs-toggle="modal" data-bs-target="#vacuumModal">
+            <i class="bi bi-stars me-1"></i>Run vacuum analyze
+          </button>
+        </div>
+
+        <div class="database-action-tile">
+          <strong class="fs-sm d-block mb-1"><i class="bi bi-download me-1 text-success"></i>Database snapshot</strong>
+          <p class="text-muted fs-xs mb-2">Download a JSON export with overview, runtime settings, counts, and users.</p>
+          <a href="{{ url_for('admin.db_backup') }}" class="btn btn-outline-success btn-sm w-100">
+            <i class="bi bi-download me-1"></i>Download snapshot
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-header"><i class="bi bi-info-circle me-2 text-info"></i>Connection</div>
+      <div class="card-body p-0">
+        <div class="database-info-list">
+          {% for k, v in db_info.info.items() %}
+          <div class="settings-row px-3 db-info-row">
+            <div class="settings-row-info"><strong class="fs-xs">{{ k }}</strong></div>
+            <code class="fs-xs text-muted db-info-value">{{ v }}</code>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="clearLogsModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-trash3 me-2 text-danger"></i>Clear all logs</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">This action deletes every event in <code>log_events</code>. Continue?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" action="{{ url_for('admin.db_clear_logs') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-danger">Clear logs</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="vacuumModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-stars me-2 text-primary"></i>Vacuum analyze</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-0">Run <code>VACUUM (ANALYZE)</code> now?</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" action="{{ url_for('admin.db_vacuum') }}" id="vacuumRunForm">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit" class="btn btn-primary" id="vacuumRunBtn">Run</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="vacuumResultModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-stars me-2 text-primary"></i>Vacuum result</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" id="vacuumResultBody">
+        <div class="text-muted">Waiting for result...</div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary" id="vacuumRefreshBtn">Refresh page</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% if allow_sql_console %}
+<script nonce="{{ g.csp_nonce }}">
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("dbQueryForm");
+  if (!form) return;
+  const input = document.getElementById("dbQueryInput");
+  const reset = document.getElementById("dbQueryReset");
+  const url = document.getElementById("dbQueryUrl").value;
+  const csrfToken = document.getElementById("dbCsrfToken").value;
+  const meta = document.getElementById("dbQueryMeta");
+  const errorBox = document.getElementById("dbQueryError");
+  const tableWrap = document.getElementById("dbQueryTableWrap");
+  const table = document.getElementById("dbQueryTable");
+  const defaultSql = input.value;
+
+  function renderRows(columns, rows) {
+    const thead = document.createElement("thead");
+    const headRow = document.createElement("tr");
+    columns.forEach(function (col) {
+      const th = document.createElement("th");
+      th.textContent = col;
+      headRow.appendChild(th);
+    });
+    thead.appendChild(headRow);
+
+    const tbody = document.createElement("tbody");
+    rows.forEach(function (row) {
+      const tr = document.createElement("tr");
+      row.forEach(function (value) {
+        const td = document.createElement("td");
+        td.textContent = value === null ? "NULL" : String(value);
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+
+    table.innerHTML = "";
+    table.appendChild(thead);
+    table.appendChild(tbody);
+  }
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    errorBox.classList.add("d-none");
+    tableWrap.classList.add("d-none");
+    meta.textContent = "Running query...";
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken
+        },
+        body: JSON.stringify({ sql: input.value })
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Query failed.");
+      }
+      meta.textContent = data.rows.length + " rows returned in " + data.elapsed_ms + " ms";
+      renderRows(data.columns, data.rows);
+      tableWrap.classList.remove("d-none");
+    } catch (error) {
+      meta.textContent = "";
+      errorBox.textContent = error.message || "Query failed.";
+      errorBox.classList.remove("d-none");
+    }
+  });
+
+  reset.addEventListener("click", function () {
+    input.value = defaultSql;
+    meta.textContent = "";
+    errorBox.classList.add("d-none");
+    tableWrap.classList.add("d-none");
+    table.innerHTML = "";
+  });
+});
+</script>
+{% endif %}
+<script nonce="{{ g.csp_nonce }}">
+document.addEventListener("DOMContentLoaded", function () {
+  const vacuumForm = document.getElementById("vacuumRunForm");
+  const vacuumBtn = document.getElementById("vacuumRunBtn");
+  const vacuumModalEl = document.getElementById("vacuumModal");
+  const vacuumResultModalEl = document.getElementById("vacuumResultModal");
+  const vacuumResultBody = document.getElementById("vacuumResultBody");
+  const vacuumRefreshBtn = document.getElementById("vacuumRefreshBtn");
+  if (!vacuumForm || !vacuumBtn || !vacuumModalEl || !vacuumResultModalEl || !window.bootstrap) return;
+
+  const vacuumConfirmModal = bootstrap.Modal.getOrCreateInstance(vacuumModalEl);
+  const vacuumResultModal = bootstrap.Modal.getOrCreateInstance(vacuumResultModalEl);
+
+  function setResult(kind, html) {
+    vacuumResultBody.innerHTML = '<div class="' + kind + '">' + html + '</div>';
+  }
+
+  vacuumForm.addEventListener("submit", async function (event) {
+    event.preventDefault();
+    vacuumBtn.disabled = true;
+    vacuumBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" aria-hidden="true"></span>Running';
+    try {
+      const response = await fetch(vacuumForm.action, {
+        method: "POST",
+        headers: {
+          "Accept": "application/json",
+          "X-Requested-With": "XMLHttpRequest"
+        },
+        body: new FormData(vacuumForm)
+      });
+      const data = await response.json();
+      if (!response.ok || !data.ok) {
+        throw new Error((data && data.error) || "VACUUM failed.");
+      }
+      const result = data.result || {};
+      setResult(
+        "vacuum-result-shell",
+        '<div class="vacuum-result-title text-success"><i class="bi bi-check2-circle me-2"></i>' + (result.action || 'VACUUM (ANALYZE)') + ' completed</div>' +
+        '<div class="vacuum-result-grid">' +
+          '<div><span class="vacuum-result-label">Action</span><code>' + (result.action || 'VACUUM (ANALYZE)') + '</code></div>' +
+          '<div><span class="vacuum-result-label">Executed at</span><code>' + (result.executed_at || 'n/a') + '</code></div>' +
+        '</div>' +
+        '<div class="text-muted small mt-3">Planner statistics and dead tuples have been refreshed. Reload the page if you want updated storage counters immediately.</div>'
+      );
+      vacuumConfirmModal.hide();
+      vacuumResultModal.show();
+      if (window.showToast) window.showToast("VACUUM (ANALYZE) completed.", "success");
+    } catch (error) {
+      setResult(
+        "vacuum-result-shell",
+        '<div class="vacuum-result-title text-danger"><i class="bi bi-exclamation-triangle me-2"></i>VACUUM failed</div>' +
+        '<div class="vacuum-result-error">' + String((error && error.message) || "VACUUM failed.") + '</div>'
+      );
+      vacuumConfirmModal.hide();
+      vacuumResultModal.show();
+      if (window.showToast) window.showToast((error && error.message) || "VACUUM failed.", "danger");
+    } finally {
+      vacuumBtn.disabled = false;
+      vacuumBtn.innerHTML = 'Run';
+    }
+  });
+
+  if (vacuumRefreshBtn) {
+    vacuumRefreshBtn.addEventListener("click", function () {
+      window.location.reload();
+    });
+  }
+});
+</script>
+ </div>
+{% endblock %}

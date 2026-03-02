@@ -1,0 +1,582 @@
+{% extends "base.html" %}
+{% block title %} · Users{% endblock %}
+{% block content %}
+<div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-2">
+  <div>
+    <div class="page-breadcrumb"><i class="bi bi-shield me-1"></i> Admin</div>
+    <h1>User Management</h1>
+    <p>
+      {{ users|length }} users shown
+      {% if users_total is defined %}<span class="text-muted">out of {{ users_total }} total</span>{% endif %}
+    </p>
+  </div>
+  <div class="d-flex gap-2">
+    <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
+      <i class="bi bi-plus-lg me-1"></i>New user
+    </button>
+  </div>
+</div>
+
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form class="row g-2 align-items-end" method="get">
+      <div class="col-12 col-md-4 col-lg-3">
+        <label class="form-label fs-xs mb-1">Ricerca</label>
+        <input
+          class="form-control form-control-sm"
+          name="q"
+          placeholder="Nome o email..."
+          value="{{ users_filters.q if users_filters is defined else '' }}"
+        >
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label fs-xs mb-1">Ruolo</label>
+        <select class="form-select form-select-sm" name="role">
+          {% set _role = users_filters.role if users_filters is defined else '' %}
+          <option value="" {% if not _role %}selected{% endif %}>Tutti</option>
+          <option value="admin" {% if _role == 'admin' %}selected{% endif %}>Admin</option>
+          <option value="user" {% if _role == 'user' %}selected{% endif %}>User</option>
+        </select>
+      </div>
+      <div class="col-6 col-md-3 col-lg-2">
+        <label class="form-label fs-xs mb-1">Stato</label>
+        {% set _status = users_filters.status if users_filters is defined else '' %}
+        <select class="form-select form-select-sm" name="status">
+          <option value="" {% if not _status %}selected{% endif %}>Tutti</option>
+          <option value="active" {% if _status == 'active' %}selected{% endif %}>Attivi</option>
+          <option value="disabled" {% if _status == 'disabled' %}selected{% endif %}>Disabilitati</option>
+        </select>
+      </div>
+      <div class="col-12 col-md-6 col-lg-3">
+        <label class="form-label fs-xs mb-1">Ordina per</label>
+        {% set _sort = users_filters.sort if users_filters is defined else 'created_desc' %}
+        <select class="form-select form-select-sm" name="sort">
+          <option value="created_desc" {% if _sort == 'created_desc' %}selected{% endif %}>Più recenti</option>
+          <option value="created_asc" {% if _sort == 'created_asc' %}selected{% endif %}>Meno recenti</option>
+          <option value="name_asc" {% if _sort == 'name_asc' %}selected{% endif %}>Nome A-Z</option>
+          <option value="name_desc" {% if _sort == 'name_desc' %}selected{% endif %}>Nome Z-A</option>
+          <option value="email_asc" {% if _sort == 'email_asc' %}selected{% endif %}>Email A-Z</option>
+          <option value="email_desc" {% if _sort == 'email_desc' %}selected{% endif %}>Email Z-A</option>
+          <option value="last_login_desc" {% if _sort == 'last_login_desc' %}selected{% endif %}>Ultimo accesso recente</option>
+          <option value="last_login_asc" {% if _sort == 'last_login_asc' %}selected{% endif %}>Ultimo accesso meno recente</option>
+        </select>
+      </div>
+      <div class="col-12 col-lg-2 d-flex gap-2">
+        <button class="btn btn-primary btn-sm w-100" type="submit"><i class="bi bi-funnel me-1"></i>Filtra</button>
+        <a class="btn btn-outline-secondary btn-sm w-100" href="{{ url_for('admin.users') }}">Reset</a>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Summary stats -->
+<div class="row g-2 mb-3">
+  <div class="col-6 col-md-3">
+    <div class="stat-card stat-card-compact">
+      <div class="stat-val">{{ users|length }}</div>
+      <div class="stat-lbl">Totale</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card success stat-card-compact">
+      <div class="stat-val">{{ users|selectattr('is_active')|list|length }}</div>
+      <div class="stat-lbl">Attivi</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card warning stat-card-compact">
+      <div class="stat-val">{{ users|selectattr('role','eq','admin')|list|length }}</div>
+      <div class="stat-lbl">Admin</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card danger stat-card-compact">
+      <div class="stat-val">{{ users|rejectattr('is_active')|list|length }}</div>
+      <div class="stat-lbl">Disabilitati</div>
+    </div>
+  </div>
+</div>
+
+<!-- User cards -->
+<div class="d-flex flex-column gap-2" id="userList">
+  {% for u in users %}
+  <div class="user-card">
+    <!-- Card header (clickable) -->
+    <div class="user-card-header js-user-card-toggle" data-user-id="{{ u.id }}">
+      <div class="user-card-avatar {{ 'admin' if u.role == 'admin' else '' }} {{ 'disabled' if not u.is_active else '' }}">
+        {{ u.name[:1].upper() }}
+      </div>
+      <div class="flex-grow-1 min-width-0">
+        <div class="fw-600">
+          {{ u.name }}
+          {% if u.id == current_user.id %}
+          <span class="badge bg-info text-white ms-1 badge-compact-strong">Tu</span>
+          {% endif %}
+        </div>
+        <div class="text-muted fs-xs">{{ u.email }}</div>
+      </div>
+        <div class="d-flex align-items-center gap-2 flex-shrink-0">
+          <span class="badge badge-compact {% if u.role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+            {{ u.role }}
+          </span>
+          {% if u.role == 'admin' %}
+          <span class="badge badge-compact bg-light text-dark border">Protected</span>
+          {% endif %}
+          <span class="badge badge-compact {% if u.is_active %}bg-success{% else %}bg-danger{% endif %}">
+            {{ 'Attivo' if u.is_active else 'Disabilitato' }}
+          </span>
+        <i class="bi bi-chevron-down user-card-chevron" id="ucchev-{{ u.id }}"></i>
+      </div>
+    </div>
+
+    <!-- Card body (expandable) -->
+    <div class="user-card-body" id="ucbody-{{ u.id }}">
+      <div class="row g-3">
+        <!-- Details -->
+        <div class="col-12 col-md-7">
+          <div class="row g-2">
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">ID utente</div>
+              <code class="fs-xs">#{{ u.id }}</code>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Email</div>
+              <div class="fs-sm">{{ u.email }}</div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Username</div>
+              <div class="fs-sm">{{ u.username or '—' }}</div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Ruolo</div>
+              <span class="badge {% if u.role == 'admin' %}bg-warning text-dark{% else %}bg-secondary{% endif %}">{{ u.role }}</span>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Stato account</div>
+              <span class="badge {% if u.is_active %}bg-success{% else %}bg-danger{% endif %}">
+                {{ 'Attivo' if u.is_active else 'Disabilitato' }}
+              </span>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Email verificata</div>
+              <span class="badge {% if u.email_verified %}bg-success{% else %}bg-secondary{% endif %}">
+                {{ 'Si' if u.email_verified else 'No' }}
+              </span>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Ultimo IP</div>
+              <div class="fs-xs">{{ u.last_ip or '—' }}</div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Fonte signup</div>
+              <div class="fs-xs">{{ u.signup_source or '—' }}</div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Locale / timezone</div>
+              <div class="fs-xs">{{ (u.locale or '—') ~ ' / ' ~ (u.timezone or '—') }}</div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">MFA</div>
+              <div class="fs-xs">{{ 'Attivo' if u.mfa_enabled else 'Disattivo' }}</div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Registrato il</div>
+              <div class="fs-xs">{{ u.created_at.strftime('%d/%m/%Y %H:%M') }}</div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Ultimo accesso</div>
+              <div class="fs-xs">
+                {{ u.last_login_at.strftime('%d/%m/%Y %H:%M') if u.last_login_at else '—' }}
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Ultima attività</div>
+              <div class="fs-xs">
+                {{ u.last_seen_at.strftime('%d/%m/%Y %H:%M') if u.last_seen_at else '—' }}
+              </div>
+            </div>
+            <div class="col-6">
+              <div class="fs-xs text-muted mb-1">Login falliti</div>
+              <div class="fs-xs">{{ u.failed_login_count or 0 }}</div>
+            </div>
+            <div class="col-12">
+              <div class="fs-xs text-muted mb-1">Attività recente</div>
+              <div class="fs-xs text-muted">
+                {{ u.log_events|length }} eventi di log registrati
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div class="col-12 col-md-5 d-flex flex-column gap-2 user-card-actions-col">
+          <button class="btn btn-outline-primary btn-sm text-start js-open-edit-modal" data-user-id="{{ u.id }}">
+            <i class="bi bi-pencil me-2"></i>Modifica profilo completo
+          </button>
+          <button class="btn btn-outline-warning btn-sm text-start js-open-pwd-modal" data-user-id="{{ u.id }}" data-user-name="{{ u.name | e }}">
+            <i class="bi bi-lock me-2"></i>Reimposta password
+          </button>
+          {% if u.id != current_user.id %}
+          {% if u.role == 'admin' %}
+          <div class="alert alert-light border small mb-0">
+            <i class="bi bi-shield-lock me-1 text-warning"></i>L'account admin resta visibile ma non può essere disabilitato o rimosso da questa pagina.
+          </div>
+          {% else %}
+          <form method="post" action="{{ url_for('admin.toggle_user', uid=u.id) }}"
+                data-confirm-title="Modifica stato account"
+                data-confirm-message="Confermi la modifica dello stato per {{ u.name | e }}?"
+                data-confirm-label="{{ 'Disabilita account' if u.is_active else 'Abilita account' }}"
+                data-confirm-class="btn-{{ 'danger' if u.is_active else 'success' }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-{% if u.is_active %}danger{% else %}success{% endif %} btn-sm text-start w-100">
+              <i class="bi bi-{% if u.is_active %}slash-circle{% else %}check-circle{% endif %} me-2"></i>
+              {{ 'Disabilita account' if u.is_active else 'Abilita account' }}
+            </button>
+          </form>
+          {% if u.role != 'admin' %}
+          <form method="post" action="{{ url_for('admin.delete_user', uid=u.id) }}"
+                data-confirm-title="Rimozione utente"
+                data-confirm-message="Confermi la rimozione definitiva di {{ u.email | e }}? Questa azione elimina anche log associati."
+                data-confirm-label="Rimuovi utente"
+                data-confirm-class="btn-danger">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn-outline-danger btn-sm text-start w-100">
+              <i class="bi bi-trash me-2"></i>Rimuovi utente
+            </button>
+          </form>
+          {% endif %}
+          {% endif %}
+          {% endif %}
+          <div class="user-token-panel">
+            <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap">
+              <div>
+                <div class="fs-xs text-muted mb-1">API key personali</div>
+                {% set _all_tokens = (u.api_tokens or []) | rejectattr('name', 'equalto', 'browser-session') | rejectattr('name', 'equalto', 'api_tester') | list %}
+                {% set _active_tokens = _all_tokens | rejectattr('revoked_at') | list %}
+                <div class="fs-xs text-muted">{{ _active_tokens|length }} attive / {{ _all_tokens|length }} totali</div>
+              </div>
+              {% if _active_tokens %}
+              <button type="button" class="btn btn-outline-danger btn-sm js-submit-bulk-token-revoke" data-user-id="{{ u.id }}">
+                <i class="bi bi-x-octagon me-1"></i>Revoca selezionate
+              </button>
+              {% endif %}
+            </div>
+            {% set _visible_tokens = _all_tokens[:10] %}
+            {% if _visible_tokens %}
+            <form method="post"
+                  id="bulkTokenForm-{{ u.id }}"
+                  action="{{ url_for('admin.revoke_user_api_tokens_bulk', uid=u.id) }}"
+                  data-confirm-title="Revoca API key"
+                  data-confirm-message="Revocare le API key selezionate per {{ u.email | e }}?"
+                  data-confirm-label="Revoca selezionate"
+                  data-confirm-class="btn-danger">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <div class="user-token-list mt-2">
+                {% for t in _visible_tokens %}
+                <div class="user-token-row">
+                  <div class="d-flex align-items-start gap-2 min-width-0 flex-grow-1">
+                    <div class="pt-1">
+                      {% if not t.revoked_at %}
+                      <input class="form-check-input" type="checkbox" name="token_ids" value="{{ t.id }}">
+                      {% else %}
+                      <input class="form-check-input" type="checkbox" disabled>
+                      {% endif %}
+                    </div>
+                    <div class="min-width-0 flex-grow-1">
+                      <div class="fs-xs fw-600 text-truncate">
+                        {{ t.token_prefix }}...
+                        {% if t.revoked_at %}<span class="badge bg-secondary ms-1 badge-compact">Revocata</span>{% endif %}
+                      </div>
+                      <div class="fs-xs text-muted">
+                        {{ t.name or 'default' }} · {{ t.created_at.strftime('%d/%m/%Y %H:%M') if t.created_at else '—' }}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="flex-shrink-0">
+                    {% if not t.revoked_at %}
+                    <button type="submit"
+                            class="btn btn-outline-danger btn-sm"
+                            formaction="{{ url_for('admin.revoke_user_api_token', uid=u.id, tid=t.id) }}"
+                            formmethod="post"
+                            data-confirm-title="Revoca API key"
+                            data-confirm-message="Revocare la key {{ t.token_prefix }}... per {{ u.email | e }}?"
+                            data-confirm-label="Revoca key"
+                            data-confirm-class="btn-danger">
+                      <i class="bi bi-x-circle"></i>
+                    </button>
+                    {% else %}
+                    <span class="text-muted fs-xs">—</span>
+                    {% endif %}
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
+            </form>
+            {% if _all_tokens|length > 10 %}
+            <div class="fs-xs text-muted mt-2">Mostrate le 10 key più recenti.</div>
+            {% endif %}
+            {% else %}
+            <div class="fs-xs text-muted mt-2">Nessuna API key.</div>
+            {% endif %}
+            <div class="fs-xs text-muted mt-2">
+              Il valore completo viene mostrato solo all'utente proprietario (una volta).
+            </div>
+          </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+  {% if users|length == 0 %}
+  <div class="card">
+    <div class="card-body text-center text-muted py-4">
+      Nessun utente trovato con i filtri correnti.
+    </div>
+  </div>
+  {% endif %}
+</div>
+
+<!-- Modal: Add user -->
+<div class="modal fade" id="addUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Nuovo utente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" action="{{ url_for('admin.create_user') }}" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="modal-body">
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Nome completo</label>
+              <input type="text" name="name" class="form-control" required minlength="2" maxlength="120" placeholder="Mario Rossi">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" class="form-control" required maxlength="255" placeholder="mario@esempio.it">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Password <span class="text-muted fs-xs">(min. 8 caratteri)</span></label>
+              <input type="password" name="password" class="form-control" required minlength="8">
+            </div>
+            <div class="col-12">
+              <label class="form-label">Ruolo</label>
+              <input type="text" class="form-control" value="user — accesso standard" disabled>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Crea utente</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Edit user -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-pencil me-2"></i>Modifica utente</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" id="editUserForm" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="modal-body">
+          <div class="row g-2">
+            <div class="col-12 col-md-6">
+              <label class="form-label">Nome</label>
+              <input type="text" name="name" id="editName" class="form-control" required minlength="2" maxlength="120">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Email</label>
+              <input type="email" name="email" id="editEmail" class="form-control" required maxlength="255">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Ruolo</label>
+              <select name="role" id="editRole" class="form-select">
+                <option value="user">user</option>
+                <option value="admin">admin</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Username</label>
+              <input type="text" name="username" id="editUsername" class="form-control" maxlength="80">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Locale</label>
+              <input type="text" name="locale" id="editLocale" class="form-control" maxlength="16">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Timezone</label>
+              <input type="text" name="timezone" id="editTimezone" class="form-control" maxlength="64">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Fonte signup</label>
+              <input type="text" name="signup_source" id="editSignupSource" class="form-control" maxlength="40">
+            </div>
+            <div class="col-12 col-md-6">
+              <label class="form-label">Ultimo IP (readonly)</label>
+              <input type="text" id="editLastIp" class="form-control" disabled>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Note admin</label>
+              <textarea name="notes" id="editNotes" class="form-control" rows="3" maxlength="4000"></textarea>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="form-check form-switch mt-1">
+                <input class="form-check-input" type="checkbox" name="is_active" id="editIsActive" value="1">
+                <label class="form-check-label" for="editIsActive">Account attivo</label>
+              </div>
+            </div>
+            <div class="col-12 col-md-6">
+              <div class="form-check form-switch mt-1">
+                <input class="form-check-input" type="checkbox" name="email_verified" id="editEmailVerified" value="1">
+                <label class="form-check-label" for="editEmailVerified">Email verificata</label>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="form-check form-switch mt-1">
+                <input class="form-check-input" type="checkbox" name="notification_email_enabled" id="editNotificationEmailEnabled" value="1">
+                <label class="form-check-label" for="editNotificationEmailEnabled">Notif email</label>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <div class="form-check form-switch mt-1">
+                <input class="form-check-input" type="checkbox" name="notification_security_enabled" id="editNotificationSecurityEnabled" value="1">
+                <label class="form-check-label" for="editNotificationSecurityEnabled">Alert sicurezza</label>
+              </div>
+            </div>
+            <div class="col-12 col-md-4">
+              <label class="form-label">MFA</label>
+              <input type="text" class="form-control" id="editMfaStatus" disabled>
+              <div class="form-text">Lo stato MFA puo' essere gestito solo dall'utente dal proprio account.</div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-check2 me-1"></i>Salva</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Reset password -->
+<div class="modal fade" id="pwdUserModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-lock me-2"></i>Reimposta password — <span id="pwdUserName"></span></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <form method="post" id="pwdUserForm" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Nuova password <span class="text-muted fs-xs">(min. 8 caratteri)</span></label>
+            <input type="password" name="new_password" class="form-control" required minlength="8">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Conferma password</label>
+            <input type="password" name="confirm_password" class="form-control" required minlength="8">
+          </div>
+          <div class="d-flex align-items-start gap-2 small text-muted mt-2">
+            <i class="bi bi-exclamation-triangle mt-1"></i><div>L'utente verrà disconnesso e dovrà accedere con la nuova password.</div></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+          <button type="submit" class="btn btn-warning text-dark"><i class="bi bi-lock-fill me-1"></i>Reimposta</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ g.csp_nonce }}">
+function toggleUserCard(uid) {
+  const body = document.getElementById("ucbody-" + uid);
+  const chev = document.getElementById("ucchev-" + uid);
+  const isOpen = body.classList.contains("open");
+  // close all
+  document.querySelectorAll(".user-card-body.open").forEach(b => b.classList.remove("open"));
+  document.querySelectorAll("[id^='ucchev-']").forEach(c => c.style.transform = "");
+  if (!isOpen) {
+    body.classList.add("open");
+    if (chev) chev.style.transform = "rotate(180deg)";
+  }
+}
+
+document.querySelectorAll(".js-user-card-toggle[data-user-id]").forEach((el) => {
+  el.addEventListener("click", () => toggleUserCard(el.dataset.userId));
+});
+
+async function openEditModal(uid) {
+  try {
+    const res = await fetch("/admin/users/" + uid + "/profile", { headers: { "Accept": "application/json" } });
+    if (!res.ok) throw new Error("Impossibile caricare il profilo utente");
+    const d = await res.json();
+    document.getElementById("editName").value = d.name || "";
+    document.getElementById("editEmail").value = d.email || "";
+    document.getElementById("editRole").value = d.role || "user";
+    document.getElementById("editUsername").value = d.username || "";
+    document.getElementById("editLocale").value = d.locale || "";
+    document.getElementById("editTimezone").value = d.timezone || "";
+    document.getElementById("editSignupSource").value = d.signup_source || "";
+    document.getElementById("editLastIp").value = d.last_ip || "";
+    document.getElementById("editNotes").value = d.notes || "";
+    document.getElementById("editIsActive").checked = !!d.is_active;
+    document.getElementById("editEmailVerified").checked = !!d.email_verified;
+    document.getElementById("editNotificationEmailEnabled").checked = !!d.notification_email_enabled;
+    document.getElementById("editNotificationSecurityEnabled").checked = !!d.notification_security_enabled;
+    document.getElementById("editMfaStatus").value = d.mfa_enabled ? "Attiva" : "Disattiva";
+    document.getElementById("editUserForm").action = "/admin/users/" + uid + "/edit";
+    bootstrap.Modal.getOrCreateInstance(document.getElementById("editUserModal")).show();
+  } catch (e) {
+    if (window.showToast) {
+      window.showToast(e.message || "User profile load failed", "danger");
+    } else {
+      console.error(e);
+    }
+  }
+}
+
+document.querySelectorAll(".js-open-edit-modal[data-user-id]").forEach((button) => {
+  button.addEventListener("click", () => openEditModal(button.dataset.userId));
+});
+
+function openPwdModal(uid, name) {
+  document.getElementById("pwdUserName").textContent = name;
+  document.getElementById("pwdUserForm").action = "/admin/users/" + uid + "/reset-password";
+  bootstrap.Modal.getOrCreateInstance(document.getElementById("pwdUserModal")).show();
+}
+
+document.querySelectorAll(".js-open-pwd-modal[data-user-id]").forEach((button) => {
+  button.addEventListener("click", () => openPwdModal(button.dataset.userId, button.dataset.userName || ""));
+});
+
+function submitBulkTokenRevoke(uid) {
+  const form = document.getElementById("bulkTokenForm-" + uid);
+  if (!form) return;
+  const checked = form.querySelectorAll('input[name="token_ids"]:checked');
+  if (!checked.length) {
+    if (window.showToast) {
+      window.showToast("Select at least one API key.", "warning");
+    }
+    return;
+  }
+  form.requestSubmit();
+}
+
+document.querySelectorAll(".js-submit-bulk-token-revoke[data-user-id]").forEach((button) => {
+  button.addEventListener("click", () => submitBulkTokenRevoke(button.dataset.userId));
+});
+</script>
+{% endblock %}

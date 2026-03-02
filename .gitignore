@@ -1,0 +1,45 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environments
+.venv/
+venv/
+
+# Env & secrets
+.env
+.env.*
+!.env.example
+
+# Flask instance / runtime data
+instance/*.db
+instance/*.sqlite
+instance/*.sqlite3
+instance/*.log
+instance/smoke_test.db
+instance/browser_smoke_test.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Build / packaging
+build/
+dist/
+*.egg-info/
+
+# Test artifacts
+.coverage
+.pytest_cache/
+htmlcov/
+
+# Logs
+*.log

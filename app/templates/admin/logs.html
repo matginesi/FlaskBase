@@ -1,0 +1,355 @@
+{% extends "base.html" %}
+{% block title %} · Log{% endblock %}
+{% block content %}
+<div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-2">
+  <div>
+    <div class="page-breadcrumb"><i class="bi bi-shield me-1"></i> Admin</div>
+    <h1>Log eventi</h1>
+    <p>Registro audit — clicca una riga per espandere i dettagli</p>
+  </div>
+  <div class="d-flex gap-2 flex-wrap">
+    <form method="post" action="{{ url_for('admin.logs_fill') }}" class="d-flex gap-1">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <input type="number" class="form-control form-control-sm field-w-90" name="events" value="200" min="1" max="5000">
+      <button type="submit" class="btn btn-outline-warning btn-sm">
+        <i class="bi bi-lightning-charge me-1"></i>Fill logger
+      </button>
+    </form>
+    <form method="post" action="{{ url_for('admin.logs_clear') }}"
+          data-confirm-title="Svuota log"
+          data-confirm-message="Confermi la cancellazione completa dei log?"
+          data-confirm-label="Svuota log"
+          data-confirm-class="btn-danger">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="btn btn-outline-danger btn-sm">
+        <i class="bi bi-trash3 me-1"></i>Svuota log
+      </button>
+    </form>
+    <a href="{{ url_for('admin.logs_export') }}{{ ('?' + request.query_string.decode()) if request.query_string else '' }}"
+       class="btn btn-outline-secondary btn-sm">
+      <i class="bi bi-download me-1"></i>Esporta JSON
+    </a>
+    <label class="btn btn-outline-primary btn-sm mb-0">
+      <i class="bi bi-upload me-1"></i>Importa JSON
+      <input type="file" id="importFile" accept=".json" class="d-none">
+    </label>
+  </div>
+</div>
+
+<!-- Filters -->
+<div class="card mb-3">
+  <div class="card-body py-2">
+    <form class="row g-2 align-items-end" method="get">
+      <div class="col-auto">
+        <label class="form-label fs-xs mb-1">Tipo evento</label>
+        <input class="form-control form-control-sm field-w-190" name="type" placeholder="es. auth.login"
+               value="{{ request.args.get('type','') }}">
+      </div>
+      <div class="col-auto">
+        <label class="form-label fs-xs mb-1">Livello</label>
+        <select class="form-select form-select-sm field-w-120" name="level">
+          <option value="">Tutti</option>
+          {% for lv in ['INFO','WARNING','ERROR'] %}
+          <option value="{{ lv }}" {% if request.args.get('level') == lv %}selected{% endif %}>{{ lv }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto">
+        <label class="form-label fs-xs mb-1">Utente</label>
+        <input class="form-control form-control-sm field-w-170" name="user" placeholder="email..."
+               value="{{ request.args.get('user','') }}">
+      </div>
+      <div class="col-auto d-flex gap-2">
+        <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-funnel me-1"></i>Filtra</button>
+        <a class="btn btn-outline-secondary btn-sm" href="{{ url_for('admin.logs') }}">Reset</a>
+      </div>
+      <div class="col-auto">
+        <label class="form-label fs-xs mb-1">Elementi pagina</label>
+        <select class="form-select form-select-sm field-w-120" name="per_page">
+          {% for pp in [25, 50, 100, 200, 500] %}
+          <option value="{{ pp }}" {% if per_page == pp %}selected{% endif %}>{{ pp }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="col-auto ms-auto align-self-end">
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="toggleLogTextContent" {% if show_log_text_default %}checked{% endif %}>
+          <label class="form-check-label fs-xs" for="toggleLogTextContent">Mostra testo req/reply/thinking</label>
+        </div>
+      </div>
+      <div class="col-auto align-self-end">
+        <span class="text-muted fs-xs">
+          {% if total_events > 0 %}
+          {{ page_start }}-{{ page_end }} di {{ total_events }} eventi
+          {% else %}
+          0 eventi
+          {% endif %}
+        </span>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Level pills -->
+<div class="d-flex gap-2 mb-3 flex-wrap">
+  {% for lv, cnt in level_counts if lv != 'DEBUG' %}
+  <a href="?level={{ lv }}" class="text-decoration-none">
+    <span class="log-badge {{ lv }} badge-compact">
+      {{ lv }} <strong>{{ cnt }}</strong>
+    </span>
+  </a>
+  {% endfor %}
+</div>
+
+<!-- Table -->
+<div class="card">
+  <div class="card-body p-0">
+    <div class="table-responsive">
+      <table class="table table-compact mb-0 logs-table">
+        <thead>
+          <tr>
+            <th>Timestamp</th>
+            <th>Livello</th>
+            <th>Tipo</th>
+            <th>Utente</th>
+            <th>Messaggio</th>
+            <th>Met.</th>
+            <th>IP</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for e in events %}
+          {% set eid = loop.index %}
+          <tr class="log-row js-log-row-toggle" id="logrow-{{ eid }}" data-log-id="{{ eid }}">
+            <td class="text-nowrap fs-xs cell-muted">{{ e.ts.strftime('%d/%m %H:%M:%S') }}</td>
+            <td><span class="log-badge {{ e.level }}">{{ e.level }}</span></td>
+            <td><span class="log-type-pill">{{ e.event_type }}</span></td>
+            <td class="fs-xs text-nowrap cell-muted">{{ e.user.email if e.user else '—' }}</td>
+            <td class="fs-sm cell-truncate-260">{{ e.message }}</td>
+            <td class="fs-xs cell-muted">{{ e.method or '—' }}</td>
+            <td class="fs-xs cell-muted">{{ e.ip or '—' }}</td>
+            <td class="text-center"><i class="bi bi-chevron-down fs-xs text-muted" id="chev-{{ eid }}"></i></td>
+          </tr>
+          <tr class="log-detail-row" id="logdetail-{{ eid }}">
+            <td colspan="8">
+              <div class="log-detail-inner" style="display:none;" id="logdetailinner-{{ eid }}">
+                <div class="row g-3">
+                  <div class="col-12 col-md-6">
+                    <div class="log-detail-grid-2">
+                      <div>
+                        <div class="fs-xs mb-1 detail-label">Timestamp</div>
+                        <code class="fs-xs">{{ e.ts.strftime('%Y-%m-%d %H:%M:%S') }}</code>
+                      </div>
+                      <div>
+                        <div class="fs-xs mb-1 detail-label">Livello</div>
+                        <span class="log-badge {{ e.level }}">{{ e.level }}</span>
+                      </div>
+                      <div>
+                        <div class="fs-xs mb-1 detail-label">Tipo evento</div>
+                        <span class="log-type-pill">{{ e.event_type }}</span>
+                      </div>
+                      <div>
+                        <div class="fs-xs mb-1 detail-label">Metodo HTTP</div>
+                        <code class="fs-xs">{{ e.method or '—' }}</code>
+                      </div>
+                      <div>
+                        <div class="fs-xs mb-1 detail-label">Path</div>
+                        <code class="fs-xs">{{ e.path or '—' }}</code>
+                      </div>
+                      <div>
+                        <div class="fs-xs mb-1 detail-label">IP</div>
+                        <code class="fs-xs">{{ e.ip or '—' }}</code>
+                      </div>
+                      <div>
+                        <div class="fs-xs mb-1 detail-label">Utente</div>
+                        <span class="fs-xs">{{ e.user.email if e.user else '—' }}</span>
+                      </div>
+                      <div>
+                        <div class="fs-xs mb-1 detail-label">User ID</div>
+                        <code class="fs-xs">{{ e.user_id or '—' }}</code>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="fs-xs mb-1 detail-label">Messaggio</div>
+                    <div class="fs-sm p-2 rounded mb-2 detail-message">{{ e.message }}</div>
+                    {% if e.context %}
+                    <div class="fs-xs mb-1 detail-label">Contesto JSON</div>
+                    <pre
+                      class="p-2 rounded mb-0 fs-xs detail-message js-log-context"
+                      style="max-height:120px;overflow:auto;white-space:pre-wrap;"
+                      data-context="{{ (e.context or {}) | tojson | forceescape }}"
+                    ></pre>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="8" class="text-center py-4 text-muted"><i class="bi bi-journal-x me-2"></i>Nessun evento trovato</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% if total_pages > 1 %}
+<div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mt-3">
+  <div class="text-muted fs-xs">Pagina {{ page }} / {{ total_pages }}</div>
+  <div class="btn-group btn-group-sm">
+    <a class="btn btn-outline-secondary {% if page <= 1 %}disabled{% endif %}"
+       href="{{ url_for('admin.logs', page=page-1, per_page=per_page, level=request.args.get('level',''), type=request.args.get('type',''), user=request.args.get('user','')) }}">
+      <i class="bi bi-chevron-left"></i> Prec
+    </a>
+    <a class="btn btn-outline-secondary {% if page >= total_pages %}disabled{% endif %}"
+       href="{{ url_for('admin.logs', page=page+1, per_page=per_page, level=request.args.get('level',''), type=request.args.get('type',''), user=request.args.get('user','')) }}">
+      Succ <i class="bi bi-chevron-right"></i>
+    </a>
+  </div>
+</div>
+{% endif %}
+<div class="text-muted fs-xs mt-2">
+  <i class="bi bi-info-circle me-1"></i>DB audit paginato ({{ per_page }} per pagina) · Log file: <code>instance/app.log</code>
+</div>
+
+<!-- Import modal -->
+<div class="modal fade" id="importModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><i class="bi bi-upload me-2"></i>Importa log JSON</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="importPreview"><p class="text-muted">Nessun file selezionato.</p></div>
+      <div class="modal-footer">
+        <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
+        <button class="btn btn-primary" id="confirmImport" disabled><i class="bi bi-check2 me-1"></i>Importa</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script nonce="{{ g.csp_nonce }}">
+const LOG_TEXT_KEYS = new Set([
+  "req_text",
+  "res_text",
+  "reply_text",
+  "thinking_text",
+  "prompt_text",
+  "message_text"
+]);
+
+function maskLogContextText(value, showText) {
+  if (showText) return value;
+  if (value === null || typeof value === "undefined") return value;
+  if (Array.isArray(value)) return value.map(v => maskLogContextText(v, showText));
+  if (typeof value === "object") {
+    const out = {};
+    Object.keys(value).forEach((k) => {
+      const key = String(k || "").toLowerCase();
+      if (LOG_TEXT_KEYS.has(key)) {
+        out[k] = "[hidden:text-toggle-off]";
+      } else {
+        out[k] = maskLogContextText(value[k], showText);
+      }
+    });
+    return out;
+  }
+  return value;
+}
+
+function renderLogContexts() {
+  const showText = !!document.getElementById("toggleLogTextContent")?.checked;
+  document.querySelectorAll(".js-log-context[data-context]").forEach((pre) => {
+    try {
+      const raw = String(pre.getAttribute("data-context") || "{}");
+      const parsed = JSON.parse(raw);
+      const displayObj = maskLogContextText(parsed, showText);
+      pre.textContent = JSON.stringify(displayObj, null, 2);
+    } catch {
+      pre.textContent = "{}";
+    }
+  });
+}
+
+function toggleLogRow(eid) {
+  const inner = document.getElementById("logdetailinner-" + eid);
+  const detailRow = document.getElementById("logdetail-" + eid);
+  const chev  = document.getElementById("chev-" + eid);
+  const row   = document.getElementById("logrow-" + eid);
+  const isOpen = detailRow.classList.contains("open");
+
+  // close all
+  document.querySelectorAll("[id^='logdetailinner-']").forEach(el => el.style.display = "none");
+  document.querySelectorAll(".log-detail-row.open").forEach(el => el.classList.remove("open"));
+  document.querySelectorAll("[id^='chev-']").forEach(el => el.style.transform = "");
+  document.querySelectorAll(".log-row.expanded").forEach(el => el.classList.remove("expanded"));
+
+  if (!isOpen) {
+    detailRow.classList.add("open");
+    inner.style.display = "block";
+    chev.style.transform = "rotate(180deg)";
+    row.classList.add("expanded");
+  }
+}
+
+document.querySelectorAll(".js-log-row-toggle[data-log-id]").forEach((row) => {
+  row.addEventListener("click", () => toggleLogRow(row.dataset.logId));
+});
+
+// Import JSON
+const importFile    = document.getElementById("importFile");
+const importPreview = document.getElementById("importPreview");
+const confirmImport = document.getElementById("confirmImport");
+const importModal   = new bootstrap.Modal(document.getElementById("importModal"));
+let importData = null;
+
+importFile && importFile.addEventListener("change", e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  new FileReader().onload = ev => {
+    try {
+      importData = JSON.parse(ev.target.result);
+      const count = Array.isArray(importData) ? importData.length : "?";
+      importPreview.innerHTML = `<div class="small text-muted"><i class="bi bi-file-earmark-text me-2"></i><strong>${file.name}</strong><br>
+        Record trovati: <strong>${count}</strong><br>
+        <span class="text-muted" style="font-size:.75rem;">Gli ID già presenti saranno ignorati.</span></div>`;
+      confirmImport.disabled = false;
+    } catch { importPreview.innerHTML = '<div class="small text-muted">Anteprima non disponibile.</div>'; if(window.showToast){showToast("JSON non valido.", "danger");} confirmImport.disabled = true; }
+    importModal.show();
+  };
+  const r = new FileReader(); r.onload = ev => {
+    try { importData = JSON.parse(ev.target.result); const count = Array.isArray(importData)?importData.length:"?";
+      importPreview.innerHTML=`<div class="small text-muted"><i class="bi bi-file-earmark-text me-2"></i><strong>${file.name}</strong><br>Record: <strong>${count}</strong></div>`;
+      confirmImport.disabled=false; } catch { importPreview.innerHTML='<div class="small text-muted">Anteprima non disponibile.</div>'; if(window.showToast){showToast("JSON non valido.", "danger");} confirmImport.disabled=true; } importModal.show(); };
+  r.readAsText(file); e.target.value="";
+});
+
+confirmImport && confirmImport.addEventListener("click", async () => {
+  if (!importData) return;
+  const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+  confirmImport.disabled = true;
+  confirmImport.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+  try {
+    const r = await fetch("{{ url_for('admin.logs_import') }}", {
+      method:"POST",
+      headers:{"Content-Type":"application/json", "X-CSRFToken": csrf},
+      body:JSON.stringify(importData),
+      credentials:"same-origin"
+    });
+    const d = await r.json();
+    importModal.hide();
+    showToast(d.message||"Importazione completata", r.ok?"success":"danger");
+    if(r.ok) setTimeout(()=>location.reload(),1200);
+  } catch { showToast("Errore importazione","danger"); }
+  finally { confirmImport.disabled=false; confirmImport.innerHTML='<i class="bi bi-check2 me-1"></i>Importa'; }
+});
+
+document.getElementById("toggleLogTextContent")?.addEventListener("change", renderLogContexts);
+renderLogContexts();
+</script>
+{% endblock %}

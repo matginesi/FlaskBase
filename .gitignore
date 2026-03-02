@@ -46,5 +46,6 @@ htmlcov/
 
 
 # MINE!!!!!!!!! for dev on my pc
-*.zip
-*.sh
+codebase.zip
+serve_ngrok.sh
+zipit.sh

@@ -28,19 +28,21 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Sanity check
+      - name: Prepare site root from ui_template (flatten)
         run: |
-          test -f ui_template/index.html
-          echo "Found ui_template/index.html"
+          rm -rf site
+          mkdir -p site
+          cp -R ui_template/* site/
+          test -f site/index.html
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
-      - name: Upload ui_template as Pages artifact
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ui_template
+          path: site
 
-      - name: Deploy to GitHub Pages
+      - name: Deploy
         id: deployment
         uses: actions/deploy-pages@v4

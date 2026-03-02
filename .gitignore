@@ -43,3 +43,8 @@ htmlcov/
 
 # Logs
 *.log
+
+
+# MINE!!!!!!!!! for dev on my pc
+*.zip
+*.sh

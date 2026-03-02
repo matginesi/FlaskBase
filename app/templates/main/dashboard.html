@@ -62,6 +62,11 @@
         data-job-thread-alive="{{ 'true' if stats.jobs and stats.jobs.runtime and stats.jobs.runtime.thread_alive else 'false' }}"
         data-job-runtime-mode="{{ stats.jobs.runtime.mode if stats.jobs and stats.jobs.runtime else '' }}"
         data-job-runtime-backend="{{ stats.jobs.runtime.backend if stats.jobs and stats.jobs.runtime else '' }}"
+        data-connected-count="{{ admin_panel.connected_count if admin_panel else 0 }}"
+        data-connected-peak="{{ admin_panel.connected_peak if admin_panel else 0 }}"
+        data-connected-window-min="{{ admin_panel.connected_window_min if admin_panel else 10 }}"
+        data-connected-series="{{ (admin_panel.connected_series if admin_panel and admin_panel.connected_series else []) | join(',') }}"
+        data-connected-labels="{{ (admin_panel.connected_labels if admin_panel and admin_panel.connected_labels else []) | join('|') }}"
       >
         <div class="dashboard-system-shell">
         <div class="d-flex align-items-start justify-content-between mb-2">
@@ -81,13 +86,16 @@
           </div>
         </div>
 
-        <div class="d-flex align-items-center gap-2 mb-2">
-          <div class="flex-grow-1">
-            <div class="progress progress-thin">
-              <div class="progress-bar" id="cpuPctBar" style="width: {{ stats.cpu_pct if stats.cpu_pct is not none else 0 }}%"></div>
-            </div>
+        <div class="dashboard-cpu-meter mb-2">
+          <div class="dashboard-cpu-meter-track">
+            <div class="dashboard-cpu-meter-fill pct-w-{{ (stats.cpu_pct if stats.cpu_pct is not none else 0) | round(0, 'common') | int }}" id="cpuPctBar"></div>
+            <div class="dashboard-cpu-meter-glow"></div>
           </div>
-          <div class="text-nowrap text-muted fs-xs">0–100%</div>
+          <div class="dashboard-cpu-meter-scale">
+            <span>0%</span>
+            <span>50%</span>
+            <span>100%</span>
+          </div>
         </div>
 
         <div class="metric-charts mb-2">
@@ -130,7 +138,7 @@
               <div class="dashboard-resource-value" id="ramPctVal">{% if stats.ram %}{{ stats.ram.used_pct }}%{% else %}—{% endif %}</div>
             </div>
             <div class="dashboard-resource-meter">
-              <div class="dashboard-resource-fill" id="ramPctBar" style="width: {{ stats.ram.used_pct if stats.ram else 0 }}%"></div>
+              <div class="dashboard-resource-fill pct-w-{{ (stats.ram.used_pct if stats.ram else 0) | round(0, 'common') | int }}" id="ramPctBar"></div>
             </div>
             <div class="dashboard-resource-meta">
               <span>{{ tr('dashboard.used', 'Used') }} <strong id="ramUsedVal">{% if stats.ram %}{{ stats.ram.used_mb }} MB{% else %}—{% endif %}</strong></span>
@@ -146,7 +154,7 @@
               <div class="dashboard-resource-value" id="diskPctVal">{% if stats.disk %}{{ stats.disk.used_pct }}%{% else %}—{% endif %}</div>
             </div>
             <div class="dashboard-resource-meter">
-              <div class="dashboard-resource-fill" id="diskPctBar" style="width: {{ stats.disk.used_pct if stats.disk else 0 }}%"></div>
+              <div class="dashboard-resource-fill pct-w-{{ (stats.disk.used_pct if stats.disk else 0) | round(0, 'common') | int }}" id="diskPctBar"></div>
             </div>
             <div class="dashboard-resource-meta">
               <span>{{ tr('dashboard.used', 'Used') }} <strong id="diskUsedVal">{% if stats.disk %}{{ stats.disk.used_gb }} GB{% else %}—{% endif %}</strong></span>
@@ -154,6 +162,51 @@
             </div>
           </div>
         </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-header py-2">
+        <span><i class="bi bi-broadcast-pin me-2 text-info"></i>{{ tr('dashboard.runtime_connected_users', 'Runtime connected users') }}</span>
+      </div>
+      <div class="card-body">
+        <div class="dashboard-connected-shell">
+          <div class="dashboard-connected-hero">
+            <div>
+              <div class="dashboard-connected-label">{{ tr('dashboard.active_in_last', 'Active in last') }} <span id="connectedWindowVal">{{ admin_panel.connected_window_min if admin_panel else 10 }}</span> {{ tr('dashboard.minutes_short', 'min') }}</div>
+              <div class="dashboard-connected-value" id="connectedCountVal">{{ admin_panel.connected_count if admin_panel else 0 }}</div>
+              <div class="dashboard-connected-subcopy">
+                {{ tr('dashboard.peak', 'Peak') }} <strong id="connectedPeakVal">{{ admin_panel.connected_peak if admin_panel else 0 }}</strong>
+                {% if admin_panel %}
+                · {{ tr('nav.admin', 'Admin') }} {{ admin_panel.connected_admins }}
+                · {{ tr('nav.users', 'Users') }} {{ admin_panel.connected_regular }}
+                {% endif %}
+              </div>
+            </div>
+            <div class="dashboard-connected-latest">
+              <div class="text-muted fs-xs">{{ tr('dashboard.latest_activity', 'Latest activity') }}</div>
+              <div class="fw-700" id="connectedLatestVal">
+                {% if admin_panel and admin_panel.connected_latest_seen %}
+                {{ admin_panel.connected_latest_seen.strftime('%H:%M:%S') }}
+                {% else %}
+                —
+                {% endif %}
+              </div>
+            </div>
+          </div>
+
+          <div class="metric-chart-card dashboard-connected-chart-card">
+            <div class="d-flex align-items-center justify-content-between mb-1">
+              <div class="fw-600 fs-sm">{{ tr('dashboard.connected_users_trend', 'Connected users trend') }}</div>
+              <div class="text-muted fs-xs">{{ tr('dashboard.rolling_runtime_window', 'rolling runtime window') }}</div>
+            </div>
+            <canvas id="connectedUsersChart" height="168" aria-label="Grafico utenti connessi" role="img"></canvas>
+            <div class="metric-chart-meta">
+              <span>{{ tr('dashboard.current', 'Current') }} <strong id="connectedChartCurrent">{{ admin_panel.connected_count if admin_panel else 0 }}</strong></span>
+              <span>{{ tr('dashboard.peak', 'Peak') }} <strong id="connectedChartPeak">{{ admin_panel.connected_peak if admin_panel else 0 }}</strong></span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -174,7 +227,7 @@
           {% set dbmax = (kmax.db_mb if kmax and kmax.db_mb else 1000) %}
           {% set dbpct = ((stats.db.size_mb / dbmax) * 100) if (stats.db and stats.db.size_mb is not none and dbmax) else 0 %}
             <div class="flex-grow-1">
-              <div class="progress progress-thin"><div class="progress-bar" style="width: {{ 100 if dbpct>100 else (dbpct if dbpct>0 else 0) }}%"></div></div>
+              <div class="progress progress-thin"><div class="progress-bar pct-w-{{ (100 if dbpct>100 else (dbpct if dbpct>0 else 0)) | round(0, 'common') | int }}"></div></div>
             </div>
             <div class="text-nowrap fw-600">{% if stats.db and stats.db.size_mb is not none %}{{ stats.db.size_mb }} MB{% else %}—{% endif %}</div>
           </div>
@@ -235,7 +288,7 @@
           {% set gunipct = (((stats.gunicorn.workers if stats.gunicorn else 1) / gunimax) * 100) %}
           <div class="dashboard-mini-graph mt-2">
             <div class="dashboard-mini-bar">
-              <div class="dashboard-mini-bar-fill is-workers" id="gunicornWorkersBar" style="width: {{ gunipct }}%"></div>
+              <div class="dashboard-mini-bar-fill is-workers pct-w-{{ gunipct | round(0, 'common') | int }}" id="gunicornWorkersBar"></div>
             </div>
             <div class="dashboard-mini-copy text-muted fs-xs mt-1">timeout <span id="gunicornTimeoutVal">{{ stats.gunicorn.timeout if stats.gunicorn else '—' }}</span>s · reload {{ 'on' if stats.gunicorn.reload else 'off' }}</div>
           </div>
@@ -273,10 +326,10 @@
           {% set jobs_max = [jobs_total_day, 1]|max %}
           <div class="dashboard-stacked-graph mt-2">
             <div class="dashboard-stacked-bar">
-              <div class="dashboard-stacked-fill is-queued" id="jobQueuedBar" style="width: {{ ((stats.jobs.queued if stats.jobs else 0) / jobs_max) * 100 }}%"></div>
-              <div class="dashboard-stacked-fill is-running" id="jobRunningBar" style="width: {{ ((stats.jobs.running if stats.jobs else 0) / jobs_max) * 100 }}%"></div>
-              <div class="dashboard-stacked-fill is-completed" id="jobCompletedBar" style="width: {{ ((stats.jobs.completed_24h if stats.jobs else 0) / jobs_max) * 100 }}%"></div>
-              <div class="dashboard-stacked-fill is-failed" id="jobFailedBar" style="width: {{ ((stats.jobs.failed_24h if stats.jobs else 0) / jobs_max) * 100 }}%"></div>
+              <div class="dashboard-stacked-fill is-queued pct-w-{{ (((stats.jobs.queued if stats.jobs else 0) / jobs_max) * 100) | round(0, 'common') | int }}" id="jobQueuedBar"></div>
+              <div class="dashboard-stacked-fill is-running pct-w-{{ (((stats.jobs.running if stats.jobs else 0) / jobs_max) * 100) | round(0, 'common') | int }}" id="jobRunningBar"></div>
+              <div class="dashboard-stacked-fill is-completed pct-w-{{ (((stats.jobs.completed_24h if stats.jobs else 0) / jobs_max) * 100) | round(0, 'common') | int }}" id="jobCompletedBar"></div>
+              <div class="dashboard-stacked-fill is-failed pct-w-{{ (((stats.jobs.failed_24h if stats.jobs else 0) / jobs_max) * 100) | round(0, 'common') | int }}" id="jobFailedBar"></div>
             </div>
             <div class="dashboard-legend mt-2">
               <span><i class="bi bi-square-fill text-warning me-1"></i>queued</span>

@@ -93,6 +93,7 @@ def build_runtime_payload_from_form(
     settings["APP_NAME"] = _form_text(form, "st_app_name", settings.get("APP_NAME", "WebApp"))
     settings["APP_VERSION"] = _form_text(form, "st_app_version", settings.get("APP_VERSION", "1.0.0"))
     settings["BASE_URL"] = str(settings.get("BASE_URL", "http://127.0.0.1:5000")).strip() or "http://127.0.0.1:5000"
+    settings["UI_LANGUAGE"] = "it" if _form_text(form, "st_ui_language", settings.get("UI_LANGUAGE", "en")).lower().startswith("it") else "en"
 
     security["LOGIN_RATE_LIMIT"] = _form_text(form, "sec_login_rate_limit", security.get("LOGIN_RATE_LIMIT", "5 per minute"))
     security["SESSION_TIMEOUT_MIN"] = _form_text(form, "sec_session_timeout_min", security.get("SESSION_TIMEOUT_MIN", 120))

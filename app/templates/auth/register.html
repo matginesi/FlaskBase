@@ -6,15 +6,16 @@
   <title>{{ tr('auth.register_title', 'Sign up') }} · {{ g.app_name }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 </head>
 <body>
 <div class="login-wrap">
-  <div class="login-card" style="max-width:540px;">
+  <div class="login-card login-card-wide">
     <div class="login-logo">
-      <i class="bi bi-person-plus-fill me-2" style="color:#2563eb;"></i>{{ g.app_name }}
+      <i class="bi bi-person-plus-fill me-2 login-brand-icon"></i>{{ g.app_name }}
     </div>
-    <p class="text-muted mb-3" style="font-size:.84rem;">{{ tr('auth.register_subtitle', 'Create your user account') }}</p>
+    <p class="text-muted mb-3 login-register-subtitle">{{ tr('auth.register_subtitle', 'Create your user account') }}</p>
 
     {% include "partials/flash_totems.html" %}
 
@@ -24,23 +25,23 @@
         <div class="col-12">
           {{ form.name.label(class_="form-label") }}
           {{ form.name(class_="form-control", maxlength="120") }}
-          {% for e in form.name.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+          {% for e in form.name.errors %}<div class="text-danger form-error-note">{{ e }}</div>{% endfor %}
         </div>
         <div class="col-12">
           {{ form.email.label(class_="form-label") }}
           {{ form.email(class_="form-control", autocomplete="email", maxlength="255") }}
-          {% for e in form.email.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+          {% for e in form.email.errors %}<div class="text-danger form-error-note">{{ e }}</div>{% endfor %}
         </div>
         <div class="col-12 col-md-6">
           {{ form.password.label(class_="form-label") }}
           {{ form.password(class_="form-control", autocomplete="new-password", minlength="8") }}
           <div class="form-text">{{ tr('auth.min_8_chars', 'Minimum 8 characters.') }}</div>
-          {% for e in form.password.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+          {% for e in form.password.errors %}<div class="text-danger form-error-note">{{ e }}</div>{% endfor %}
         </div>
         <div class="col-12 col-md-6">
           {{ form.password_confirm.label(class_="form-label") }}
           {{ form.password_confirm(class_="form-control", autocomplete="new-password", minlength="8") }}
-          {% for e in form.password_confirm.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+          {% for e in form.password_confirm.errors %}<div class="text-danger form-error-note">{{ e }}</div>{% endfor %}
         </div>
         <div class="col-12 mt-2">
           <div class="form-check">
@@ -51,14 +52,14 @@
               {{ tr('auth.accept_terms_suffix', 'and terms.') }}
             </label>
           </div>
-          {% for e in form.accept_terms.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+          {% for e in form.accept_terms.errors %}<div class="text-danger form-error-note">{{ e }}</div>{% endfor %}
         </div>
       </div>
       <button class="btn btn-primary w-100 mt-3" type="submit">
         <i class="bi bi-envelope-check me-1"></i>{{ tr('auth.register_submit', 'Sign up and send confirmation email') }}
       </button>
     </form>
-    <div class="mt-3 text-center" style="font-size:.8rem;">
+    <div class="mt-3 text-center login-register-foot">
       {{ tr('auth.have_account', 'Already have an account?') }} <a href="{{ url_for('auth.login') }}">{{ tr('auth.sign_in', 'Sign in') }}</a>
     </div>
   </div>
@@ -67,8 +68,8 @@
   <div class="modal-dialog modal-lg modal-dialog-scrollable">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-shield-check me-2 text-primary"></i>Privacy Policy</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title"><i class="bi bi-shield-check me-2 text-primary"></i>{{ tr('nav.privacy_policy', 'Privacy Policy') }}</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="{{ tr('topbar.close', 'Close') }}"></button>
       </div>
       <div class="modal-body">
         {% include "partials/privacy_policy_content.html" %}

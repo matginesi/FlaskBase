@@ -204,7 +204,7 @@
       const mode = markdown ? "md" : "txt";
       if (contentEl.dataset.raw === raw && contentEl.dataset.mode === mode) return;
       if (markdown) contentEl.innerHTML = mdToHtml(raw);
-      else contentEl.innerHTML = `<span style="white-space:pre-wrap;">${escapeHtml(raw)}</span>`;
+      else contentEl.innerHTML = `<span class="ws-pre-wrap">${escapeHtml(raw)}</span>`;
       contentEl.dataset.raw = raw;
       contentEl.dataset.mode = mode;
     }
@@ -277,9 +277,7 @@
       const thinking = typeof opts.thinking === "string" ? opts.thinking.trim() : "";
       const now = new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
       const wrap = document.createElement("div");
-      wrap.style.display = "flex";
-      wrap.style.flexDirection = "column";
-      wrap.style.alignItems = cls === "me" ? "flex-end" : "flex-start";
+      wrap.className = "chat-row " + (cls === "me" ? "is-me" : "is-other");
 
       const bubble = document.createElement("div");
       bubble.className = "chat-bubble " + cls;
@@ -292,7 +290,7 @@
       const markdownEnabled = opts.markdown !== false && cls === "bot";
       const contentHtml = markdownEnabled
         ? mdToHtml(text)
-        : `<span style="white-space:pre-wrap;">${escapeHtml(text)}</span>`;
+        : `<span class="ws-pre-wrap">${escapeHtml(text)}</span>`;
       bubble.innerHTML = `<div class="chat-content">${contentHtml}</div>${thinkingBlock}<div class="bubble-meta">${opts.meta || `${user || ""} ${now}`}</div>`;
       const contentEl = bubble.querySelector(".chat-content");
       if (contentEl) {
@@ -303,7 +301,7 @@
       wrap.appendChild(bubble);
       const wait = document.createElement("div");
       wait.className = "chat-wait-indicator d-none fs-xs text-muted mt-1";
-      wait.innerHTML = '<span class="spinner-border spinner-border-sm me-1" style="width:.72rem;height:.72rem;"></span>Processing...';
+      wait.innerHTML = '<span class="spinner-border spinner-border-sm me-1 chat-spinner-xs"></span>Processing...';
       wrap.appendChild(wait);
       chatMsgs.appendChild(wrap);
       scheduleScrollBottom(true);
@@ -314,7 +312,7 @@
       if (!ref || !ref.bubble) return;
       const meta = ref.bubble.querySelector(".bubble-meta");
       if (!meta) return;
-      meta.innerHTML = `<span class="spinner-border spinner-border-sm me-1" style="width:.75rem;height:.75rem;"></span>${label}`;
+      meta.innerHTML = `<span class="spinner-border spinner-border-sm me-1 chat-spinner-sm"></span>${label}`;
     }
 
     function chatUpdatePendingBubble(ref, text, opts = {}) {
@@ -350,7 +348,7 @@
       if (!el) return;
       const safeLabel = String(label || "Sta pensando...");
       if (waiting) {
-        el.innerHTML = `<span class="spinner-border spinner-border-sm me-1" style="width:.72rem;height:.72rem;"></span>${escapeHtml(safeLabel)}`;
+        el.innerHTML = `<span class="spinner-border spinner-border-sm me-1 chat-spinner-xs"></span>${escapeHtml(safeLabel)}`;
       }
       el.classList.toggle("d-none", !waiting);
     }
@@ -572,7 +570,6 @@
       autoStickBottom = true;
 
       chatInput.value = "";
-      chatInput.style.height = "";
       appendAndTrack({ role: "me", text: msg, meta: "Tu" });
       pendingRef = chatAppend("Sto elaborando la risposta...", "bot", "Bot");
       chatSetPendingMeta(pendingRef, "Processing");
@@ -678,12 +675,6 @@
       } finally {
         chatInput.focus();
       }
-    });
-
-    // Auto-resize textarea.
-    chatInput.addEventListener("input", function () {
-      this.style.height = "";
-      this.style.height = Math.min(this.scrollHeight, 120) + "px";
     });
 
     // Send on Enter, keep Shift+Enter for newline.

@@ -310,6 +310,10 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
         load_addons(app)
     instrument_app_views(app)
 
+    @app.get("/favicon.ico")
+    def favicon():
+        return redirect(url_for("static", filename="favicon.svg"), code=302)
+
     @app.before_request
     def inject_runtime_state():
         from flask_login import current_user, logout_user
@@ -340,7 +344,8 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
         g.app_name = g.runtime_config["APP_NAME"]
         g.app_version = g.runtime_config["APP_VERSION"]
         user_locale = getattr(current_user, "locale", None) if getattr(current_user, "is_authenticated", False) else None
-        g.ui_lang = resolve_language(user_locale=user_locale)
+        g.ui_lang_default = str(runtime_settings.get("UI_LANGUAGE", "en")).strip().lower()
+        g.ui_lang = resolve_language(user_locale=user_locale, default_language=g.ui_lang_default)
         g.ui_lang_label = language_label(g.ui_lang)
         g.supported_languages = dict(SUPPORTED_LANGUAGES)
         g.theme = normalize_theme_settings(runtime_theme)
@@ -472,6 +477,20 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
                 return redirect(url_for("auth.login"))
             session["_last_activity_ts"] = now_ts
             session.modified = True
+            try:
+                from .models import UserSession, now_utc
+
+                browser_session_id = session.get("browser_session_id")
+                if browser_session_id:
+                    browser_session = db.session.get(UserSession, int(browser_session_id))
+                    if browser_session and browser_session.is_valid():
+                        current_seen = getattr(browser_session, "last_seen_at", None)
+                        now_seen = now_utc()
+                        if current_seen is None or (now_seen - current_seen).total_seconds() >= 30:
+                            browser_session.last_seen_at = now_seen
+                            db.session.commit()
+            except Exception:
+                db.session.rollback()
         else:
             session.pop("_last_activity_ts", None)
 
@@ -507,6 +526,7 @@ def create_app(test_config: dict[str, Any] | None = None) -> Flask:
             "object-src 'none'; "
             "frame-ancestors 'none'; "
             "form-action 'self'; "
+            "connect-src 'self' https://cdn.jsdelivr.net; "
             "img-src 'self' data: https:; "
             f"style-src 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com{nonce_part}; "
             f"style-src-elem 'self' https://cdn.jsdelivr.net https://fonts.googleapis.com{nonce_part}; "

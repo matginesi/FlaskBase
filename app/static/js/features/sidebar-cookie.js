@@ -3,23 +3,9 @@
   "use strict";
 
   function initSidebar() {
-    const topbar = document.getElementById("topbar");
-    const mobileTopnav = document.getElementById("mobileTopnav");
-
-    function syncHeights() {
-      if (!topbar) return;
-      const topbarHeight = Math.round(topbar.getBoundingClientRect().height || 56);
-      document.documentElement.style.setProperty("--topbar-h", topbarHeight + "px");
-      if (mobileTopnav && window.innerWidth < 768) {
-        const mobileHeight = Math.round(mobileTopnav.getBoundingClientRect().height || 0);
-        document.documentElement.style.setProperty("--mobile-topnav-h", mobileHeight + "px");
-      } else {
-        document.documentElement.style.setProperty("--mobile-topnav-h", "0px");
-      }
-    }
-
-    window.addEventListener("resize", syncHeights, { passive: true });
-    syncHeights();
+    // CSS defaults keep the layout stable without mutating inline styles,
+    // which would violate the current CSP.
+    return;
   }
 
   function initCookieBanner() {

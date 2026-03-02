@@ -28,8 +28,6 @@
     const wantW = Math.floor(cw * dpr);
     const wantH = Math.floor(ch * dpr);
 
-    canvas.style.height = cssHeight + 'px';
-
     // Avoid flicker: only resize when needed
     if(canvas.width !== wantW || canvas.height !== wantH){
       canvas.width = wantW;
@@ -42,11 +40,35 @@
     const grid = (opts && opts.grid) ? opts.grid : {x:5, y:4};
     const gx = Math.max(2, Number(grid.x || 5));
     const gy = Math.max(2, Number(grid.y || 4));
+    const minorX = gx * 2;
+    const minorY = gy * 2;
 
     ctx.save();
-    ctx.globalAlpha = 0.22;
+    ctx.fillStyle = cssVar('--chart-surface', 'rgba(248,250,252,.92)');
+    ctx.fillRect(0, 0, w, h);
+
+    ctx.strokeStyle = cssVar('--chart-grid-minor', 'rgba(148,163,184,.14)');
+    ctx.globalAlpha = 1;
     ctx.lineWidth = 1;
-    if(ctx.setLineDash) ctx.setLineDash([3, 5]);
+    if(ctx.setLineDash) ctx.setLineDash([]);
+
+    for(let i=0;i<=minorX;i++){
+      const x = pad + (w - pad*2) * (i/minorX);
+      ctx.beginPath();
+      ctx.moveTo(x, pad);
+      ctx.lineTo(x, h - pad);
+      ctx.stroke();
+    }
+    for(let j=0;j<=minorY;j++){
+      const y = pad + (h - pad*2) * (j/minorY);
+      ctx.beginPath();
+      ctx.moveTo(pad, y);
+      ctx.lineTo(w - pad, y);
+      ctx.stroke();
+    }
+
+    ctx.strokeStyle = cssVar('--chart-grid-major', 'rgba(100,116,139,.28)');
+    if(ctx.setLineDash) ctx.setLineDash([4, 6]);
 
     // verticals
     for(let i=0;i<=gx;i++){
@@ -86,7 +108,7 @@
     ctx.clearRect(0,0,w,h);
 
     // grid + baseline
-    ctx.strokeStyle = cssVar('--card-border', 'rgba(148,163,184,.5)');
+    ctx.strokeStyle = cssVar('--chart-grid-major', 'rgba(100,116,139,.28)');
     drawGrid(ctx, w, h, pad, opts);
 
     // baseline
@@ -131,11 +153,18 @@
     ctx.restore();
   }
 
-  function setBar(barEl, val){
-    if(!barEl) return;
+  function widthClassFor(val){
+    return 'pct-w-' + String(clamp(Math.round(Number(val) || 0), 0, 100));
+  }
+
+  function setWidthClass(el, val){
+    if(!el) return;
     const pct = clamp(val, 0, 100);
-    barEl.style.width = pct.toFixed(1) + '%';
-    barEl.setAttribute('aria-valuenow', pct.toFixed(1));
+    for(const cls of Array.from(el.classList)){
+      if(cls.startsWith('pct-w-')) el.classList.remove(cls);
+    }
+    el.classList.add(widthClassFor(pct));
+    el.setAttribute('aria-valuenow', String(Math.round(pct)));
   }
 
   function setText(id, value){
@@ -145,7 +174,7 @@
 
   function renderResource(prefix, pct, used, total, unit){
     const safePct = clamp(pct, 0, 100);
-    setBar($(prefix + 'PctBar'), safePct);
+    setWidthClass($(prefix + 'PctBar'), safePct);
     setText(prefix + 'PctVal', safePct.toFixed(1) + '%');
     const usedTxt = Number.isFinite(used) ? used.toFixed(unit === 'GB' ? 1 : 0) + ' ' + unit : '—';
     const totalTxt = Number.isFinite(total) ? total.toFixed(unit === 'GB' ? 1 : 0) + ' ' + unit : '—';
@@ -157,7 +186,7 @@
   function setWidth(id, pct){
     const el = $(id);
     if(!el) return;
-    el.style.width = clamp(pct, 0, 100).toFixed(1) + '%';
+    setWidthClass(el, pct);
   }
 
   function renderWorkers(workers, threads, capacity, timeout){
@@ -202,6 +231,14 @@
   const maxPoints = Math.max(12, Math.floor(60 / refreshSec));
   const cpuHist = [];
   const loadHist = [];
+  const connectedHist = String(root.getAttribute('data-connected-series') || '')
+    .split(',')
+    .map((value) => Number(value))
+    .filter((value) => Number.isFinite(value));
+  const connectedLabels = String(root.getAttribute('data-connected-labels') || '')
+    .split('|')
+    .map((value) => String(value || '').trim())
+    .filter(Boolean);
 
   function pushHist(arr, v){
     arr.push(Number.isFinite(Number(v)) ? Number(v) : 0);
@@ -233,11 +270,22 @@
 
   const cpuColor = cssVar('--accent', '#2563eb');
   const loadColor = cssVar('--success', '#16a34a');
+  const connectedColor = cssVar('--info', '#0891b2');
 
   function redraw(){
     drawLineChart($('cpuChart'), cpuHist, {min:0, max:100, color: cpuColor, grid:{x:6,y:4}});
     const mx = Math.max(1, ...loadHist);
     drawLineChart($('loadChart'), loadHist, {min:0, max: mx * 1.25, color: loadColor, grid:{x:6,y:4}});
+    if(connectedHist.length){
+      drawLineChart($('connectedUsersChart'), connectedHist, {
+        min:0,
+        max: Math.max(1, ...connectedHist),
+        color: connectedColor,
+        grid:{x:6,y:4}
+      });
+      setText('connectedChartCurrent', String(connectedHist[connectedHist.length - 1] ?? 0));
+      setText('connectedChartPeak', String(Math.max(...connectedHist, 0)));
+    }
     if($('cpuChartCurrent')) $('cpuChartCurrent').textContent = (cpuHist[cpuHist.length - 1] ?? 0).toFixed(1) + '%';
     if($('cpuChartPeak')) $('cpuChartPeak').textContent = Math.max(...cpuHist, 0).toFixed(1) + '%';
     if($('loadChartCurrent')) $('loadChartCurrent').textContent = String((loadHist[loadHist.length - 1] ?? 0).toFixed ? (loadHist[loadHist.length - 1] ?? 0).toFixed(2) : (loadHist[loadHist.length - 1] ?? 0));
@@ -259,7 +307,7 @@
         const cpu = Number(data.cpu_pct);
         if(Number.isFinite(cpu)){
           if($('cpuPctVal')) $('cpuPctVal').textContent = cpu.toFixed(1) + '%';
-          setBar($('cpuPctBar'), cpu);
+          setWidthClass($('cpuPctBar'), cpu);
           pushHist(cpuHist, cpu);
         }
       }
@@ -317,6 +365,26 @@
         data.job_runtime_mode,
         data.job_runtime_backend
       );
+      if(typeof data.connected_window_min !== 'undefined'){
+        setText('connectedWindowVal', String(data.connected_window_min));
+      }
+      if(typeof data.connected_count !== 'undefined'){
+        setText('connectedCountVal', String(data.connected_count));
+        setText('connectedChartCurrent', String(data.connected_count));
+      }
+      if(typeof data.connected_peak !== 'undefined'){
+        setText('connectedPeakVal', String(data.connected_peak));
+        setText('connectedChartPeak', String(data.connected_peak));
+      }
+      if(Array.isArray(data.connected_series)){
+        connectedHist.splice(0, connectedHist.length, ...data.connected_series.map((value) => Number(value)).filter((value) => Number.isFinite(value)));
+      }
+      if(Array.isArray(data.connected_labels)){
+        connectedLabels.splice(0, connectedLabels.length, ...data.connected_labels.map((value) => String(value || '').trim()).filter(Boolean));
+      }
+      if(typeof data.connected_latest_seen !== 'undefined' && $('connectedLatestVal')){
+        $('connectedLatestVal').textContent = data.connected_latest_seen || '—';
+      }
 
       // paint on next frame (no flicker)
       window.requestAnimationFrame(redraw);
@@ -349,7 +417,9 @@
     const observer = new ResizeObserver(() => queueRedraw());
     const cpuCanvas = $('cpuChart');
     const loadCanvas = $('loadChart');
+    const connectedCanvas = $('connectedUsersChart');
     if(cpuCanvas && cpuCanvas.parentElement) observer.observe(cpuCanvas.parentElement);
     if(loadCanvas && loadCanvas.parentElement) observer.observe(loadCanvas.parentElement);
+    if(connectedCanvas && connectedCanvas.parentElement) observer.observe(connectedCanvas.parentElement);
   }
 })();

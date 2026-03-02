@@ -6,15 +6,16 @@
   <title>{{ tr('auth.mfa_title', 'MFA') }} · {{ g.app_name }}</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='favicon.svg') }}">
   <link href="{{ url_for('static', filename='css/app.css') }}" rel="stylesheet">
 </head>
 <body>
 <div class="login-wrap">
   <div class="login-card">
     <div class="login-logo">
-      <i class="bi bi-shield-lock-fill me-2" style="color:#2563eb;"></i>{{ g.app_name }}
+      <i class="bi bi-shield-lock-fill me-2 login-icon-accent"></i>{{ g.app_name }}
     </div>
-    <p class="text-muted mb-4" style="font-size:.84rem;">{{ tr('auth.mfa_required_for', 'MFA verification required for {email}', email=masked_email) }}</p>
+    <p class="text-muted mb-4 login-meta-copy">{{ tr('auth.mfa_required_for', 'MFA verification required for {email}', email=masked_email) }}</p>
 
     {% include "partials/flash_totems.html" %}
 
@@ -32,7 +33,7 @@
         <i class="bi bi-check2-shield me-2"></i>{{ form.submit.label.text }}
       </button>
     </form>
-    <div class="mt-3 text-center" style="font-size:.78rem;">
+    <div class="mt-3 text-center login-footnote">
       <a href="{{ url_for('auth.login', force=1) }}">{{ tr('auth.back_to_login', 'Back to login') }}</a>
     </div>
   </div>

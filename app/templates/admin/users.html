@@ -3,16 +3,16 @@
 {% block content %}
 <div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-2">
   <div>
-    <div class="page-breadcrumb"><i class="bi bi-shield me-1"></i> Admin</div>
-    <h1>User Management</h1>
+    <div class="page-breadcrumb"><i class="bi bi-shield me-1"></i> {{ tr('nav.admin', 'Admin') }}</div>
+    <h1>{{ tr('admin.users.title', 'User Management') }}</h1>
     <p>
-      {{ users|length }} users shown
-      {% if users_total is defined %}<span class="text-muted">out of {{ users_total }} total</span>{% endif %}
+      {{ tr('admin.users.users_shown', '{count} users shown', count=users|length) }}
+      {% if users_total is defined %}<span class="text-muted">{{ tr('admin.users.users_total', 'out of {total} total', total=users_total) }}</span>{% endif %}
     </p>
   </div>
   <div class="d-flex gap-2">
     <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addUserModal">
-      <i class="bi bi-plus-lg me-1"></i>New user
+      <i class="bi bi-plus-lg me-1"></i>{{ tr('admin.users.new_user', 'New user') }}
     </button>
   </div>
 </div>
@@ -21,48 +21,48 @@
   <div class="card-body py-2">
     <form class="row g-2 align-items-end" method="get">
       <div class="col-12 col-md-4 col-lg-3">
-        <label class="form-label fs-xs mb-1">Ricerca</label>
+        <label class="form-label fs-xs mb-1">{{ tr('admin.users.search', 'Search') }}</label>
         <input
           class="form-control form-control-sm"
           name="q"
-          placeholder="Nome o email..."
+          placeholder="{{ tr('admin.users.search_placeholder', 'Name or email...') }}"
           value="{{ users_filters.q if users_filters is defined else '' }}"
         >
       </div>
       <div class="col-6 col-md-3 col-lg-2">
-        <label class="form-label fs-xs mb-1">Ruolo</label>
+        <label class="form-label fs-xs mb-1">{{ tr('admin.users.role', 'Role') }}</label>
         <select class="form-select form-select-sm" name="role">
           {% set _role = users_filters.role if users_filters is defined else '' %}
-          <option value="" {% if not _role %}selected{% endif %}>Tutti</option>
+          <option value="" {% if not _role %}selected{% endif %}>{{ tr('admin.users.all', 'All') }}</option>
           <option value="admin" {% if _role == 'admin' %}selected{% endif %}>Admin</option>
           <option value="user" {% if _role == 'user' %}selected{% endif %}>User</option>
         </select>
       </div>
       <div class="col-6 col-md-3 col-lg-2">
-        <label class="form-label fs-xs mb-1">Stato</label>
+        <label class="form-label fs-xs mb-1">{{ tr('admin.users.status', 'Status') }}</label>
         {% set _status = users_filters.status if users_filters is defined else '' %}
         <select class="form-select form-select-sm" name="status">
-          <option value="" {% if not _status %}selected{% endif %}>Tutti</option>
-          <option value="active" {% if _status == 'active' %}selected{% endif %}>Attivi</option>
-          <option value="disabled" {% if _status == 'disabled' %}selected{% endif %}>Disabilitati</option>
+          <option value="" {% if not _status %}selected{% endif %}>{{ tr('admin.users.all', 'All') }}</option>
+          <option value="active" {% if _status == 'active' %}selected{% endif %}>{{ tr('admin.users.active', 'Active') }}</option>
+          <option value="disabled" {% if _status == 'disabled' %}selected{% endif %}>{{ tr('admin.users.disabled', 'Disabled') }}</option>
         </select>
       </div>
       <div class="col-12 col-md-6 col-lg-3">
-        <label class="form-label fs-xs mb-1">Ordina per</label>
+        <label class="form-label fs-xs mb-1">{{ tr('admin.users.sort_by', 'Sort by') }}</label>
         {% set _sort = users_filters.sort if users_filters is defined else 'created_desc' %}
         <select class="form-select form-select-sm" name="sort">
-          <option value="created_desc" {% if _sort == 'created_desc' %}selected{% endif %}>Più recenti</option>
-          <option value="created_asc" {% if _sort == 'created_asc' %}selected{% endif %}>Meno recenti</option>
-          <option value="name_asc" {% if _sort == 'name_asc' %}selected{% endif %}>Nome A-Z</option>
-          <option value="name_desc" {% if _sort == 'name_desc' %}selected{% endif %}>Nome Z-A</option>
+          <option value="created_desc" {% if _sort == 'created_desc' %}selected{% endif %}>{{ tr('admin.users.newest', 'Newest first') }}</option>
+          <option value="created_asc" {% if _sort == 'created_asc' %}selected{% endif %}>{{ tr('admin.users.oldest', 'Oldest first') }}</option>
+          <option value="name_asc" {% if _sort == 'name_asc' %}selected{% endif %}>{{ tr('admin.users.name_asc', 'Name A-Z') }}</option>
+          <option value="name_desc" {% if _sort == 'name_desc' %}selected{% endif %}>{{ tr('admin.users.name_desc', 'Name Z-A') }}</option>
           <option value="email_asc" {% if _sort == 'email_asc' %}selected{% endif %}>Email A-Z</option>
           <option value="email_desc" {% if _sort == 'email_desc' %}selected{% endif %}>Email Z-A</option>
-          <option value="last_login_desc" {% if _sort == 'last_login_desc' %}selected{% endif %}>Ultimo accesso recente</option>
-          <option value="last_login_asc" {% if _sort == 'last_login_asc' %}selected{% endif %}>Ultimo accesso meno recente</option>
+          <option value="last_login_desc" {% if _sort == 'last_login_desc' %}selected{% endif %}>{{ tr('admin.users.last_login_desc', 'Latest sign-in') }}</option>
+          <option value="last_login_asc" {% if _sort == 'last_login_asc' %}selected{% endif %}>{{ tr('admin.users.last_login_asc', 'Oldest sign-in') }}</option>
         </select>
       </div>
       <div class="col-12 col-lg-2 d-flex gap-2">
-        <button class="btn btn-primary btn-sm w-100" type="submit"><i class="bi bi-funnel me-1"></i>Filtra</button>
+        <button class="btn btn-primary btn-sm w-100" type="submit"><i class="bi bi-funnel me-1"></i>{{ tr('admin.users.filter', 'Filter') }}</button>
         <a class="btn btn-outline-secondary btn-sm w-100" href="{{ url_for('admin.users') }}">Reset</a>
       </div>
     </form>
@@ -74,13 +74,13 @@
   <div class="col-6 col-md-3">
     <div class="stat-card stat-card-compact">
       <div class="stat-val">{{ users|length }}</div>
-      <div class="stat-lbl">Totale</div>
+      <div class="stat-lbl">{{ tr('admin.users.total', 'Total') }}</div>
     </div>
   </div>
   <div class="col-6 col-md-3">
     <div class="stat-card success stat-card-compact">
       <div class="stat-val">{{ users|selectattr('is_active')|list|length }}</div>
-      <div class="stat-lbl">Attivi</div>
+      <div class="stat-lbl">{{ tr('admin.users.active', 'Active') }}</div>
     </div>
   </div>
   <div class="col-6 col-md-3">
@@ -92,7 +92,7 @@
   <div class="col-6 col-md-3">
     <div class="stat-card danger stat-card-compact">
       <div class="stat-val">{{ users|rejectattr('is_active')|list|length }}</div>
-      <div class="stat-lbl">Disabilitati</div>
+      <div class="stat-lbl">{{ tr('admin.users.disabled', 'Disabled') }}</div>
     </div>
   </div>
 </div>
@@ -326,7 +326,6 @@
         </div>
       </div>
     </div>
-  </div>
   {% endfor %}
   {% if users|length == 0 %}
   <div class="card">
@@ -342,7 +341,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Nuovo utente</h5>
+        <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>{{ tr('admin.users.new_user', 'New user') }}</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <form method="post" action="{{ url_for('admin.create_user') }}" novalidate>
@@ -350,26 +349,26 @@
         <div class="modal-body">
           <div class="row g-3">
             <div class="col-12">
-              <label class="form-label">Nome completo</label>
-              <input type="text" name="name" class="form-control" required minlength="2" maxlength="120" placeholder="Mario Rossi">
+              <label class="form-label">{{ tr('admin.users.full_name', 'Full name') }}</label>
+              <input type="text" name="name" class="form-control" required minlength="2" maxlength="120" placeholder="{{ tr('admin.users.full_name_placeholder', 'Jane Doe') }}">
             </div>
             <div class="col-12">
               <label class="form-label">Email</label>
-              <input type="email" name="email" class="form-control" required maxlength="255" placeholder="mario@esempio.it">
+              <input type="email" name="email" class="form-control" required maxlength="255" placeholder="jane@example.com">
             </div>
             <div class="col-12">
-              <label class="form-label">Password <span class="text-muted fs-xs">(min. 8 caratteri)</span></label>
+              <label class="form-label">{{ tr('auth.field_password', 'Password') }} <span class="text-muted fs-xs">({{ tr('admin.users.min_8_chars', 'min. 8 characters') }})</span></label>
               <input type="password" name="password" class="form-control" required minlength="8">
             </div>
             <div class="col-12">
-              <label class="form-label">Ruolo</label>
-              <input type="text" class="form-control" value="user — accesso standard" disabled>
+              <label class="form-label">{{ tr('admin.users.role', 'Role') }}</label>
+              <input type="text" class="form-control" value="{{ tr('admin.users.standard_user_access', 'user - standard access') }}" disabled>
             </div>
           </div>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
-          <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>Crea utente</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">{{ tr('modal.cancel', 'Cancel') }}</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-plus me-1"></i>{{ tr('admin.users.create_user', 'Create user') }}</button>
         </div>
       </form>
     </div>
@@ -503,14 +502,14 @@
 <script nonce="{{ g.csp_nonce }}">
 function toggleUserCard(uid) {
   const body = document.getElementById("ucbody-" + uid);
-  const chev = document.getElementById("ucchev-" + uid);
+  const header = document.querySelector('.js-user-card-toggle[data-user-id="' + uid + '"]');
   const isOpen = body.classList.contains("open");
   // close all
   document.querySelectorAll(".user-card-body.open").forEach(b => b.classList.remove("open"));
-  document.querySelectorAll("[id^='ucchev-']").forEach(c => c.style.transform = "");
+  document.querySelectorAll(".js-user-card-toggle.open").forEach(h => h.classList.remove("open"));
   if (!isOpen) {
     body.classList.add("open");
-    if (chev) chev.style.transform = "rotate(180deg)";
+    if (header) header.classList.add("open");
   }
 }
 
@@ -521,7 +520,7 @@ document.querySelectorAll(".js-user-card-toggle[data-user-id]").forEach((el) => 
 async function openEditModal(uid) {
   try {
     const res = await fetch("/admin/users/" + uid + "/profile", { headers: { "Accept": "application/json" } });
-    if (!res.ok) throw new Error("Impossibile caricare il profilo utente");
+    if (!res.ok) throw new Error("User profile could not be loaded");
     const d = await res.json();
     document.getElementById("editName").value = d.name || "";
     document.getElementById("editEmail").value = d.email || "";
@@ -536,7 +535,7 @@ async function openEditModal(uid) {
     document.getElementById("editEmailVerified").checked = !!d.email_verified;
     document.getElementById("editNotificationEmailEnabled").checked = !!d.notification_email_enabled;
     document.getElementById("editNotificationSecurityEnabled").checked = !!d.notification_security_enabled;
-    document.getElementById("editMfaStatus").value = d.mfa_enabled ? "Attiva" : "Disattiva";
+    document.getElementById("editMfaStatus").value = d.mfa_enabled ? "Enabled" : "Disabled";
     document.getElementById("editUserForm").action = "/admin/users/" + uid + "/edit";
     bootstrap.Modal.getOrCreateInstance(document.getElementById("editUserModal")).show();
   } catch (e) {

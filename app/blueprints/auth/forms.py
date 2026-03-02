@@ -23,8 +23,10 @@ class LoginForm(LocalizedForm):
     remember = BooleanField("Remember me")
     submit = SubmitField("Login")
     TRANSLATION_MAP = {
-        "remember": "Remember me",
-        "submit": "Login",
+        "email": "auth.field_email",
+        "password": "auth.field_password",
+        "remember": "auth.remember_me",
+        "submit": "auth.login_submit",
     }
 
 
@@ -32,6 +34,11 @@ class MfaVerifyForm(LocalizedForm):
     otp_code = StringField("Authenticator code", validators=[Optional(), Length(min=6, max=16)])
     recovery_code = StringField("Recovery code", validators=[Optional(), Length(min=8, max=64)])
     submit = SubmitField("Verify")
+    TRANSLATION_MAP = {
+        "otp_code": "auth.authenticator_code",
+        "recovery_code": "auth.recovery_code",
+        "submit": "auth.verify",
+    }
 
 
 class UserSettingsForm(LocalizedForm):
@@ -43,6 +50,16 @@ class UserSettingsForm(LocalizedForm):
     notification_email_enabled = BooleanField("Email notifications enabled")
     notification_security_enabled = BooleanField("Security alerts enabled")
     submit = SubmitField("Save")
+    TRANSLATION_MAP = {
+        "name": "auth.field_name",
+        "username": "auth.field_username",
+        "locale": "auth.field_locale",
+        "timezone": "auth.field_timezone",
+        "notes": "auth.field_notes",
+        "notification_email_enabled": "auth.notifications_email_enabled",
+        "notification_security_enabled": "auth.notifications_security_enabled",
+        "submit": "common.save_changes",
+    }
 
 
 class RegistrationForm(LocalizedForm):
@@ -58,3 +75,11 @@ class RegistrationForm(LocalizedForm):
         validators=[InputRequired(message="You must accept the privacy policy and terms to sign up.")],
     )
     submit = SubmitField("Sign up")
+    TRANSLATION_MAP = {
+        "name": "auth.field_name",
+        "email": "auth.field_email",
+        "password": "auth.field_password",
+        "password_confirm": "auth.field_password_confirm",
+        "accept_terms": "auth.accept_terms_full",
+        "submit": "auth.register_submit",
+    }

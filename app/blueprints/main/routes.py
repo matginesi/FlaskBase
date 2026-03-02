@@ -7,10 +7,11 @@ import resource
 import time
 from pathlib import Path
 from urllib.parse import urlsplit, urlunsplit
+from sqlalchemy import or_
 from flask import Blueprint, render_template, redirect, url_for, current_app, request, jsonify, session, abort, send_from_directory
 from flask_login import current_user, login_required
-from ...extensions import db
-from ...models import BroadcastMessage, BroadcastMessageRead, JobQueue, JobRun, LogEvent, User, UserMessage, now_utc
+from ...extensions import csrf, db
+from ...models import BroadcastMessage, BroadcastMessageRead, JobQueue, JobRun, LogEvent, User, UserMessage, UserSession, now_utc
 from ...services.audit import audit
 from ...services.job_service import runtime_status as job_runtime_status
 from ...services.message_delivery_service import unread_message_counts_for_user
@@ -307,6 +308,72 @@ def _jobs_snapshot() -> dict[str, object]:
     }
 
 
+def _connected_runtime_snapshot(window_min: int = 10, points: int = 12) -> dict[str, object]:
+    now = now_utc()
+    window_min = max(3, int(window_min or 10))
+    points = max(6, int(points or 12))
+    active_cutoff = now - timedelta(minutes=window_min)
+    sessions = (
+        UserSession.query
+        .join(User, User.id == UserSession.user_id)
+        .filter(
+            UserSession.revoked_at.is_(None),
+            UserSession.status == "active",
+            UserSession.last_seen_at.isnot(None),
+            UserSession.last_seen_at >= active_cutoff,
+            or_(UserSession.expires_at.is_(None), UserSession.expires_at > now),
+        )
+        .order_by(UserSession.last_seen_at.desc())
+        .all()
+    )
+
+    sessions_by_user: dict[int, UserSession] = {}
+    for row in sessions:
+        uid = int(getattr(row, "user_id", 0) or 0)
+        if uid <= 0 or uid in sessions_by_user:
+            continue
+        sessions_by_user[uid] = row
+
+    user_rows = [
+        {
+            "uid": int(uid),
+            "name": str(getattr(row.user, "name", "") or ""),
+            "email": str(getattr(row.user, "email", "") or ""),
+            "role": str(getattr(row.user, "role", "") or ""),
+            "last_seen": row.last_seen_at,
+        }
+        for uid, row in sessions_by_user.items()
+        if getattr(row, "user", None) is not None
+    ]
+
+    series: list[int] = []
+    labels: list[str] = []
+    for idx in range(points):
+        bucket_end = now - timedelta(minutes=(points - 1 - idx))
+        bucket_start = bucket_end - timedelta(minutes=window_min)
+        active_ids = {
+            int(uid)
+            for uid, row in sessions_by_user.items()
+            if getattr(row, "last_seen_at", None) is not None and bucket_start <= row.last_seen_at <= bucket_end
+        }
+        series.append(len(active_ids))
+        labels.append(bucket_end.strftime("%H:%M"))
+
+    admins = sum(1 for row in user_rows if str(row.get("role", "") or "").strip().lower() == "admin")
+    latest_seen = user_rows[0].get("last_seen") if user_rows else None
+    return {
+        "users": user_rows[:8],
+        "count": len(user_rows),
+        "window_min": window_min,
+        "series": series,
+        "labels": labels,
+        "peak": max([len(user_rows), *series]) if series else len(user_rows),
+        "admins": admins,
+        "users_only": max(0, len(user_rows) - admins),
+        "latest_seen": latest_seen,
+    }
+
+
 def _dashboard_stats():
     # DB-agnostic "today" filter: works on SQLite + Postgres
     today_d = now_utc().date()
@@ -439,23 +506,7 @@ def dashboard():
 
         counts_raw = db.session.query(LogEvent.level, func.count()).group_by(LogEvent.level).all()
         level_counts = {lv: cnt for lv, cnt in counts_raw}
-
-        connected_window_min = 10
-        cutoff = now_utc() - timedelta(minutes=connected_window_min)
-        connected_q = (
-            db.session.query(
-                User.id.label("uid"),
-                User.name.label("name"),
-                User.email.label("email"),
-                User.role.label("role"),
-                func.max(LogEvent.ts).label("last_seen"),
-            )
-            .join(LogEvent, LogEvent.user_id == User.id)
-            .filter(LogEvent.user_id.isnot(None), LogEvent.ts >= cutoff)
-            .group_by(User.id, User.name, User.email, User.role)
-            .order_by(func.max(LogEvent.ts).desc())
-        )
-        connected_users = connected_q.limit(12).all()
+        connected = _connected_runtime_snapshot(window_min=10, points=12)
 
         # 14-day cumulative users series for sparkline.
         horizon_days = 14
@@ -480,9 +531,15 @@ def dashboard():
         admin_panel = {
             "latest_users": User.query.order_by(User.created_at.desc()).limit(6).all(),
             "level_counts": level_counts,
-            "connected_users": connected_users,
-            "connected_count": len(connected_users),
-            "connected_window_min": connected_window_min,
+            "connected_users": connected.get("users") or [],
+            "connected_count": int(connected.get("count") or 0),
+            "connected_window_min": int(connected.get("window_min") or 10),
+            "connected_series": connected.get("series") or [],
+            "connected_labels": connected.get("labels") or [],
+            "connected_peak": int(connected.get("peak") or 0),
+            "connected_admins": int(connected.get("admins") or 0),
+            "connected_regular": int(connected.get("users_only") or 0),
+            "connected_latest_seen": connected.get("latest_seen"),
             "users_series": users_series,
         }
 
@@ -517,6 +574,7 @@ def metrics():
     gunicorn = stats.get("gunicorn") or {}
     jobs = stats.get("jobs") or {}
     runtime = jobs.get("runtime") if isinstance(jobs, dict) else {}
+    connected = _connected_runtime_snapshot(window_min=10, points=12)
     return jsonify({
         "ts": int(time.time()),
         "cpu_pct": stats.get("cpu_pct"),
@@ -545,6 +603,12 @@ def metrics():
         "job_runtime_thread_alive": runtime.get("thread_alive") if isinstance(runtime, dict) else None,
         "job_runtime_mode": runtime.get("mode") if isinstance(runtime, dict) else None,
         "job_runtime_backend": runtime.get("backend") if isinstance(runtime, dict) else None,
+        "connected_count": int(connected.get("count") or 0),
+        "connected_peak": int(connected.get("peak") or 0),
+        "connected_window_min": int(connected.get("window_min") or 10),
+        "connected_series": connected.get("series") or [],
+        "connected_labels": connected.get("labels") or [],
+        "connected_latest_seen": connected.get("latest_seen").strftime("%H:%M:%S") if connected.get("latest_seen") else None,
     })
 
 
@@ -631,6 +695,7 @@ def messages():
 
 
 @bp.post("/messages/broadcast/<int:message_id>/read")
+@csrf.exempt
 @login_required
 def mark_broadcast_read(message_id: int):
     try:
@@ -645,6 +710,7 @@ def mark_broadcast_read(message_id: int):
 
 
 @bp.post("/messages/user/<int:message_id>/read")
+@csrf.exempt
 @login_required
 def mark_user_message_read(message_id: int):
     try:

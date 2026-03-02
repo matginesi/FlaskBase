@@ -123,11 +123,12 @@
             </div>
             <div class="col-12">
               <label class="form-label">{{ tr('settings.interface_language', 'Interface language') }}</label>
-              <div class="d-flex flex-wrap gap-2">
-                <a class="btn btn-sm {% if g.ui_lang == 'en' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('main.set_language', lang='en', next=url_for('admin.settings')) }}">English</a>
-                <a class="btn btn-sm {% if g.ui_lang == 'it' %}btn-primary{% else %}btn-outline-primary{% endif %}" href="{{ url_for('main.set_language', lang='it', next=url_for('admin.settings')) }}">Italiano</a>
-              </div>
-              <div class="form-text">{{ tr('settings.interface_language_help', 'Changes the current session language for the admin interface.') }}</div>
+              <select class="form-select form-select-sm" name="st_ui_language">
+                {% set _ui_language = cfg.SETTINGS.UI_LANGUAGE | default(g.ui_lang_default | default('en')) %}
+                <option value="en" {% if _ui_language == 'en' %}selected{% endif %}>English</option>
+                <option value="it" {% if _ui_language == 'it' %}selected{% endif %}>Italiano</option>
+              </select>
+              <div class="form-text">{{ tr('settings.interface_language_help', 'Sets the default language for login and pages without a user-specific override.') }}</div>
             </div>
           </div>
         </div>
@@ -203,7 +204,13 @@
           </div>
           <div class="row g-2 mt-1">
             <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="auth_self_registration_enabled" value="1" {% if cfg.SETTINGS.AUTH.SELF_REGISTRATION_ENABLED %}checked{% endif %}><label class="form-check-label">Self registration</label></div></div>
-            <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="auth_email_confirm_required" value="1" {% if cfg.SETTINGS.AUTH.EMAIL_CONFIRM_REQUIRED %}checked{% endif %}><label class="form-check-label">Email confirmation</label></div></div>
+            <div class="col-12 col-md-8">
+              <div class="form-check form-switch">
+                <input class="form-check-input" type="checkbox" name="auth_email_confirm_required" value="1" {% if cfg.SETTINGS.AUTH.EMAIL_CONFIRM_REQUIRED %}checked{% endif %}>
+                <label class="form-check-label">Require email confirmation for new accounts</label>
+              </div>
+              <div class="form-text">If enabled, self-registered users must confirm their email before the first sign-in.</div>
+            </div>
             <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="auth_send_api_key_notice_on_signin" value="1" {% if cfg.SETTINGS.AUTH.SEND_API_KEY_NOTICE_ON_SIGNIN %}checked{% endif %}><label class="form-check-label">Notice on sign-in</label></div></div>
             <div class="col-6 col-md-4"><div class="form-check form-switch"><input class="form-check-input" type="checkbox" name="auth_mfa_enabled" value="1" {% if cfg.SETTINGS.AUTH.MFA_ENABLED %}checked{% endif %}><label class="form-check-label">MFA enabled</label></div></div>
           </div>
@@ -451,14 +458,14 @@
                 <span class="settings-theme-badge">{{ tr('settings.theme_layout_badge', 'Theme + Layout') }}</span>
               </div>
               <div class="settings-theme-fields settings-theme-fields--colors">
-                <div class="settings-theme-field"><label class="form-label">Brand</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.brand_color }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_brand_color" value="{{ theme_raw.brand_color }}"></div></div>
-                <div class="settings-theme-field"><label class="form-label">Accent</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.accent_light }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_accent_light" value="{{ theme_raw.accent_light }}"></div></div>
-                <div class="settings-theme-field"><label class="form-label">Text</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.text_color }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_text_color" value="{{ theme_raw.text_color }}"></div></div>
-                <div class="settings-theme-field"><label class="form-label">Muted text</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.text_muted }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_text_muted" value="{{ theme_raw.text_muted }}"></div></div>
-                <div class="settings-theme-field"><label class="form-label">Body background</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.body_bg }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_body_bg" value="{{ theme_raw.body_bg }}"></div></div>
-                <div class="settings-theme-field"><label class="form-label">Card background</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.card_bg }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_card_bg" value="{{ theme_raw.card_bg }}"></div></div>
-                <div class="settings-theme-field"><label class="form-label">Topbar background</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.topbar_bg }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_topbar_bg" value="{{ theme_raw.topbar_bg }}"></div></div>
-                <div class="settings-theme-field"><label class="form-label">Sidebar background</label><div class="settings-color-input"><span class="settings-swatch" style="background:{{ theme_raw.sidebar_bg }}"></span><input type="text" class="form-control form-control-sm font-monospace" name="th_sidebar_bg" value="{{ theme_raw.sidebar_bg }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Brand</label><div class="settings-color-input"><input type="color" class="form-control form-control-color settings-color-preview" value="{{ theme_raw.brand_color }}" tabindex="-1" aria-hidden="true"><input type="text" class="form-control form-control-sm font-monospace" name="th_brand_color" value="{{ theme_raw.brand_color }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Accent</label><div class="settings-color-input"><input type="color" class="form-control form-control-color settings-color-preview" value="{{ theme_raw.accent_light }}" tabindex="-1" aria-hidden="true"><input type="text" class="form-control form-control-sm font-monospace" name="th_accent_light" value="{{ theme_raw.accent_light }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Text</label><div class="settings-color-input"><input type="color" class="form-control form-control-color settings-color-preview" value="{{ theme_raw.text_color }}" tabindex="-1" aria-hidden="true"><input type="text" class="form-control form-control-sm font-monospace" name="th_text_color" value="{{ theme_raw.text_color }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Muted text</label><div class="settings-color-input"><input type="color" class="form-control form-control-color settings-color-preview" value="{{ theme_raw.text_muted }}" tabindex="-1" aria-hidden="true"><input type="text" class="form-control form-control-sm font-monospace" name="th_text_muted" value="{{ theme_raw.text_muted }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Body background</label><div class="settings-color-input"><input type="color" class="form-control form-control-color settings-color-preview" value="{{ theme_raw.body_bg }}" tabindex="-1" aria-hidden="true"><input type="text" class="form-control form-control-sm font-monospace" name="th_body_bg" value="{{ theme_raw.body_bg }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Card background</label><div class="settings-color-input"><input type="color" class="form-control form-control-color settings-color-preview" value="{{ theme_raw.card_bg }}" tabindex="-1" aria-hidden="true"><input type="text" class="form-control form-control-sm font-monospace" name="th_card_bg" value="{{ theme_raw.card_bg }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Topbar background</label><div class="settings-color-input"><input type="color" class="form-control form-control-color settings-color-preview" value="{{ theme_raw.topbar_bg }}" tabindex="-1" aria-hidden="true"><input type="text" class="form-control form-control-sm font-monospace" name="th_topbar_bg" value="{{ theme_raw.topbar_bg }}"></div></div>
+                <div class="settings-theme-field"><label class="form-label">Sidebar background</label><div class="settings-color-input"><input type="color" class="form-control form-control-color settings-color-preview" value="{{ theme_raw.sidebar_bg }}" tabindex="-1" aria-hidden="true"><input type="text" class="form-control form-control-sm font-monospace" name="th_sidebar_bg" value="{{ theme_raw.sidebar_bg }}"></div></div>
                 <div class="settings-theme-field"><label class="form-label">Sidebar width</label><input type="number" class="form-control form-control-sm" name="th_sidebar_width_px" value="{{ theme_raw.sidebar_width_px }}" min="220" max="360"></div>
                 <div class="settings-theme-field"><label class="form-label">Topbar height</label><input type="number" class="form-control form-control-sm" name="th_topbar_height_px" value="{{ theme_raw.topbar_height_px }}" min="48" max="88"></div>
                 <div class="settings-theme-field"><label class="form-label">Radius</label><input type="number" class="form-control form-control-sm" name="th_radius_px" value="{{ theme_raw.radius_px }}" min="6" max="18"></div>
@@ -518,7 +525,7 @@
         <div class="card-body p-0 d-none d-lg-block">
           <div class="table-responsive settings-addon-table-wrap">
             <table class="table table-sm table-compact table-hover align-middle mb-0 config-policy-table">
-              <colgroup><col><col style="width:110px;"><col style="width:170px;"><col class="config-col-toggle"></colgroup>
+              <colgroup><col><col class="config-col-config"><col class="config-col-actions"><col class="config-col-toggle"></colgroup>
               <thead><tr><th>Add-on</th><th class="text-center">Config</th><th class="text-center">Actions</th><th class="text-center config-th-toggle">Enabled</th></tr></thead>
               <tbody>
                 {% set addons = (cfg.ADDONS.ITEMS if cfg.ADDONS and cfg.ADDONS.ITEMS else {}) %}
@@ -771,7 +778,7 @@
         <div class="small text-muted mt-1 mb-3">Expected structure: one root folder containing at least <code>addon.py</code>, <code>config.json</code>, and <code>visual.json</code>.</div>
         <div class="small text-muted mb-2" id="addonInstallProgressLabel">Preparing upload…</div>
         <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" id="addonInstallProgressBar" style="width:0%">0%</div>
+          <progress class="settings-progress-native" id="addonInstallProgressBar" value="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">0%</progress>
         </div>
         <div class="small text-muted mt-3" id="addonInstallProgressMeta">The package is validated, copied, registered in runtime settings, and loaded into the application.</div>
         <div class="alert d-none mt-3 mb-0" id="addonInstallResultBox"></div>
@@ -796,7 +803,7 @@
       <div class="modal-body">
         <div class="small text-muted mb-2" id="serverRestartProgressLabel">Preparing restart request…</div>
         <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">
-          <div class="progress-bar progress-bar-striped progress-bar-animated" id="serverRestartProgressBar" style="width:0%">0%</div>
+          <progress class="settings-progress-native" id="serverRestartProgressBar" value="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0">0%</progress>
         </div>
         <div class="small text-muted mt-3" id="serverRestartProgressMeta">Connected sessions will receive a forced-refresh signal before the runtime restarts.</div>
         <div class="alert d-none mt-3 mb-0" id="serverRestartResultBox"></div>
@@ -915,7 +922,7 @@
   function setInstallProgress(percent, label, meta){
     if(progressBar){
       var safePercent = Math.max(0, Math.min(100, percent || 0));
-      progressBar.style.width = safePercent + '%';
+      progressBar.value = safePercent;
       progressBar.textContent = safePercent + '%';
       progressBar.setAttribute('aria-valuenow', String(safePercent));
     }
@@ -1204,7 +1211,7 @@
   function setRestartProgress(percent, label, meta){
     if(restartProgressBar){
       var safePercent = Math.max(0, Math.min(100, percent || 0));
-      restartProgressBar.style.width = safePercent + '%';
+      restartProgressBar.value = safePercent;
       restartProgressBar.textContent = safePercent + '%';
       restartProgressBar.setAttribute('aria-valuenow', String(safePercent));
     }

@@ -362,6 +362,7 @@ def normalize_config_data(raw: dict[str, Any]) -> dict[str, Any]:
         "APP_NAME": _norm_text(settings_src.get("APP_NAME"), "WebApp", 80),
         "APP_VERSION": _norm_text(settings_src.get("APP_VERSION"), "1.0.0", 32),
         "BASE_URL": _norm_text(settings_src.get("BASE_URL"), "http://127.0.0.1:5000", 220),
+        "UI_LANGUAGE": "it" if str(settings_src.get("UI_LANGUAGE", "en")).strip().lower().startswith("it") else "en",
         "SECURITY": security,
         "LOGGING": logging,
         "EMAIL": email,

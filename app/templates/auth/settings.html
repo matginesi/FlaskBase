@@ -1,38 +1,38 @@
 {% extends "base.html" %}
-{% block title %} · Account{% endblock %}
+{% block title %} · {{ tr('nav.account', 'Account') }}{% endblock %}
 {% block content %}
 <div class="page-header">
-  <div class="page-breadcrumb"><i class="bi bi-person-gear me-1"></i> Account</div>
-  <h1>Impostazioni Account</h1>
-  <p>Gestisci le tue informazioni e la sicurezza</p>
+  <div class="page-breadcrumb"><i class="bi bi-person-gear me-1"></i> {{ tr('nav.account', 'Account') }}</div>
+  <h1>{{ tr('auth.account_settings_title', 'Account settings') }}</h1>
+  <p>{{ tr('auth.account_settings_subtitle', 'Manage your profile, preferences, and security controls.') }}</p>
 </div>
 
 <div class="row g-2 mb-3 account-summary">
   <div class="col-6 col-lg-3">
     <div class="account-pill">
-      <div class="account-pill-label">Ruolo</div>
+      <div class="account-pill-label">{{ tr('admin.users.role', 'Role') }}</div>
       <div class="account-pill-value">{{ current_user.role }}</div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
     <div class="account-pill">
-      <div class="account-pill-label">Email</div>
+      <div class="account-pill-label">{{ tr('auth.field_email', 'Email') }}</div>
       <div class="account-pill-value fs-xs text-truncate">{{ current_user.email }}</div>
       <div class="account-pill-sub fs-xs text-muted">
-        {% if current_user.email_verified %}<i class="bi bi-patch-check-fill text-success me-1"></i>Verificata{% else %}<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>Non verificata{% endif %}
+        {% if current_user.email_verified %}<i class="bi bi-patch-check-fill text-success me-1"></i>{{ tr('auth.email_verified', 'Verified') }}{% else %}<i class="bi bi-exclamation-triangle-fill text-warning me-1"></i>{{ tr('auth.email_not_verified', 'Not verified') }}{% endif %}
       </div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
     <div class="account-pill">
-      <div class="account-pill-label">Sicurezza</div>
+      <div class="account-pill-label">{{ tr('nav.deploy_health', 'Security') }}</div>
       <div class="account-pill-value">{% if mfa_enabled %}MFA ON{% else %}MFA OFF{% endif %}</div>
-      <div class="account-pill-sub fs-xs text-muted">{% if mfa_enabled %}Recovery: {{ mfa_recovery_remaining }}{% else %}Abilita per protezione{% endif %}</div>
+      <div class="account-pill-sub fs-xs text-muted">{% if mfa_enabled %}{{ tr('auth.recovery_available', 'Recovery') }}: {{ mfa_recovery_remaining }}{% else %}{{ tr('auth.enable_for_protection', 'Enable it for extra protection') }}{% endif %}</div>
     </div>
   </div>
   <div class="col-6 col-lg-3">
     <div class="account-pill">
-      <div class="account-pill-label">Ultimo accesso</div>
+      <div class="account-pill-label">{{ tr('auth.last_sign_in', 'Last sign-in') }}</div>
       <div class="account-pill-value fs-xs">{{ current_user.last_login_at.strftime('%d/%m/%Y %H:%M') if current_user.last_login_at else '—' }}</div>
       <div class="account-pill-sub fs-xs text-muted">IP: {{ current_user.last_ip or '—' }}</div>
     </div>
@@ -43,24 +43,36 @@
   <div class="col-12 col-xl-4">
     <div class="account-sticky">
     <div class="settings-section">
-      <div class="settings-section-header"><i class="bi bi-person-circle me-2 text-primary"></i>Profilo</div>
+      <div class="settings-section-header"><i class="bi bi-person-circle me-2 text-primary"></i>{{ tr('auth.profile_title', 'Profile') }}</div>
       <div class="settings-section-body">
+        <form method="post" action="{{ url_for('main.set_language_post') }}" id="accountLanguageForm" class="d-none">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        </form>
         <form method="post" novalidate>
           {{ form.csrf_token }}
           <div class="mb-3">
             {{ form.name.label(class_="form-label") }}
             {{ form.name(class_="form-control") }}
-            {% for e in form.name.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+            {% for e in form.name.errors %}<div class="text-danger form-error-note">{{ e }}</div>{% endfor %}
           </div>
           <div class="mb-3">
             {{ form.username.label(class_="form-label") }}
-            {{ form.username(class_="form-control", placeholder="es. mario.rossi") }}
-            {% for e in form.username.errors %}<div class="text-danger" style="font-size:.78rem;">{{ e }}</div>{% endfor %}
+            {{ form.username(class_="form-control", placeholder=tr('auth.username_placeholder', 'e.g. jane.doe')) }}
+            {% for e in form.username.errors %}<div class="text-danger form-error-note">{{ e }}</div>{% endfor %}
           </div>
           <div class="row g-2 mb-2">
             <div class="col-12 col-md-6">
-              {{ form.locale.label(class_="form-label") }}
-              {{ form.locale(class_="form-control", placeholder="it-IT") }}
+              <label class="form-label">{{ tr('settings.interface_language', 'Interface language') }}</label>
+              <div class="d-flex gap-2 align-items-start flex-wrap">
+                <select class="form-select" name="lang" form="accountLanguageForm" aria-label="{{ tr('settings.interface_language', 'Interface language') }}">
+                  <option value="en" {% if g.ui_lang == 'en' %}selected{% endif %}>English</option>
+                  <option value="it" {% if g.ui_lang == 'it' %}selected{% endif %}>Italiano</option>
+                </select>
+                <button type="submit" class="btn btn-outline-secondary btn-sm" form="accountLanguageForm">
+                  {{ tr('common.apply', 'Apply') }}
+                </button>
+              </div>
+              <div class="form-text">{{ tr('settings.interface_language_help', 'Sets the default language for login and pages without a user-specific override.') }}</div>
             </div>
             <div class="col-12 col-md-6">
               {{ form.timezone.label(class_="form-label") }}
@@ -69,10 +81,10 @@
             <div class="col-12">
               {% if form.notes is defined %}
                 {{ form.notes.label(class_="form-label") }}
-                {{ form.notes(class_="form-control", rows="4", placeholder="Preferenze tecniche, note operative, integrazioni...") }}
+                {{ form.notes(class_="form-control", rows="4", placeholder=tr('auth.notes_placeholder', 'Technical preferences, operational notes, integrations...')) }}
               {% else %}
-                <label class="form-label">Note tecniche</label>
-                <textarea class="form-control" rows="4" disabled>Campo note non disponibile in questa sessione runtime.</textarea>
+                <label class="form-label">{{ tr('auth.field_notes', 'Technical notes') }}</label>
+                <textarea class="form-control" rows="4" disabled>{{ tr('auth.notes_unavailable', 'Notes field is not available in this runtime session.') }}</textarea>
               {% endif %}
             </div>
           </div>
@@ -85,21 +97,21 @@
             {{ form.notification_security_enabled.label(class_="form-check-label") }}
           </div>
           <div class="mb-3">
-            <label class="form-label">Email</label>
+            <label class="form-label">{{ tr('auth.field_email', 'Email') }}</label>
             <input class="form-control" value="{{ current_user.email }}" disabled>
-            <div class="form-text">L'email non può essere modificata da qui.</div>
+            <div class="form-text">{{ tr('auth.email_readonly', 'Email cannot be changed here.') }}</div>
           </div>
-          <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-check2 me-1"></i>Salva modifiche</button>
+          <button class="btn btn-primary btn-sm" type="submit"><i class="bi bi-check2 me-1"></i>{{ tr('common.save_changes', 'Save changes') }}</button>
         </form>
       </div>
     </div>
     <div class="settings-section mt-3">
-      <div class="settings-section-header"><i class="bi bi-info-circle me-2 text-info"></i>Informazioni account</div>
+      <div class="settings-section-header"><i class="bi bi-info-circle me-2 text-info"></i>{{ tr('auth.account_information', 'Account information') }}</div>
       <div class="settings-section-body p-0">
         <div class="settings-row px-3">
           <div class="settings-row-info">
-            <strong>Ruolo</strong>
-            <small>Il tuo livello di accesso</small>
+            <strong>{{ tr('admin.users.role', 'Role') }}</strong>
+            <small>{{ tr('auth.access_level', 'Your access level') }}</small>
           </div>
           <span class="badge {% if current_user.role == 'admin' %}bg-warning text-dark{% else %}bg-primary{% endif %}">
             {{ current_user.role }}
@@ -107,15 +119,15 @@
         </div>
         <div class="settings-row px-3">
           <div class="settings-row-info">
-            <strong>Stato account</strong>
-            <small>Attività corrente</small>
+            <strong>{{ tr('admin.users.status', 'Status') }}</strong>
+            <small>{{ tr('auth.current_activity', 'Current activity') }}</small>
           </div>
-          <span class="badge bg-success">Attivo</span>
+          <span class="badge bg-success">{{ tr('admin.users.active', 'Active') }}</span>
         </div>
         <div class="settings-row px-3">
           <div class="settings-row-info">
-            <strong>Ultimo accesso</strong>
-            <small>Data e ora</small>
+            <strong>{{ tr('auth.last_sign_in', 'Last sign-in') }}</strong>
+            <small>{{ tr('auth.date_and_time', 'Date and time') }}</small>
           </div>
           <span class="text-muted fs-xs">
             {{ current_user.last_login_at.strftime('%d/%m/%Y %H:%M') if current_user.last_login_at else '–' }}
@@ -123,15 +135,15 @@
         </div>
         <div class="settings-row px-3">
           <div class="settings-row-info">
-            <strong>Ultimo IP</strong>
-            <small>IP ultimo login valido</small>
+            <strong>{{ tr('auth.last_ip', 'Last IP') }}</strong>
+            <small>{{ tr('auth.last_valid_login_ip', 'IP of the last valid sign-in') }}</small>
           </div>
           <span class="text-muted fs-xs">{{ current_user.last_ip or '–' }}</span>
         </div>
         <div class="settings-row px-3">
           <div class="settings-row-info">
-            <strong>Ultima attività</strong>
-            <small>Heartbeat sessione</small>
+            <strong>{{ tr('auth.last_activity', 'Last activity') }}</strong>
+            <small>{{ tr('auth.session_heartbeat', 'Session heartbeat') }}</small>
           </div>
           <span class="text-muted fs-xs">
             {{ current_user.last_seen_at.strftime('%d/%m/%Y %H:%M') if current_user.last_seen_at else '–' }}
@@ -139,8 +151,8 @@
         </div>
         <div class="settings-row px-3">
           <div class="settings-row-info">
-            <strong>Membro dal</strong>
-            <small>Data registrazione</small>
+            <strong>{{ tr('auth.member_since', 'Member since') }}</strong>
+            <small>{{ tr('auth.registration_date', 'Registration date') }}</small>
           </div>
           <span class="text-muted fs-xs">{{ current_user.created_at.strftime('%d/%m/%Y') }}</span>
         </div>
@@ -153,28 +165,30 @@
     <div class="row g-3">
       <div class="col-12">
         <div class="settings-section">
-          <div class="settings-section-header"><i class="bi bi-lock me-2 text-warning"></i>Cambia password</div>
+          <div class="settings-section-header"><i class="bi bi-lock me-2 text-warning"></i>{{ tr('auth.change_password_title', 'Change password') }}</div>
           <div class="settings-section-body">
             <form method="post" action="{{ url_for('auth.change_password') }}" novalidate>
               {{ change_pwd_form.csrf_token if change_pwd_form else '' }}
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <div class="mb-2">
-                <label class="form-label">Password attuale</label>
+                <label class="form-label">{{ tr('auth.current_password', 'Current password') }}</label>
                 <input type="password" name="current_password" class="form-control form-control-sm" required>
               </div>
               <div class="mb-2">
-                <label class="form-label">Nuova password</label>
+                <label class="form-label">{{ tr('auth.new_password', 'New password') }}</label>
                 <input type="password" name="new_password" id="new_password" class="form-control form-control-sm" required minlength="8">
-                <div class="progress mt-1" style="height:4px;">
-                  <div class="progress-bar" id="pwdStrengthBar" style="width:0%;transition:width .3s;" role="progressbar"></div>
-                </div>
-                <div class="fs-xs text-muted mt-1" id="pwdStrengthLabel"></div>
+                <progress class="settings-progress-native settings-progress-thin mt-1" id="pwdStrengthBar" value="0" max="100" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"></progress>
+                <div class="fs-xs text-muted mt-1" id="pwdStrengthLabel"
+                     data-label-weak="{{ tr('auth.password_weak', 'Weak') }}"
+                     data-label-fair="{{ tr('auth.password_fair', 'Fair') }}"
+                     data-label-good="{{ tr('auth.password_good', 'Good') }}"
+                     data-label-strong="{{ tr('auth.password_strong', 'Strong') }}"></div>
               </div>
               <div class="mb-3">
-                <label class="form-label">Conferma password</label>
+                <label class="form-label">{{ tr('auth.field_password_confirm', 'Confirm password') }}</label>
                 <input type="password" name="confirm_password" class="form-control form-control-sm" required>
               </div>
-              <button type="submit" class="btn btn-warning btn-sm text-dark"><i class="bi bi-lock-fill me-1"></i>Aggiorna password</button>
+              <button type="submit" class="btn btn-warning btn-sm text-dark"><i class="bi bi-lock-fill me-1"></i>{{ tr('auth.update_password', 'Update password') }}</button>
             </form>
           </div>
         </div>
@@ -182,26 +196,26 @@
 
       <div class="col-12">
         <div class="settings-section">
-          <div class="settings-section-header"><i class="bi bi-shield-lock me-2 text-primary"></i>Autenticazione MFA</div>
+          <div class="settings-section-header"><i class="bi bi-shield-lock me-2 text-primary"></i>{{ tr('auth.mfa_section_title', 'MFA authentication') }}</div>
           <div class="settings-section-body">
             <div class="d-flex align-items-center justify-content-between mb-2">
               <div class="fs-sm text-muted">
-                Stato:
+                {{ tr('admin.users.status', 'Status') }}:
                 {% if mfa_enabled %}
-                  <span class="badge bg-success">Attiva</span>
+                  <span class="badge bg-success">{{ tr('auth.active_f', 'Active') }}</span>
                 {% else %}
-                  <span class="badge bg-secondary">Disattiva</span>
+                  <span class="badge bg-secondary">{{ tr('auth.inactive_f', 'Inactive') }}</span>
                 {% endif %}
-                · Recovery disponibili: <strong>{{ mfa_recovery_remaining or 0 }}</strong>
+                · {{ tr('auth.recovery_codes_available', 'Recovery codes available') }}: <strong>{{ mfa_recovery_remaining or 0 }}</strong>
               </div>
               <div class="fs-xs text-muted">
-                Ultimo uso: {{ mfa_last_used_at.strftime('%d/%m/%Y %H:%M') if mfa_last_used_at else '—' }}
+                {{ tr('auth.last_used', 'Last used') }}: {{ mfa_last_used_at.strftime('%d/%m/%Y %H:%M') if mfa_last_used_at else '—' }}
               </div>
             </div>
 
             {% if mfa_recovery_codes_plain %}
             <div class="alert alert-warning py-2">
-              <div class="fw-600 mb-1">Recovery code (visibili una sola volta)</div>
+              <div class="fw-600 mb-1">{{ tr('auth.recovery_codes_one_time', 'Recovery codes shown only once') }}</div>
               <div class="d-flex flex-wrap gap-2">
                 {% for code in mfa_recovery_codes_plain %}
                   <code>{{ code }}</code>
@@ -212,21 +226,21 @@
 
             {% if mfa_setup_secret %}
             <div class="alert alert-info py-2">
-              <div class="fw-600">Setup MFA in corso (scade tra {{ mfa_setup_expires_in }}s)</div>
+              <div class="fw-600">{{ tr('auth.mfa_setup_in_progress', 'MFA setup in progress') }} ({{ tr('auth.expires_in_seconds', 'expires in {seconds}s', seconds=mfa_setup_expires_in) }})</div>
               <div class="mt-1">Secret: <code>{{ mfa_setup_secret }}</code></div>
               {% if mfa_setup_uri %}
-              <div class="mt-1 fs-xs text-muted">URI otpauth: <code style="word-break:break-all;">{{ mfa_setup_uri }}</code></div>
+              <div class="mt-1 fs-xs text-muted">URI otpauth: <code class="token-break">{{ mfa_setup_uri }}</code></div>
               {% endif %}
             </div>
             <form method="post" action="{{ url_for('auth.mfa_enable') }}" class="mb-3">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <div class="row g-2 align-items-end">
                 <div class="col-12 col-md-7">
-                  <label class="form-label">Codice autenticatore</label>
-                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="Codice 6 cifre" required>
+                  <label class="form-label">{{ tr('auth.authenticator_code', 'Authenticator code') }}</label>
+                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="{{ tr('auth.code_6_digits', '6-digit code') }}" required>
                 </div>
                 <div class="col-12 col-md-5">
-                  <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-check2-circle me-1"></i>Conferma attivazione</button>
+                  <button type="submit" class="btn btn-primary btn-sm w-100"><i class="bi bi-check2-circle me-1"></i>{{ tr('auth.confirm_activation', 'Confirm activation') }}</button>
                 </div>
               </div>
             </form>
@@ -237,11 +251,11 @@
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <div class="row g-2 align-items-end">
                 <div class="col-12 col-md-7">
-                  <label class="form-label">Password attuale</label>
+                  <label class="form-label">{{ tr('auth.current_password', 'Current password') }}</label>
                   <input type="password" name="current_password" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-12 col-md-5">
-                  <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-shield-plus me-1"></i>Avvia setup MFA</button>
+                  <button type="submit" class="btn btn-outline-primary btn-sm w-100"><i class="bi bi-shield-plus me-1"></i>{{ tr('auth.start_mfa_setup', 'Start MFA setup') }}</button>
                 </div>
               </div>
             </form>
@@ -250,15 +264,15 @@
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <div class="row g-2 align-items-end">
                 <div class="col-12 col-md-4">
-                  <label class="form-label">Password attuale</label>
+                  <label class="form-label">{{ tr('auth.current_password', 'Current password') }}</label>
                   <input type="password" name="current_password" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-12 col-md-4">
-                  <label class="form-label">Codice MFA</label>
-                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="OTP o recovery" required>
+                  <label class="form-label">{{ tr('auth.mfa_code', 'MFA code') }}</label>
+                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="{{ tr('auth.otp_or_recovery', 'OTP or recovery code') }}" required>
                 </div>
                 <div class="col-12 col-md-4">
-                  <button type="submit" class="btn btn-outline-secondary btn-sm w-100"><i class="bi bi-arrow-repeat me-1"></i>Rigenera recovery</button>
+                  <button type="submit" class="btn btn-outline-secondary btn-sm w-100"><i class="bi bi-arrow-repeat me-1"></i>{{ tr('auth.regenerate_recovery', 'Regenerate recovery codes') }}</button>
                 </div>
               </div>
             </form>
@@ -266,15 +280,15 @@
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <div class="row g-2 align-items-end">
                 <div class="col-12 col-md-4">
-                  <label class="form-label">Password attuale</label>
+                  <label class="form-label">{{ tr('auth.current_password', 'Current password') }}</label>
                   <input type="password" name="current_password" class="form-control form-control-sm" required>
                 </div>
                 <div class="col-12 col-md-4">
-                  <label class="form-label">Codice MFA</label>
-                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="OTP o recovery" required>
+                  <label class="form-label">{{ tr('auth.mfa_code', 'MFA code') }}</label>
+                  <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="{{ tr('auth.otp_or_recovery', 'OTP or recovery code') }}" required>
                 </div>
                 <div class="col-12 col-md-4">
-                  <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-shield-x me-1"></i>Disattiva MFA</button>
+                  <button type="submit" class="btn btn-outline-danger btn-sm w-100"><i class="bi bi-shield-x me-1"></i>{{ tr('auth.disable_mfa', 'Disable MFA') }}</button>
                 </div>
               </div>
             </form>
@@ -286,22 +300,22 @@
       <div class="col-12">
         <div class="settings-section">
           <div class="settings-section-header d-flex align-items-center justify-content-between">
-            <span><i class="bi bi-key me-2 text-primary"></i>API Key personali</span>
-            <span class="badge bg-light text-dark"><span id="apiKeyActiveCount">{{ active_personal_token_total }}</span> attive / <span id="apiKeyTotalCount">{{ personal_token_total }}</span> totali</span>
+            <span><i class="bi bi-key me-2 text-primary"></i>{{ tr('auth.personal_api_keys', 'Personal API keys') }}</span>
+            <span class="badge bg-light text-dark"><span id="apiKeyActiveCount">{{ active_personal_token_total }}</span> {{ tr('auth.active_plural', 'active') }} / <span id="apiKeyTotalCount">{{ personal_token_total }}</span> {{ tr('auth.total_plural', 'total') }}</span>
           </div>
           <div class="settings-section-body">
-            <div class="text-muted fs-sm mb-3">Crea chiavi dedicate per script o client esterni. La chiave completa viene mostrata subito dopo la creazione e non viene salvata in chiaro.</div>
+            <div class="text-muted fs-sm mb-3">{{ tr('auth.personal_api_keys_intro', 'Create dedicated keys for scripts or external clients. The full key is shown immediately after creation and is not stored in plain text.') }}</div>
             <div class="alert alert-warning py-2 {% if not revealed_tokens %}d-none{% endif %}" id="apiKeyRevealBox">
-              <div class="fw-600 mb-1">Nuove chiavi mostrate una sola volta</div>
+              <div class="fw-600 mb-1">{{ tr('auth.new_keys_shown_once', 'New keys shown only once') }}</div>
               <div id="apiKeyRevealList">
                 {% for k in revealed_tokens %}
                 <div class="mb-2">
-                  <div class="fs-xs text-muted">{{ k.name }} · {{ k.prefix }}... · scade {{ k.expires_at[:10] if k.expires_at else 'mai' }}</div>
-                  <code style="word-break:break-all;">{{ k.token }}</code>
+                  <div class="fs-xs text-muted">{{ k.name }} · {{ k.prefix }}... · {{ tr('auth.expires_on', 'expires') }} {{ k.expires_at[:10] if k.expires_at else tr('auth.never', 'never') }}</div>
+                  <code class="token-break">{{ k.token }}</code>
                 </div>
                 {% endfor %}
               </div>
-              <div class="fs-xs mb-0">Salvale ora in un password manager: dopo questa vista non saranno più recuperabili.</div>
+              <div class="fs-xs mb-0">{{ tr('auth.save_keys_now', 'Save them in a password manager now: after this view they cannot be recovered.') }}</div>
             </div>
 
             <div class="card card-soft border-0 mb-3">
@@ -309,33 +323,33 @@
                 <form method="post" action="{{ url_for('auth.api_keys_create') }}" class="row g-2" id="apiKeyCreateForm">
                   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                   <div class="col-12 col-lg-4">
-                    <label class="form-label">Nome chiave</label>
-                    <input type="text" name="name" class="form-control form-control-sm" maxlength="80" placeholder="es. local automation">
+                    <label class="form-label">{{ tr('auth.key_name', 'Key name') }}</label>
+                    <input type="text" name="name" class="form-control form-control-sm" maxlength="80" placeholder="{{ tr('auth.key_name_placeholder', 'e.g. local automation') }}">
                   </div>
                   <div class="col-12 col-lg-3">
-                    <label class="form-label">Scadenza (giorni)</label>
-                    <input type="number" name="expiry_days" class="form-control form-control-sm" min="1" max="3650" placeholder="opzionale">
+                    <label class="form-label">{{ tr('auth.expiry_days', 'Expiry (days)') }}</label>
+                    <input type="number" name="expiry_days" class="form-control form-control-sm" min="1" max="3650" placeholder="{{ tr('auth.optional', 'optional') }}">
                   </div>
                   <div class="col-12 col-lg-5">
                     <label class="form-label">Scopes</label>
                     <input type="text" name="scopes" class="form-control form-control-sm font-monospace" value="profile:read" placeholder="profile:read, hello_world:read">
                   </div>
                   <div class="col-12 col-lg-6">
-                    <label class="form-label">Password attuale</label>
+                    <label class="form-label">{{ tr('auth.current_password', 'Current password') }}</label>
                     <input type="password" name="current_password" class="form-control form-control-sm" required>
                   </div>
                   <div class="col-12 col-lg-3">
-                    <label class="form-label">MFA code</label>
-                    <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="se attivo">
+                    <label class="form-label">{{ tr('auth.mfa_code', 'MFA code') }}</label>
+                    <input type="text" name="otp_code" class="form-control form-control-sm" placeholder="{{ tr('auth.if_enabled', 'if enabled') }}">
                   </div>
                   <div class="col-12 col-lg-3">
-                    <label class="form-label">Recovery code</label>
-                    <input type="text" name="recovery_code" class="form-control form-control-sm" placeholder="alternativo">
+                    <label class="form-label">{{ tr('auth.recovery_code', 'Recovery code') }}</label>
+                    <input type="text" name="recovery_code" class="form-control form-control-sm" placeholder="{{ tr('auth.alternative', 'alternative') }}">
                   </div>
                   <div class="col-12">
-                    <div class="form-text mb-2">Gli scope sono separati da virgola. Lascia la scadenza vuota per una chiave senza scadenza. Se MFA è attivo inserisci OTP o recovery code.</div>
+                    <div class="form-text mb-2">{{ tr('auth.api_key_scope_help', 'Scopes are comma-separated. Leave expiry empty for a non-expiring key. If MFA is active, provide OTP or a recovery code.') }}</div>
                     <button type="submit" class="btn btn-primary btn-sm" id="apiKeyCreateBtn">
-                      <i class="bi bi-plus-circle me-1"></i>Crea API key
+                      <i class="bi bi-plus-circle me-1"></i>{{ tr('auth.create_api_key', 'Create API key') }}
                     </button>
                   </div>
                 </form>
@@ -343,8 +357,8 @@
             </div>
 
             <div class="d-flex align-items-center justify-content-between gap-2 flex-wrap mb-2">
-              <div class="fs-xs text-muted">Qui vedi tutte le tue chiavi personali. Quelle temporanee generate da API Tester restano escluse e sono gestite automaticamente.</div>
-              <div class="fs-xs text-muted"><span id="apiKeyActiveCountInline">{{ active_personal_token_total }}</span> attive</div>
+              <div class="fs-xs text-muted">{{ tr('auth.personal_api_keys_note', 'Here you can see all your personal keys. Temporary ones generated by API Tester are excluded and managed automatically.') }}</div>
+              <div class="fs-xs text-muted"><span id="apiKeyActiveCountInline">{{ active_personal_token_total }}</span> {{ tr('auth.active_plural', 'active') }}</div>
             </div>
 
             <div class="table-responsive account-api-table">
@@ -352,12 +366,12 @@
                 <thead>
                   <tr>
                     <th>Key</th>
-                    <th>Name</th>
+                    <th>{{ tr('auth.name', 'Name') }}</th>
                     <th>Scopes</th>
-                    <th>Status</th>
-                    <th>Expires</th>
-                    <th>Last used</th>
-                    <th class="text-end">Actions</th>
+                    <th>{{ tr('admin.users.status', 'Status') }}</th>
+                    <th>{{ tr('auth.expires', 'Expires') }}</th>
+                    <th>{{ tr('auth.last_used', 'Last used') }}</th>
+                    <th class="text-end">{{ tr('auth.actions', 'Actions') }}</th>
                   </tr>
                 </thead>
                 <tbody id="apiKeyTableBody">
@@ -377,31 +391,31 @@
                     </td>
                     <td>
                       {% if token.status == 'active' %}
-                      <span class="badge bg-success">Attiva</span>
+                      <span class="badge bg-success">{{ tr('auth.active_f', 'Active') }}</span>
                       {% elif token.status == 'expired' %}
-                      <span class="badge bg-secondary">Scaduta</span>
+                      <span class="badge bg-secondary">{{ tr('auth.expired_f', 'Expired') }}</span>
                       {% else %}
-                      <span class="badge bg-danger">Revocata</span>
+                      <span class="badge bg-danger">{{ tr('auth.revoked_f', 'Revoked') }}</span>
                       {% endif %}
                     </td>
-                    <td class="fs-xs text-muted">{{ token.expires_at[:10] if token.expires_at else 'Mai' }}</td>
+                    <td class="fs-xs text-muted">{{ token.expires_at[:10] if token.expires_at else tr('auth.never', 'Never') }}</td>
                     <td class="fs-xs text-muted">{{ token.last_used_at[:16].replace('T', ' ') if token.last_used_at else '—' }}</td>
                     <td class="text-end">
                       <form method="post" action="{{ url_for('auth.api_keys_revoke', token_id=token.id) }}" class="d-inline js-api-key-revoke-form"
-                            data-confirm-title="Revoke API key"
-                            data-confirm-message="Revocare la chiave personale {{ token.prefix }}... ?"
-                            data-confirm-label="Revoke"
+                            data-confirm-title="{{ tr('auth.revoke_api_key', 'Revoke API key') }}"
+                            data-confirm-message="{{ tr('auth.revoke_api_key_confirm', 'Revoke personal key {prefix}... ?', prefix=token.prefix) }}"
+                            data-confirm-label="{{ tr('auth.revoke', 'Revoke') }}"
                             data-confirm-class="btn-danger">
                         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <button type="submit" class="btn btn-outline-danger btn-sm" {% if not token.is_active %}disabled{% endif %}>
-                          <i class="bi bi-x-circle me-1"></i>Revoca
+                          <i class="bi bi-x-circle me-1"></i>{{ tr('auth.revoke', 'Revoke') }}
                         </button>
                       </form>
                     </td>
                   </tr>
                   {% else %}
                   <tr>
-                    <td colspan="7" class="text-center text-muted py-4">Nessuna API key personale.</td>
+                    <td colspan="7" class="text-center text-muted py-4">{{ tr('auth.no_personal_api_keys', 'No personal API keys.') }}</td>
                   </tr>
                   {% endfor %}
                 </tbody>
@@ -415,7 +429,20 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script>
+<script id="accountSettingsI18n" type="application/json">
+  {{ {
+    "expires": tr('auth.expires_on', 'expires'),
+    "never": tr('auth.never', 'never'),
+    "active": tr('auth.active_f', 'Active'),
+    "expired": tr('auth.expired_f', 'Expired'),
+    "revoked": tr('auth.revoked_f', 'Revoked'),
+    "revoke": tr('auth.revoke', 'Revoke'),
+    "noKeys": tr('auth.no_personal_api_keys', 'No personal API keys.'),
+    "created": tr('auth.api_key_created', 'API key created'),
+    "revokedToast": tr('auth.api_key_revoked', 'API key revoked')
+  } | tojson }}
+</script>
+<script nonce="{{ g.csp_nonce }}">
   (function () {
     "use strict";
 
@@ -428,6 +455,7 @@
     const totalCount = document.getElementById("apiKeyTotalCount");
     const activeCount = document.getElementById("apiKeyActiveCount");
     const activeCountInline = document.getElementById("apiKeyActiveCountInline");
+    const i18n = JSON.parse(document.getElementById("accountSettingsI18n")?.textContent || "{}");
 
     function escapeHtml(value) {
       return String(value || "").replace(/[&<>"']/g, function (char) {
@@ -452,8 +480,8 @@
       revealList.innerHTML = rows.map(function (token) {
         return `
           <div class="mb-2">
-            <div class="fs-xs text-muted">${escapeHtml(token.name)} · ${escapeHtml(token.prefix)}... · scade ${escapeHtml(token.expires_at ? formatDate(token.expires_at, false) : "mai")}</div>
-            <code style="word-break:break-all;">${escapeHtml(token.token)}</code>
+            <div class="fs-xs text-muted">${escapeHtml(token.name)} · ${escapeHtml(token.prefix)}... · ${escapeHtml(i18n.expires)} ${escapeHtml(token.expires_at ? formatDate(token.expires_at, false) : i18n.never)}</div>
+            <code class="token-break">${escapeHtml(token.token)}</code>
           </div>
         `;
       }).join("");
@@ -461,9 +489,9 @@
     }
 
     function statusBadge(token) {
-      if (token.status === "active") return '<span class="badge bg-success">Attiva</span>';
-      if (token.status === "expired") return '<span class="badge bg-secondary">Scaduta</span>';
-      return '<span class="badge bg-danger">Revocata</span>';
+      if (token.status === "active") return `<span class="badge bg-success">${escapeHtml(i18n.active)}</span>`;
+      if (token.status === "expired") return `<span class="badge bg-secondary">${escapeHtml(i18n.expired)}</span>`;
+      return `<span class="badge bg-danger">${escapeHtml(i18n.revoked)}</span>`;
     }
 
     function revokeButton(token) {
@@ -472,7 +500,7 @@
         <form method="post" action="/auth/api-keys/${token.id}/revoke" class="d-inline js-api-key-revoke-form" data-token-id="${token.id}">
           <input type="hidden" name="csrf_token" value="${escapeHtml(csrfToken)}">
           <button type="submit" class="btn btn-outline-danger btn-sm" ${disabled}>
-            <i class="bi bi-x-circle me-1"></i>Revoca
+            <i class="bi bi-x-circle me-1"></i>${escapeHtml(i18n.revoke)}
           </button>
         </form>
       `;
@@ -481,7 +509,7 @@
     function renderTokenRows(tokens) {
       const rows = Array.isArray(tokens) ? tokens : [];
       if (!rows.length) {
-        tableBody.innerHTML = '<tr><td colspan="7" class="text-center text-muted py-4">Nessuna API key personale.</td></tr>';
+        tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-muted py-4">${escapeHtml(i18n.noKeys)}</td></tr>`;
         return;
       }
       tableBody.innerHTML = rows.map(function (token) {
@@ -497,7 +525,7 @@
             </td>
             <td class="fs-xs text-muted">${scopes}</td>
             <td>${statusBadge(token)}</td>
-            <td class="fs-xs text-muted">${escapeHtml(token.expires_at ? formatDate(token.expires_at, false) : "Mai")}</td>
+            <td class="fs-xs text-muted">${escapeHtml(token.expires_at ? formatDate(token.expires_at, false) : i18n.never)}</td>
             <td class="fs-xs text-muted">${escapeHtml(formatDate(token.last_used_at, true))}</td>
             <td class="text-end">${revokeButton(token)}</td>
           </tr>
@@ -546,7 +574,7 @@
         createForm.reset();
         const scopesInput = createForm.querySelector('input[name="scopes"]');
         if (scopesInput) scopesInput.value = "profile:read";
-        if (window.showToast) window.showToast("API key creata", "success");
+        if (window.showToast) window.showToast(i18n.created, "success");
       } catch (error) {
         if (window.showToast) window.showToast(String(error.message || error), "danger");
       } finally {
@@ -565,7 +593,7 @@
       try {
         const data = await postJson(`/auth/api-keys/${tokenId}/revoke.json`, {});
         applyWorkspace(data);
-        if (window.showToast) window.showToast("API key revocata", "success");
+        if (window.showToast) window.showToast(i18n.revokedToast, "success");
       } catch (error) {
         if (window.showToast) window.showToast(String(error.message || error), "danger");
       }

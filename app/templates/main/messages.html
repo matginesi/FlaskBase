@@ -96,7 +96,7 @@
                   {% if it.body_format == 'html' %}
                   <div class="rich-html">{{ it.body|safe }}</div>
                   {% else %}
-                  <div class="text-muted" style="white-space:pre-wrap;">{{ it.body }}</div>
+                  <div class="text-muted ws-pre-wrap">{{ it.body }}</div>
                   {% endif %}
                 </div>
                 <div class="modal-footer justify-content-between">

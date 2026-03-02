@@ -41,7 +41,8 @@ def normalize_language(value: Any) -> str:
     return DEFAULT_LANGUAGE
 
 
-def resolve_language(*, user_locale: str | None = None) -> str:
+def resolve_language(*, user_locale: str | None = None, default_language: str | None = None) -> str:
+    default_lang = normalize_language(default_language or DEFAULT_LANGUAGE)
     q = request.args.get("lang")
     if q:
         lang = normalize_language(q)
@@ -53,7 +54,7 @@ def resolve_language(*, user_locale: str | None = None) -> str:
     if user_locale:
         return normalize_language(user_locale)
     best = request.accept_languages.best_match(list(SUPPORTED_LANGUAGES.keys()))
-    return normalize_language(best or DEFAULT_LANGUAGE)
+    return normalize_language(best or default_lang)
 
 
 def translate(key: str, default: str | None = None, *, lang: str | None = None, **kwargs: Any) -> str:

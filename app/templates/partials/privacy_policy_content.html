@@ -1,56 +1,56 @@
-<div style="line-height:1.75;">
-  <h5>1. Titolare del trattamento</h5>
-  <p class="text-muted">{{ g.app_name }} - Contatto: <code>admin@esempio.com</code></p>
+<div class="policy-copy">
+  <h5>1. {{ tr('privacy.owner_title', 'Data controller') }}</h5>
+  <p class="text-muted">{{ g.app_name }} - {{ tr('privacy.contact', 'Contact') }}: <code>admin@esempio.com</code></p>
 
-  <h5>2. Dati raccolti</h5>
-  <p>Raccogliamo solo i dati necessari al funzionamento del servizio:</p>
+  <h5>2. {{ tr('privacy.data_collected_title', 'Data collected') }}</h5>
+  <p>{{ tr('privacy.data_collected_intro', 'We collect only the data required to operate the service:') }}</p>
   <ul>
-    <li><strong>Dati account</strong>: nome, email, password (hash PBKDF2-SHA256).</li>
-    <li><strong>Log tecnici</strong>: IP, URL, azioni e timestamp per sicurezza/debug.</li>
-    <li><strong>Cookie tecnici</strong>: cookie di sessione (httpOnly, SameSite=Lax) necessario al login.</li>
+    <li><strong>{{ tr('privacy.account_data', 'Account data') }}</strong>: {{ tr('privacy.account_data_desc', 'name, email, password (PBKDF2-SHA256 hash).') }}</li>
+    <li><strong>{{ tr('privacy.technical_logs', 'Technical logs') }}</strong>: {{ tr('privacy.technical_logs_desc', 'IP, URL, actions, and timestamps for security and debugging.') }}</li>
+    <li><strong>{{ tr('privacy.essential_cookies', 'Essential cookies') }}</strong>: {{ tr('privacy.essential_cookies_desc', 'session cookie (httpOnly, SameSite=Lax) required for sign-in.') }}</li>
   </ul>
 
-  <h5>3. Cookie utilizzati</h5>
+  <h5>3. {{ tr('privacy.cookies_title', 'Cookies used') }}</h5>
   <div class="table-responsive mb-3">
     <table class="table table-compact">
-      <thead><tr><th>Nome</th><th>Tipo</th><th>Scopo</th><th>Durata</th></tr></thead>
+      <thead><tr><th>{{ tr('privacy.name', 'Name') }}</th><th>{{ tr('privacy.type', 'Type') }}</th><th>{{ tr('privacy.purpose', 'Purpose') }}</th><th>{{ tr('privacy.duration', 'Duration') }}</th></tr></thead>
       <tbody>
         <tr>
           <td><code>session</code></td>
-          <td><span class="badge bg-primary">Tecnico</span></td>
-          <td>Mantiene la sessione autenticata</td>
-          <td>Sessione browser</td>
+          <td><span class="badge bg-primary">{{ tr('privacy.technical', 'Technical') }}</span></td>
+          <td>{{ tr('privacy.cookie_session_purpose', 'Keeps the authenticated session active') }}</td>
+          <td>{{ tr('privacy.browser_session', 'Browser session') }}</td>
         </tr>
         <tr>
           <td><code>remember_token</code></td>
-          <td><span class="badge bg-primary">Tecnico</span></td>
-          <td>Ricorda l'utente (se selezionato)</td>
-          <td>30 giorni</td>
+          <td><span class="badge bg-primary">{{ tr('privacy.technical', 'Technical') }}</span></td>
+          <td>{{ tr('privacy.cookie_remember_purpose', 'Remembers the user when enabled') }}</td>
+          <td>{{ tr('privacy.days_30', '30 days') }}</td>
         </tr>
         <tr>
           <td><code>cookie_accepted</code></td>
           <td><span class="badge bg-secondary">localStorage</span></td>
-          <td>Ricorda l'accettazione del banner cookie</td>
-          <td>Permanente locale</td>
+          <td>{{ tr('privacy.cookie_banner_purpose', 'Stores cookie-banner acknowledgement') }}</td>
+          <td>{{ tr('privacy.local_persistent', 'Local persistent') }}</td>
         </tr>
       </tbody>
     </table>
   </div>
-  <p>Non utilizziamo cookie di profilazione o sistemi di tracking di terze parti.</p>
+  <p>{{ tr('privacy.no_tracking', 'We do not use profiling cookies or third-party tracking systems.') }}</p>
 
-  <h5>4. Base giuridica e finalita'</h5>
-  <p>Trattamento basato su <strong>esecuzione del contratto</strong> (art. 6.1.b GDPR) e <strong>legittimo interesse</strong> alla sicurezza (art. 6.1.f GDPR).</p>
+  <h5>4. {{ tr('privacy.legal_basis_title', 'Legal basis and purpose') }}</h5>
+  <p>{{ tr('privacy.legal_basis_text', 'Processing is based on contract performance (art. 6.1.b GDPR) and legitimate interest for security (art. 6.1.f GDPR).') }}</p>
 
-  <h5>5. Conservazione dati</h5>
-  <p>I log sono conservati fino a <strong>90 giorni</strong>. I dati account per la durata del rapporto e cancellati entro 30 giorni dalla richiesta.</p>
+  <h5>5. {{ tr('privacy.retention_title', 'Data retention') }}</h5>
+  <p>{{ tr('privacy.retention_text', 'Logs are retained for up to 90 days. Account data is kept for the duration of the relationship and deleted within 30 days of request.') }}</p>
 
-  <h5>6. Diritti GDPR</h5>
-  <p>Puoi richiedere accesso, rettifica, cancellazione, limitazione, portabilita' e opposizione.</p>
+  <h5>6. {{ tr('privacy.rights_title', 'GDPR rights') }}</h5>
+  <p>{{ tr('privacy.rights_text', 'You can request access, correction, deletion, restriction, portability, and objection.') }}</p>
 
-  <h5>7. Sicurezza</h5>
-  <p>Password hashate con PBKDF2-SHA256 e trasmissione protetta HTTPS.</p>
+  <h5>7. {{ tr('privacy.security_title', 'Security') }}</h5>
+  <p>{{ tr('privacy.security_text', 'Passwords are hashed with PBKDF2-SHA256 and transmitted over HTTPS.') }}</p>
 
   <div class="alert alert-info mt-4 fs-sm mb-0">
-    <i class="bi bi-envelope me-2"></i>Contatto privacy: <strong>admin@esempio.com</strong>
+    <i class="bi bi-envelope me-2"></i>{{ tr('privacy.contact_label', 'Privacy contact') }}: <strong>admin@esempio.com</strong>
   </div>
 </div>

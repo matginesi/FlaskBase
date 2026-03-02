@@ -38,6 +38,7 @@ from ...services.email_service import runtime_email_settings
 from ...services.html_sanitize import sanitize_html
 from ...services.message_delivery_service import get_message_email_templates
 from ...services.job_service import enqueue_job
+from ...services.i18n import translate
 from ...services.redis_service import redis_runtime_snapshot, redis_ping, redis_flush_namespace
 from ...services.app_logger import instrument_app_views, log_error, log_warning
 from ...services.error_log import log_exception
@@ -790,18 +791,18 @@ def create_user():
     role = "user"
 
     if not name or not email or not password or len(password) < 8:
-        flash("Dati non validi. Password min 8 caratteri.", "danger")
+        flash(translate("admin.users.invalid_input", "Invalid input. Password must be at least 8 characters."), "danger")
         return redirect(url_for("admin.users"))
     pwd_error = _password_policy_error(password)
     if pwd_error:
         flash(pwd_error, "danger")
         return redirect(url_for("admin.users"))
     if not EMAIL_RE.match(email):
-        flash("Email non valida.", "danger")
+        flash(translate("admin.users.invalid_email", "Invalid email address."), "danger")
         return redirect(url_for("admin.users"))
 
     if User.query.filter_by(email=email).first():
-        flash(f"Email già registrata: {email}", "warning")
+        flash(translate("admin.users.email_exists", "Email already registered: {email}", email=email), "warning")
         return redirect(url_for("admin.users"))
 
     u = User(
@@ -817,7 +818,7 @@ def create_user():
     db.session.add(u)
     db.session.commit()
     audit("admin.user_created", f"Created user {email}", context={"email": email, "role": role})
-    flash(f"Utente {email} creato con ruolo user.", "success")
+    flash(translate("admin.users.user_created", "User {email} created with role user.", email=email), "success")
     return redirect(url_for("admin.users"))
 
 
@@ -852,7 +853,7 @@ def delete_user(uid: int):
         db.session.delete(u)
         db.session.commit()
         audit("admin.user_deleted", f"Deleted user {email}", level="WARNING", context={"uid": uid, "email": email})
-        flash(f"Utente {email} rimosso.", "success")
+        flash(translate("admin.users.user_deleted", "User {email} removed.", email=email), "success")
     except Exception as ex:
         db.session.rollback()
         flash(f"Errore rimozione utente: {ex}", "danger")

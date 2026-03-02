@@ -18,7 +18,7 @@ from ...extensions import db, limiter
 from ...models import ApiToken, ApiTokenReveal, EmailVerificationToken, User, UserSession, _derive_fernet_key, now_utc
 from ...services.audit import audit
 from ...services.email_service import EmailServiceError, runtime_email_settings, send_email
-from ...services.i18n import translate
+from ...services.i18n import normalize_language, translate
 from ...services.job_service import enqueue_email_job
 from ...services.pages_service import get_runtime_feature_flags
 from ...utils import get_client_ip, get_runtime_config_dict, get_runtime_config_value
@@ -1103,7 +1103,7 @@ def logout():
     audit("auth.logout", "Logout")
     logout_user()
     session.clear()
-    flash("Disconnesso con successo.", "info")
+    flash(translate("auth.logged_out_successfully", "Signed out successfully."), "info")
     return redirect(url_for("auth.login"))
 
 
@@ -1113,7 +1113,7 @@ def settings():
     form = UserSettingsForm(
         name=current_user.name,
         username=current_user.username or "",
-        locale=current_user.locale or "",
+        locale=current_user.locale or ("it-IT" if session.get("ui_lang") == "it" else "en"),
         timezone=current_user.timezone or "",
         notes=current_user.notes or "",
         notification_email_enabled=bool(current_user.notification_email_enabled),
@@ -1142,11 +1142,12 @@ def settings():
         if new_username:
             existing = User.query.filter(User.username == new_username, User.id != current_user.id).first()
             if existing:
-                flash("Username già in uso da un altro account.", "danger")
+                flash(translate("auth.username_already_taken", "Username already used by another account."), "danger")
                 return redirect(url_for("auth.settings"))
         current_user.name = form.name.data.strip()
         current_user.username = new_username or None
         current_user.locale = (form.locale.data or "").strip()[:16] or None
+        session["ui_lang"] = normalize_language(current_user.locale or session.get("ui_lang"))
         current_user.timezone = (form.timezone.data or "").strip()[:64] or None
         current_user.notes = (form.notes.data or "").strip()[:4000] or None
         current_user.notification_email_enabled = bool(form.notification_email_enabled.data)
@@ -1154,10 +1155,10 @@ def settings():
         db.session.commit()
         audit(
             "user.settings_updated",
-            "Settings aggiornati",
+            translate("auth.settings_updated_audit", "Account settings updated"),
             context={"name": current_user.name, "uid": current_user.id, "username": current_user.username or ""},
         )
-        flash("Modifiche salvate.", "success")
+        flash(translate("common.changes_saved", "Changes saved."), "success")
         return redirect(url_for("auth.settings"))
 
     return render_template(

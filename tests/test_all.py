@@ -473,6 +473,96 @@ class StressRunner:
             page.close()
 
 
+def test_admin_users_page_renders_all_users(app, admin_client) -> None:
+    from app.extensions import db
+    from app.models import User
+
+    extras = []
+    for idx in range(3):
+        user = User(
+            email=f"extra{idx}@test.com",
+            name=f"Extra User {idx}",
+            role="user",
+            is_active=True,
+            email_verified=True,
+            account_status="active",
+            signup_source="test-suite",
+        )
+        user.set_password("password123")
+        extras.append(user)
+        db.session.add(user)
+    db.session.commit()
+
+    response = admin_client.get("/admin/users")
+    html = response.get_data(as_text=True)
+
+    assert response.status_code == 200
+    assert html.count('id="userList"') == 1
+    for user in extras:
+        assert user.email in html
+
+
+def test_mark_broadcast_read_allows_authenticated_post_without_csrf(database_url: str) -> None:
+    try:
+        from app import create_app
+        from app.extensions import db
+        from app.models import BroadcastMessage
+        from app.services.seed_service import seed_runtime_settings, seed_users
+    except ModuleNotFoundError as exc:
+        pytest.skip(f"Missing test dependency: {exc.name}")
+
+    app = create_app(
+        {
+            "TESTING": True,
+            "WTF_CSRF_ENABLED": True,
+            "SQLALCHEMY_DATABASE_URI": database_url,
+        }
+    )
+
+    try:
+        with app.app_context():
+            db.drop_all()
+            db.create_all()
+            seed_runtime_settings()
+            seed_users()
+            row = BroadcastMessage(
+                title="Broadcast test",
+                body="Visible message",
+                body_format="text",
+                level="info",
+                is_active=True,
+            )
+            db.session.add(row)
+            db.session.commit()
+            message_id = int(row.id)
+
+        client = app.test_client()
+        login_page = client.get("/auth/login")
+        csrf_match = re.search(r'name="csrf_token"\s+type="hidden"\s+value="([^"]+)"', login_page.get_data(as_text=True))
+        assert csrf_match is not None
+        login_response = client.post(
+            "/auth/login",
+            data={"csrf_token": csrf_match.group(1), "email": "admin@test.com", "password": "admin"},
+            follow_redirects=True,
+        )
+        assert login_response.status_code == 200
+
+        response = client.post(f"/messages/broadcast/{message_id}/read?filter=unread&kind=all", follow_redirects=False)
+        assert response.status_code == 302
+        assert response.headers["Location"].endswith("/messages?filter=unread&kind=all")
+
+        with app.app_context():
+            from app.models import BroadcastMessageRead
+
+            assert BroadcastMessageRead.query.filter_by(message_id=message_id).count() == 1
+    finally:
+        with contextlib.suppress(Exception):
+            with app.app_context():
+                db.session.remove()
+                db.drop_all()
+
+
+
 def run_full_stress_test() -> None:
     runner = StressRunner()
     code = runner.run()

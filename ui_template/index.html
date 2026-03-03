@@ -133,457 +133,311 @@
     </aside>
 
     <main class="content-area">
+      <style>
+        .wu-type-sample--display { font-size: 26px; font-weight: 800; line-height: 1.28; }
+        .wu-type-sample--title { font-size: 20px; font-weight: 700; line-height: 1.28; }
+        .wu-type-sample--section { font-size: 17px; font-weight: 700; line-height: 1.28; }
+        .wu-type-sample--card-title { font-size: 15px; font-weight: 600; line-height: 1.28; }
+        .wu-type-sample--body { font-size: 14px; font-weight: 400; line-height: 1.28; }
+        .wu-type-sample--meta { font-size: 12px; font-weight: 600; letter-spacing: .05em; line-height: 1.28; }
+        .wu-surface-muted { background: #f8fafc; border: 1px solid var(--card-border); }
+        .wu-surface-dark { background: linear-gradient(135deg, #0f1923 0%, #1b2b3c 100%); border: 1px solid #223446; color: #fff; }
+        .wu-surface-shell { background: linear-gradient(135deg, #0f1923 0%, #1e2f40 100%); border: 1px solid #223446; color: #fff; }
+        .wu-surface-tab { background: #f8fafc; border: 1px solid var(--card-border); }
+        .wu-border-shell { border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; }
+        .wu-table-head { background: #f8fafc; }
+        .wu-icon-16 { width: 16px; }
+        .wu-icon-xs { font-size: .7rem; }
+        .wu-carousel-shell { border: 1px solid var(--card-border); }
+        .wu-carousel-media { height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+        .wu-carousel-media--1 { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+        .wu-carousel-media--2 { background: linear-gradient(135deg, #1d4ed8, #60a5fa); }
+        .wu-carousel-media--3 { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+        .wu-carousel-num { font-size: 2rem; font-weight: 800; }
+        .wu-carousel-copy { font-size: .9rem; opacity: .8; }
+        .wu-audio { border-radius: .4rem; height: 36px; }
+        .wu-progress-track-sm { height: 10px; border-radius: 999px; }
+        .wu-progress-track-md { height: 12px; border-radius: 12px; }
+        .wu-progress-track-lg { height: 16px; border-radius: 999px; background: rgba(255,255,255,.12); }
+        .wu-dashboard-kpi { font-size: 1.35rem; }
+        .wu-dot { width: 10px; height: 10px; }
+        .wu-accent-dot { width: 28px; height: 28px; border-radius: 50%; border: 0; }
+        .wu-shell-muted-text { color: #8fa3b8; }
+        .wu-shell-panel { background: rgba(255,255,255,.06); min-height: 110px; }
+        .wu-shell-panel-light { background: #fff; color: #1e293b; min-height: 110px; }
+        .wu-shell-active { color: #fff; }
+        .wu-shell-dim { color: #8fa3b8; }
+        .wu-sidebar-demo { background: #0f1923; border-radius: .6rem; }
+        .wu-grid-topbar { background: #dbeafe; color: #1d4ed8; }
+        .wu-grid-main, .wu-grid-stat, .wu-grid-chart, .wu-grid-list { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+        .wu-grid-side { background: #f8fafc; border: 1px solid var(--card-border); color: #475569; }
+      </style>
+
       <div class="page-header">
         <div class="page-breadcrumb"><i class="bi bi-grid-3x3-gap me-1"></i> Add-on</div>
         <h1>Widget &amp; UI</h1>
-        <p>Static catalog of the real <code>widgets_ui</code> add-on. The shell matches the current admin workspace, while the content stays self-contained inside <code>ui_template/</code> with relative assets only.</p>
+        <p>Showcase statico allineato alla pagina reale dell'add-on. Stessa struttura a tab, stessi pattern di card e stessa gerarchia visiva della UI corrente.</p>
       </div>
 
-      <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+      <div class="d-flex align-items-center gap-2 mb-3">
         <span class="badge bg-primary-subtle text-primary-emphasis">widgets_ui</span>
         <span class="badge bg-warning-subtle text-warning-emphasis">admin</span>
       </div>
 
-      <div class="d-flex flex-wrap gap-2 mb-3">
-        <span class="showcase-chip"><i class="bi bi-check2-circle"></i>Static-only</span>
-        <span class="showcase-chip"><i class="bi bi-folder2-open"></i>Relative links</span>
-        <span class="showcase-chip"><i class="bi bi-phone"></i>Desktop + mobile shell</span>
-        <span class="showcase-chip"><i class="bi bi-palette"></i>Shared CSS tokens</span>
+      <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+        <a class="btn btn-sm btn-outline-primary" href="settings.html"><i class="bi bi-sliders me-1"></i>WebApp Config</a>
+        <a class="btn btn-sm btn-outline-secondary" href="communications.html"><i class="bi bi-megaphone me-1"></i>Communications</a>
+        <a class="btn btn-sm btn-outline-secondary" href="database.html"><i class="bi bi-hdd me-1"></i>Database</a>
       </div>
 
-      <div class="row g-3 mb-3">
-        <div class="col-12 col-xl-8">
-          <div class="card card-soft card-accent h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <span><i class="bi bi-stars me-2 text-primary"></i>Dashboard repurposed as component gallery</span>
-              <span class="badge bg-primary-subtle text-primary-emphasis">widgets_ui inspired</span>
-            </div>
-            <div class="card-body">
-              <div class="row g-3 align-items-center">
-                <div class="col-12 col-lg-7">
-                  <div class="card-title">Same shell, no backend assumptions</div>
-                  <div class="card-subtitle">The page keeps the real app structure but the content is now a pure static showcase.</div>
-                  <p class="mb-0 text-muted fs-sm">
-                    Buttons, modals, tabs, compact tables, KPI cards, chart surfaces, toasts, and shell patterns are all grouped here so GitHub Pages becomes the easiest place to preview the UI system.
-                  </p>
-                </div>
-                <div class="col-12 col-lg-5">
-                  <div class="d-grid gap-2">
-                    <button class="btn btn-primary" data-toast-msg="Widget & UI showcase ready on GitHub Pages." data-toast-type="success">
-                      <i class="bi bi-check-circle me-1"></i>Show toast
-                    </button>
-                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="modal" data-bs-target="#modalInfo">
-                      <i class="bi bi-window-stack me-1"></i>Open info modal
-                    </button>
-                    <a class="btn btn-outline-dark" href="settings.html">
-                      <i class="bi bi-arrow-right-circle me-1"></i>Open static admin page
-                    </a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div class="card-footer d-flex justify-content-between align-items-center">
-              <span class="text-muted">No runtime routes, no absolute `/...` links, and no Flask context required.</span>
-              <span class="badge bg-success">pages-safe</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="col-12 col-xl-4">
-          <div class="adaptive-card-grid adaptive-card-grid--compact h-100">
-            <div class="stat-card settings-kpi-card settings-kpi-card-modern">
-              <div class="settings-kpi-strip"></div>
-              <div class="settings-kpi-top">
-                <div class="settings-kpi-topline">
-                  <div class="settings-kpi-eyebrow">Sections</div>
-                  <div class="settings-kpi-helper">tabbed showcase</div>
-                </div>
-                <span class="settings-kpi-icon-wrap"><i class="bi bi-layout-text-window settings-kpi-icon"></i></span>
-              </div>
-              <div class="settings-kpi-body">
-                <div class="stat-val">6</div>
-                <div class="stat-lbl">UI groups</div>
-              </div>
-              <div class="settings-kpi-meta">Feedback, forms, data, charts, layout, and widget patterns.</div>
-            </div>
-            <div class="stat-card success settings-kpi-card settings-kpi-card-modern">
-              <div class="settings-kpi-strip"></div>
-              <div class="settings-kpi-top">
-                <div class="settings-kpi-topline">
-                  <div class="settings-kpi-eyebrow">Interactions</div>
-                  <div class="settings-kpi-helper">bootstrap + shared js</div>
-                </div>
-                <span class="settings-kpi-icon-wrap"><i class="bi bi-hand-index-thumb settings-kpi-icon"></i></span>
-              </div>
-              <div class="settings-kpi-body">
-                <div class="stat-val">8+</div>
-                <div class="stat-lbl">live demos</div>
-              </div>
-              <div class="settings-kpi-meta">Toasts, shared confirm flow, modals, popovers, and shell overlays.</div>
-            </div>
-            <div class="stat-card warning settings-kpi-card settings-kpi-card-modern">
-              <div class="settings-kpi-strip"></div>
-              <div class="settings-kpi-top">
-                <div class="settings-kpi-topline">
-                  <div class="settings-kpi-eyebrow">Pages</div>
-                  <div class="settings-kpi-helper">static navigation</div>
-                </div>
-                <span class="settings-kpi-icon-wrap"><i class="bi bi-github settings-kpi-icon"></i></span>
-              </div>
-              <div class="settings-kpi-body">
-                <div class="stat-val settings-kpi-code">GH</div>
-                <div class="stat-lbl">deploy target</div>
-              </div>
-              <div class="settings-kpi-meta">Built to survive repository subpaths and static hosting constraints.</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <ul class="nav nav-tabs-segment" id="widgetShowcaseTabs" role="tablist">
-        <li class="nav-item" role="presentation">
-          <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tab-feedback" type="button" role="tab">
-            <i class="bi bi-bell me-1"></i>Feedback
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-forms" type="button" role="tab">
-            <i class="bi bi-ui-checks-grid me-1"></i>Forms
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-data" type="button" role="tab">
-            <i class="bi bi-table me-1"></i>Data
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-charts" type="button" role="tab">
-            <i class="bi bi-bar-chart-line me-1"></i>Charts
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-layout" type="button" role="tab">
-            <i class="bi bi-grid me-1"></i>Layout
-          </button>
-        </li>
-        <li class="nav-item" role="presentation">
-          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-widgets" type="button" role="tab">
-            <i class="bi bi-puzzle me-1"></i>Widgets
-          </button>
-        </li>
+      <ul class="nav nav-tabs-segment" id="widgetTabs" role="tablist">
+        <li class="nav-item" role="presentation"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#tabalerts" type="button"><i class="bi bi-bell me-1"></i>Alert &amp; Toast</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabmodals" type="button"><i class="bi bi-window me-1"></i>Modal</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabforms" type="button"><i class="bi bi-ui-checks me-1"></i>Form &amp; Input</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabtypography" type="button"><i class="bi bi-type me-1"></i>Tipografia</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabtables" type="button"><i class="bi bi-table me-1"></i>Tabelle &amp; Liste</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabmedia" type="button"><i class="bi bi-image me-1"></i>Media</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabprogress" type="button"><i class="bi bi-bar-chart-line me-1"></i>Progress</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabinsights" type="button"><i class="bi bi-diagram-3 me-1"></i>Chart &amp; Graph</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tabtabs" type="button"><i class="bi bi-layout-text-window me-1"></i>Tab &amp; Nav</button></li>
+        <li class="nav-item" role="presentation"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#tablayout" type="button"><i class="bi bi-grid me-1"></i>Layout &amp; Card</button></li>
       </ul>
 
-      <div class="tab-content tab-content-surface mb-3" id="widgetShowcaseContent">
-        <div class="tab-pane fade show active" id="tab-feedback" role="tabpanel">
+      <div class="tab-content tab-content-surface" id="widgetTabsContent">
+        <div class="tab-pane fade show active" id="tabalerts" role="tabpanel">
           <div class="row g-4">
             <div class="col-12 col-lg-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Toasts, badges, and status tone</h6>
-              <div class="row g-2 mb-3">
-                <div class="col-6">
-                  <button class="btn btn-success w-100" data-toast-msg="Success feedback from the shared toast stack." data-toast-type="success">
-                    <i class="bi bi-check-circle-fill me-1"></i>Success
-                  </button>
-                </div>
-                <div class="col-6">
-                  <button class="btn btn-danger w-100" data-toast-msg="Danger feedback from the shared toast stack." data-toast-type="danger">
-                    <i class="bi bi-exclamation-triangle-fill me-1"></i>Danger
-                  </button>
-                </div>
-                <div class="col-6">
-                  <button class="btn btn-warning w-100" data-toast-msg="Warning feedback from the shared toast stack." data-toast-type="warning">
-                    <i class="bi bi-exclamation-circle-fill me-1"></i>Warning
-                  </button>
-                </div>
-                <div class="col-6">
-                  <button class="btn btn-info text-white w-100" data-toast-msg="Info feedback from the shared toast stack." data-toast-type="info">
-                    <i class="bi bi-info-circle-fill me-1"></i>Info
-                  </button>
-                </div>
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Alert statici</h6>
+              <div class="d-grid gap-2">
+                <button class="btn btn-outline-success" data-toast-msg="Esempio Success." data-toast-type="success"><i class="bi bi-check-circle-fill me-2"></i>Success</button>
+                <button class="btn btn-outline-danger" data-toast-msg="Esempio Danger." data-toast-type="danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Danger</button>
+                <button class="btn btn-outline-warning" data-toast-msg="Esempio Warning." data-toast-type="warning"><i class="bi bi-exclamation-circle-fill me-2"></i>Warning</button>
+                <button class="btn btn-outline-primary" data-toast-msg="Esempio Info." data-toast-type="info"><i class="bi bi-info-circle-fill me-2"></i>Info</button>
               </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Badge &amp; pill</h6>
               <div class="d-flex flex-wrap gap-2 mb-3">
                 <span class="badge bg-primary">Primary</span>
                 <span class="badge bg-success">Success</span>
-                <span class="badge bg-warning text-dark">Warning</span>
                 <span class="badge bg-danger">Danger</span>
+                <span class="badge bg-warning text-dark">Warning</span>
+                <span class="badge bg-secondary">Secondary</span>
                 <span class="badge rounded-pill bg-primary">Pill</span>
                 <span class="log-badge INFO">INFO</span>
                 <span class="log-badge WARNING">WARN</span>
                 <span class="log-badge ERROR">ERROR</span>
               </div>
-              <div class="settings-addon-card">
-                <div class="settings-addon-card-head">
-                  <div>
-                    <div class="settings-addon-card-topline">
-                      <strong>Shared feedback stack</strong>
-                      <span class="settings-addon-status is-enabled">active</span>
-                    </div>
-                    <div class="text-muted fs-sm mt-1">The same static page keeps the reusable toast bridge and compact visual states.</div>
-                  </div>
-                  <div class="settings-addon-card-icon"><i class="bi bi-broadcast-pin"></i></div>
+              <div class="card">
+                <div class="card-header"><i class="bi bi-broadcast-pin me-2 text-primary"></i>Feedback surface</div>
+                <div class="card-body">
+                  <div class="text-muted fs-sm">Nella pagina reale questa sezione introduce i feedback rapidi senza riempire la schermata di card scollegate.</div>
                 </div>
               </div>
             </div>
-            <div class="col-12 col-lg-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Modal and confirm patterns</h6>
-              <div class="d-grid gap-2 mb-3">
-                <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#modalInfo">
-                  <i class="bi bi-window me-1"></i>Open info modal
-                </button>
-                <button class="btn btn-outline-danger" type="button" data-bs-toggle="modal" data-bs-target="#modalConfirm">
-                  <i class="bi bi-trash me-1"></i>Open destructive modal
-                </button>
-                <button class="btn btn-outline-secondary" type="button" data-demo-confirm>
-                  <i class="bi bi-check2-square me-1"></i>Open shared confirm modal
-                </button>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabmodals" role="tabpanel">
+          <div class="row g-3">
+            <div class="col-12 col-lg-5">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Tipi di modal</h6>
+              <div class="d-grid gap-2">
+                <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalInfo"><i class="bi bi-info-circle me-2"></i>Modal informativo</button>
+                <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#modalConfirm"><i class="bi bi-trash me-2"></i>Modal conferma</button>
+                <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalForm"><i class="bi bi-pencil me-2"></i>Modal con form</button>
+                <button class="btn btn-outline-secondary" type="button" data-demo-confirm><i class="bi bi-check2-square me-2"></i>Shared confirm modal</button>
               </div>
+            </div>
+            <div class="col-12 col-lg-7">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Overlay condivisi</h6>
               <div class="card h-100">
                 <div class="card-header"><i class="bi bi-lightning-charge me-2 text-primary"></i>Utility overlays</div>
                 <div class="card-body">
-                  <p class="text-muted fs-sm mb-3">The static template also exposes the shared nav-loading, runtime-refresh, and log-detail overlays used by the real shell.</p>
-                  <div class="d-flex flex-wrap gap-2">
-                    <button class="btn btn-sm btn-outline-primary" type="button" data-demo-nav-loading>
-                      <i class="bi bi-hourglass-split me-1"></i>Loading
-                    </button>
-                    <button class="btn btn-sm btn-outline-dark" type="button" data-demo-runtime-refresh>
-                      <i class="bi bi-arrow-clockwise me-1"></i>Refresh
-                    </button>
-                    <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-log-detail>
-                      <i class="bi bi-journal-richtext me-1"></i>Log detail
-                    </button>
-                    <button class="btn btn-sm btn-outline-success" type="button" data-demo-flash>
-                      <i class="bi bi-bell-fill me-1"></i>Flash toasts
-                    </button>
+                  <div class="d-flex flex-wrap gap-2 mb-3">
+                    <button class="btn btn-sm btn-outline-primary" type="button" data-demo-nav-loading>Loading</button>
+                    <button class="btn btn-sm btn-outline-dark" type="button" data-demo-runtime-refresh>Refresh</button>
+                    <button class="btn btn-sm btn-outline-secondary" type="button" data-demo-log-detail>Log detail</button>
+                    <button class="btn btn-sm btn-outline-success" type="button" data-demo-flash>Flash toasts</button>
                   </div>
+                  <div class="text-muted fs-sm">Stesso approccio del widget vero: i demo stanno dentro pannelli chiari, non sparsi come tile introduttive separate.</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="tab-pane fade" id="tab-forms" role="tabpanel">
+        <div class="tab-pane fade" id="tabforms" role="tabpanel">
           <div class="row g-4">
-            <div class="col-12 col-xl-7">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Full form composition</h6>
+            <div class="col-12 col-lg-7">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Form completo</h6>
               <div class="row g-3">
-                <div class="col-12 col-md-6">
-                  <label class="form-label">First name</label>
-                  <input type="text" class="form-control" placeholder="Mario">
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label">Last name</label>
-                  <input type="text" class="form-control" placeholder="Rossi">
-                </div>
+                <div class="col-6"><label class="form-label">Nome</label><input type="text" class="form-control" placeholder="Mario"></div>
+                <div class="col-6"><label class="form-label">Cognome</label><input type="text" class="form-control" placeholder="Rossi"></div>
                 <div class="col-12">
                   <label class="form-label">Email</label>
-                  <div class="input-group">
-                    <span class="input-group-text"><i class="bi bi-envelope"></i></span>
-                    <input type="email" class="form-control" placeholder="mario@example.com">
-                  </div>
+                  <div class="input-group"><span class="input-group-text"><i class="bi bi-envelope"></i></span><input type="email" class="form-control" placeholder="mario@example.com"></div>
                 </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label">Role</label>
-                  <select class="form-select">
-                    <option>User</option>
-                    <option>Admin</option>
-                    <option>Viewer</option>
-                  </select>
+                <div class="col-6"><label class="form-label">Ruolo</label><select class="form-select"><option>User</option><option>Admin</option><option>Viewer</option></select></div>
+                <div class="col-6"><label class="form-label">Data</label><input type="date" class="form-control"></div>
+                <div class="col-12"><label class="form-label">Note</label><textarea class="form-control" rows="3" placeholder="Testo libero..."></textarea></div>
+                <div class="col-6">
+                  <label class="form-label">Range: <span id="rval">50</span></label>
+                  <input type="range" class="form-range" min="0" max="100" value="50" oninput="document.getElementById('rval').textContent = this.value">
                 </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label">Date</label>
-                  <input type="date" class="form-control">
-                </div>
-                <div class="col-12">
-                  <label class="form-label">Notes</label>
-                  <textarea class="form-control" rows="3" placeholder="Describe the UI use case..."></textarea>
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label">Range demo</label>
-                  <input type="range" class="form-range" min="0" max="100" value="58" oninput="document.getElementById('showcaseRangeValue').textContent = this.value">
-                  <div class="text-muted fs-xs">Current value: <strong id="showcaseRangeValue">58</strong></div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <label class="form-label d-block">Selection controls</label>
+                <div class="col-6">
+                  <label class="form-label d-block">Checkbox &amp; switch</label>
                   <div class="d-flex gap-3 mt-2">
-                    <div class="form-check">
-                      <input class="form-check-input" type="checkbox" id="showcaseCheck" checked>
-                      <label class="form-check-label" for="showcaseCheck">Checkbox</label>
-                    </div>
-                    <div class="form-check form-switch">
-                      <input class="form-check-input" type="checkbox" id="showcaseSwitch" checked>
-                      <label class="form-check-label" for="showcaseSwitch">Switch</label>
-                    </div>
+                    <div class="form-check"><input class="form-check-input" type="checkbox" id="chk1" checked><label class="form-check-label" for="chk1">Opzione A</label></div>
+                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw1" checked><label class="form-check-label" for="sw1">Switch</label></div>
                   </div>
                 </div>
-                <div class="col-12 d-flex flex-wrap gap-2">
-                  <button type="button" class="btn btn-primary" onclick="showToast('Static form submitted.','success')">
-                    <i class="bi bi-send me-1"></i>Submit
-                  </button>
-                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalForm">
-                    <i class="bi bi-pencil-square me-1"></i>Open form modal
-                  </button>
+                <div class="col-12 d-flex gap-2">
+                  <button type="button" class="btn btn-primary" data-toast-msg="Form inviato." data-toast-type="success"><i class="bi bi-send me-1"></i>Invia</button>
+                  <button type="button" class="btn btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#modalForm">Apri modal</button>
                 </div>
               </div>
             </div>
-            <div class="col-12 col-xl-5">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">States and helper patterns</h6>
+            <div class="col-12 col-lg-5">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Input states</h6>
               <div class="d-flex flex-column gap-3">
-                <div>
-                  <input type="text" class="form-control is-valid" value="Valid value" readonly>
-                  <div class="valid-feedback d-block">Ready to save.</div>
+                <div><input type="text" class="form-control is-valid" value="Valore valido" readonly><div class="valid-feedback d-block">Perfetto.</div></div>
+                <div><input type="text" class="form-control is-invalid" value="Valore errato"><div class="invalid-feedback d-block">Campo non valido.</div></div>
+                <div class="input-group"><span class="input-group-text"><i class="bi bi-search"></i></span><input type="text" class="form-control" placeholder="Cerca..."><button class="btn btn-outline-secondary" type="button">Go</button></div>
+                <div class="input-group"><span class="input-group-text">EUR</span><input type="number" class="form-control" placeholder="0.00"><span class="input-group-text">.00</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabtypography" role="tabpanel">
+          <div class="row g-3">
+            <div class="col-12 col-lg-5">
+              <div class="card h-100">
+                <div class="card-header"><i class="bi bi-type me-2 text-primary"></i>Type Scale</div>
+                <div class="card-body d-grid gap-2">
+                  <div class="wu-type-sample--display">Dashboard Metrics</div>
+                  <div class="wu-type-sample--title">Stato Infrastruttura</div>
+                  <div class="wu-type-sample--section">Queue operative</div>
+                  <div class="wu-type-sample--card-title">Job #1291 in esecuzione</div>
+                  <div class="wu-type-sample--body text-muted">Contenuto principale, leggibile e compatto per pannelli operativi.</div>
+                  <div class="wu-type-sample--meta text-muted text-uppercase">ULTIMO UPDATE · 12:42 UTC</div>
                 </div>
-                <div>
-                  <input type="text" class="form-control is-invalid" value="Invalid value">
-                  <div class="invalid-feedback d-block">This field needs attention.</div>
-                </div>
-                <div class="input-group">
-                  <span class="input-group-text"><i class="bi bi-search"></i></span>
-                  <input type="text" class="form-control" placeholder="Search token">
-                  <button class="btn btn-outline-secondary" type="button">Go</button>
-                </div>
-                <div class="input-group">
-                  <span class="input-group-text">EUR</span>
-                  <input type="number" class="form-control" placeholder="0.00">
-                  <span class="input-group-text">.00</span>
-                </div>
-                <form action="#showcase-confirm" method="post" data-confirm-title="Publish token set" data-confirm-message="Publish this static UI token pack?" data-confirm-label="Publish" data-confirm-class="btn-primary">
-                  <button class="btn btn-outline-primary w-100" type="submit">
-                    <i class="bi bi-box-arrow-up-right me-1"></i>Trigger shared confirm flow
-                  </button>
-                </form>
-                <div class="settings-addon-card">
-                  <div class="settings-addon-card-head">
-                    <div>
-                      <div class="settings-addon-card-topline">
-                        <strong>Bootstrap 5 baseline</strong>
-                        <span class="settings-addon-status is-enabled">kept</span>
-                      </div>
-                      <div class="text-muted fs-sm mt-1">The add-on examples remain close to native Bootstrap semantics, so the static template stays easy to extend.</div>
-                    </div>
-                    <div class="settings-addon-card-icon"><i class="bi bi-ui-checks"></i></div>
-                  </div>
+              </div>
+            </div>
+            <div class="col-12 col-lg-7">
+              <div class="card h-100">
+                <div class="card-header"><i class="bi bi-journal-text me-2 text-primary"></i>Editorial Preview</div>
+                <div class="card-body">
+                  <div class="text-muted text-uppercase fs-xs fw-600 mb-1">System bulletin</div>
+                  <h4 class="mb-1">Rilascio 2.4: hardening e telemetria</h4>
+                  <div class="d-flex flex-wrap gap-3 mb-3"><span class="text-muted fs-xs">Pubblicato 22 Feb 2026</span><span class="text-muted fs-xs">Tempo lettura 3 min</span></div>
+                  <p class="mb-2 fs-sm">La gerarchia tipografica deve rendere ovvio cosa leggere prima senza creare rumore visivo.</p>
+                  <div class="p-2 rounded fs-sm wu-surface-muted">Usa <strong>grassetto</strong> per dati chiave e <code>inline code</code> per riferimenti tecnici.</div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="tab-pane fade" id="tab-data" role="tabpanel">
+        <div class="tab-pane fade" id="tabtables" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-12 col-lg-8">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Tabella dati compatta</h6>
+              <div class="table-responsive">
+                <table class="table table-compact table-hover mb-0 wu-border-shell">
+                  <thead class="wu-table-head">
+                    <tr><th>ID</th><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th>Data</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="text-muted">#101</td><td class="fw-500">Utente 1</td><td class="text-muted">utente1@demo.it</td><td><span class="badge bg-warning text-dark">admin</span></td><td><span class="badge bg-success">Attivo</span></td><td class="text-muted fs-xs">01/01/2025</td></tr>
+                    <tr><td class="text-muted">#102</td><td class="fw-500">Utente 2</td><td class="text-muted">utente2@demo.it</td><td><span class="badge bg-secondary">user</span></td><td><span class="badge bg-success">Attivo</span></td><td class="text-muted fs-xs">02/01/2025</td></tr>
+                    <tr><td class="text-muted">#103</td><td class="fw-500">Utente 3</td><td class="text-muted">utente3@demo.it</td><td><span class="badge bg-secondary">user</span></td><td><span class="badge bg-danger">Disab.</span></td><td class="text-muted fs-xs">03/01/2025</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="col-12 col-lg-4">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Lista compatta</h6>
+              <div class="list-group list-group-flush wu-border-shell">
+                <div class="list-group-item d-flex align-items-center gap-2 py-2 px-3"><i class="bi bi-house text-primary wu-icon-16"></i><span class="fs-sm">Dashboard</span><i class="bi bi-chevron-right ms-auto text-muted wu-icon-xs"></i></div>
+                <div class="list-group-item d-flex align-items-center gap-2 py-2 px-3"><i class="bi bi-sliders text-primary wu-icon-16"></i><span class="fs-sm">Impostazioni</span><i class="bi bi-chevron-right ms-auto text-muted wu-icon-xs"></i></div>
+                <div class="list-group-item d-flex align-items-center gap-2 py-2 px-3"><i class="bi bi-people text-primary wu-icon-16"></i><span class="fs-sm">Utenti</span><i class="bi bi-chevron-right ms-auto text-muted wu-icon-xs"></i></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabmedia" role="tabpanel">
+          <div class="row g-4">
+            <div class="col-12 col-lg-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Carousel</h6>
+              <div id="carouselDemo" class="carousel slide rounded overflow-hidden wu-carousel-shell" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                  <div class="carousel-item active"><div class="wu-carousel-media wu-carousel-media--1"><div class="wu-carousel-num">1</div><div class="wu-carousel-copy">Slide Alpha</div></div></div>
+                  <div class="carousel-item"><div class="wu-carousel-media wu-carousel-media--2"><div class="wu-carousel-num">2</div><div class="wu-carousel-copy">Slide Beta</div></div></div>
+                  <div class="carousel-item"><div class="wu-carousel-media wu-carousel-media--3"><div class="wu-carousel-num">3</div><div class="wu-carousel-copy">Slide Gamma</div></div></div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselDemo" data-bs-slide="prev"><span class="carousel-control-prev-icon"></span></button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselDemo" data-bs-slide="next"><span class="carousel-control-next-icon"></span></button>
+              </div>
+            </div>
+            <div class="col-12 col-lg-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Spinners &amp; audio</h6>
+              <div class="d-flex gap-3 align-items-center flex-wrap mb-3">
+                <div class="spinner-border spinner-border-sm text-primary"></div>
+                <div class="spinner-border spinner-border-sm text-success"></div>
+                <div class="spinner-border spinner-border-sm text-danger"></div>
+                <div class="spinner-grow spinner-grow-sm text-warning"></div>
+              </div>
+              <audio controls class="w-100 wu-audio"><source src="" type="audio/mpeg"></audio>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="tabprogress" role="tabpanel">
           <div class="row g-4">
             <div class="col-12 col-xl-7">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Compact table</h6>
               <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-table me-2 text-primary"></i>Module inventory</span>
-                  <span class="badge bg-light text-dark border">table-compact</span>
-                </div>
-                <div class="card-body p-0">
-                  <div class="table-responsive">
-                    <table class="table table-compact table-hover mb-0">
-                      <thead style="background:#f8fafc;">
-                        <tr>
-                          <th>Module</th>
-                          <th>Role</th>
-                          <th>Status</th>
-                          <th>Notes</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td class="fw-500">Widget &amp; UI</td>
-                          <td><span class="badge bg-primary">addon</span></td>
-                          <td><span class="badge bg-success">ready</span></td>
-                          <td class="text-muted">Source inspiration for this dashboard.</td>
-                        </tr>
-                        <tr>
-                          <td class="fw-500">Settings</td>
-                          <td><span class="badge bg-secondary">admin</span></td>
-                          <td><span class="badge bg-success">static</span></td>
-                          <td class="text-muted">Uses the same shell and KPI card language.</td>
-                        </tr>
-                        <tr>
-                          <td class="fw-500">Communications</td>
-                          <td><span class="badge bg-secondary">admin</span></td>
-                          <td><span class="badge bg-info text-dark">demo</span></td>
-                          <td class="text-muted">Segment tabs and composition surfaces.</td>
-                        </tr>
-                        <tr>
-                          <td class="fw-500">Database</td>
-                          <td><span class="badge bg-secondary">ops</span></td>
-                          <td><span class="badge bg-warning text-dark">review</span></td>
-                          <td class="text-muted">Charts, KPI grids, and data-heavy layouts.</td>
-                        </tr>
-                      </tbody>
-                    </table>
+                <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Operational progress surfaces</span><span class="badge bg-primary-subtle text-primary-emphasis">recommended</span></div>
+                <div class="card-body d-grid gap-3">
+                  <div class="rounded p-3 wu-surface-muted">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                      <div><div class="fw-700 fs-sm">Addon package validation</div><div class="text-muted fs-xs">Inspecting manifest and config schema.</div></div>
+                      <span class="badge bg-primary-subtle text-primary-emphasis">24%</span>
+                    </div>
+                    <div class="progress wu-progress-track-sm"><div class="progress-bar bg-primary" style="width:24%"></div></div>
+                  </div>
+                  <div class="rounded p-3 wu-surface-muted">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                      <div><div class="fw-700 fs-sm">File upload to runtime</div><div class="text-muted fs-xs">Encrypted transport with buffered upload.</div></div>
+                      <span class="badge bg-info-subtle text-info-emphasis">68%</span>
+                    </div>
+                    <div class="progress wu-progress-track-sm"><div class="progress-bar bg-info" style="width:68%"></div></div>
+                  </div>
+                  <div class="rounded p-3 wu-surface-dark">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                      <div><div class="text-uppercase fs-xs fw-600 wu-shell-muted-text">Deployment pipeline</div><div class="fw-700">Multi-stage status bar</div></div>
+                      <span class="badge bg-light text-dark">4 stages</span>
+                    </div>
+                    <div class="progress mb-3 wu-progress-track-lg">
+                      <div class="progress-bar bg-success" style="width:34%">Build</div>
+                      <div class="progress-bar bg-primary" style="width:28%">Upload</div>
+                      <div class="progress-bar bg-warning text-dark" style="width:20%">Restart</div>
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
             <div class="col-12 col-xl-5">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Lists, cards, and swatches</h6>
-              <div class="row g-3">
-                <div class="col-12">
-                  <div class="settings-addon-card">
-                    <div class="settings-addon-card-head">
-                      <div>
-                        <div class="settings-addon-card-topline">
-                          <strong>Design tokens</strong>
-                          <span class="settings-addon-status is-enabled">shared</span>
-                        </div>
-                        <div class="text-muted fs-sm mt-1">Accent, semantic tones, spacing, and shell surfaces are still driven by the shared CSS file.</div>
-                      </div>
-                      <div class="settings-addon-card-icon"><i class="bi bi-palette"></i></div>
-                    </div>
-                    <div class="row g-2 mt-2">
-                      <div class="col-6">
-                        <div class="showcase-swatch" style="background:#2563eb;">
-                          <span>Accent</span>
-                          <code>#2563eb</code>
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div class="showcase-swatch" style="background:#16a34a;">
-                          <span>Success</span>
-                          <code>#16a34a</code>
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div class="showcase-swatch" style="background:#d97706;">
-                          <span>Warning</span>
-                          <code>#d97706</code>
-                        </div>
-                      </div>
-                      <div class="col-6">
-                        <div class="showcase-swatch" style="background:#dc2626;">
-                          <span>Danger</span>
-                          <code>#dc2626</code>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <div class="card">
-                    <div class="card-header"><i class="bi bi-list-task me-2 text-primary"></i>Compact list</div>
-                    <div class="card-body">
-                      <div class="d-flex flex-column gap-2">
-                        <div class="d-flex justify-content-between align-items-center rounded px-3 py-2" style="background:#f8fafc;border:1px solid var(--card-border);">
-                          <span>Toast stack</span>
-                          <span class="badge bg-success">active</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center rounded px-3 py-2" style="background:#f8fafc;border:1px solid var(--card-border);">
-                          <span>Segment tabs</span>
-                          <span class="badge bg-primary">page nav</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center rounded px-3 py-2" style="background:#f8fafc;border:1px solid var(--card-border);">
-                          <span>Graph shell</span>
-                          <span class="badge bg-warning text-dark">visual</span>
-                        </div>
-                        <div class="d-flex justify-content-between align-items-center rounded px-3 py-2" style="background:#f8fafc;border:1px solid var(--card-border);">
-                          <span>Static routing</span>
-                          <span class="badge bg-dark">pages</span>
-                        </div>
-                      </div>
-                    </div>
+              <div class="card h-100">
+                <div class="card-header"><i class="bi bi-bell me-2 text-primary"></i>Toast with timeout progress</div>
+                <div class="card-body">
+                  <div class="d-flex flex-wrap gap-2">
+                    <button class="btn btn-success btn-sm" data-toast-msg="Backup completed" data-toast-type="success">Success</button>
+                    <button class="btn btn-primary btn-sm" data-toast-msg="Sync in progress" data-toast-type="info">Info</button>
+                    <button class="btn btn-warning btn-sm text-dark" data-toast-msg="Session expiry approaching" data-toast-type="warning">Warning</button>
+                    <button class="btn btn-danger btn-sm" data-toast-msg="Connection failed" data-toast-type="danger">Error</button>
                   </div>
                 </div>
               </div>
@@ -591,449 +445,136 @@
           </div>
         </div>
 
-        <div class="tab-pane fade" id="tab-charts" role="tabpanel">
+        <div class="tab-pane fade" id="tabinsights" role="tabpanel">
           <div class="row g-4">
-            <div class="col-12">
-              <div class="adaptive-card-grid adaptive-card-grid--compact mb-3">
-                <div class="stat-card">
-                  <div class="stat-val">18</div>
-                  <div class="stat-lbl">Widget demos</div>
-                  <div class="stat-icon"><i class="bi bi-grid-3x3-gap"></i></div>
-                </div>
-                <div class="stat-card success">
-                  <div class="stat-val">3</div>
-                  <div class="stat-lbl">Shell pages</div>
-                  <div class="stat-icon"><i class="bi bi-window-sidebar"></i></div>
-                </div>
-                <div class="stat-card warning">
-                  <div class="stat-val">SVG</div>
-                  <div class="stat-lbl">Chart surfaces</div>
-                  <div class="stat-icon"><i class="bi bi-pie-chart"></i></div>
-                </div>
-                <div class="stat-card danger">
-                  <div class="stat-val">0</div>
-                  <div class="stat-lbl">Broken root links</div>
-                  <div class="stat-icon"><i class="bi bi-link-45deg"></i></div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12 col-xl-7">
+            <div class="col-12 col-xl-8">
               <div class="card h-100">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Line chart surface</span>
-                  <span class="badge bg-primary-subtle text-primary-emphasis">SVG</span>
-                </div>
+                <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-graph-up-arrow me-2 text-primary"></i>Trend operativo</span><span class="badge bg-success-subtle text-success-emphasis">24h</span></div>
                 <div class="card-body">
+                  <div class="row g-3 mb-3">
+                    <div class="col-4"><div class="rounded p-3 h-100 wu-surface-muted"><div class="text-muted text-uppercase fs-xs fw-600 mb-1">Throughput</div><div class="fw-700 wu-dashboard-kpi">18.4k req</div><div class="fs-xs text-success">+12% vs ieri</div></div></div>
+                    <div class="col-4"><div class="rounded p-3 h-100 wu-surface-muted"><div class="text-muted text-uppercase fs-xs fw-600 mb-1">Error ratio</div><div class="fw-700 wu-dashboard-kpi">0.42%</div><div class="fs-xs text-success">-0.08% vs ieri</div></div></div>
+                    <div class="col-4"><div class="rounded p-3 h-100 wu-surface-muted"><div class="text-muted text-uppercase fs-xs fw-600 mb-1">P95 latency</div><div class="fw-700 wu-dashboard-kpi">284 ms</div><div class="fs-xs text-warning">+16 ms vs ieri</div></div></div>
+                  </div>
                   <div class="chart-shell">
-                    <svg viewBox="0 0 760 260" class="w-100" aria-label="Trend chart">
-                      <defs>
-                        <linearGradient id="showcaseTrendFill" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="0%" stop-color="#2563eb" stop-opacity="0.18"/>
-                          <stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"/>
-                        </linearGradient>
-                      </defs>
-                      <line x1="48" y1="30" x2="728" y2="30" stroke="#dbe4ee"/>
-                      <line x1="48" y1="80" x2="728" y2="80" stroke="#dbe4ee"/>
-                      <line x1="48" y1="130" x2="728" y2="130" stroke="#dbe4ee"/>
-                      <line x1="48" y1="180" x2="728" y2="180" stroke="#dbe4ee"/>
-                      <line x1="48" y1="230" x2="728" y2="230" stroke="#dbe4ee"/>
-                      <path d="M48 208 L126 198 L204 176 L282 156 L360 139 L438 121 L516 99 L594 87 L672 72 L728 58 L728 230 L48 230 Z" fill="url(#showcaseTrendFill)"/>
-                      <polyline points="48,208 126,198 204,176 282,156 360,139 438,121 516,99 594,87 672,72 728,58" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg viewBox="0 0 760 260" class="w-100" aria-label="Trend line chart">
+                      <defs><linearGradient id="trendFill" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#2563eb" stop-opacity="0.18"/><stop offset="100%" stop-color="#2563eb" stop-opacity="0.02"/></linearGradient></defs>
+                      <line x1="48" y1="30" x2="728" y2="30" stroke="#dbe4ee" stroke-width="1"/>
+                      <line x1="48" y1="80" x2="728" y2="80" stroke="#dbe4ee" stroke-width="1"/>
+                      <line x1="48" y1="130" x2="728" y2="130" stroke="#dbe4ee" stroke-width="1"/>
+                      <line x1="48" y1="180" x2="728" y2="180" stroke="#dbe4ee" stroke-width="1"/>
+                      <line x1="48" y1="230" x2="728" y2="230" stroke="#dbe4ee" stroke-width="1"/>
+                      <path d="M48 205 L105 186 L162 168 L219 173 L276 146 L333 139 L390 127 L447 118 L504 95 L561 106 L618 82 L675 71 L728 54 L728 230 L48 230 Z" fill="url(#trendFill)"/>
+                      <polyline points="48,205 105,186 162,168 219,173 276,146 333,139 390,127 447,118 504,95 561,106 618,82 675,71 728,54" fill="none" stroke="#2563eb" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                  </div>
-                  <div class="row g-2 mt-2">
-                    <div class="col-6 col-lg-3"><div class="showcase-inline-stat"><strong>2.4k</strong><span>Req/min</span></div></div>
-                    <div class="col-6 col-lg-3"><div class="showcase-inline-stat"><strong>284ms</strong><span>P95</span></div></div>
-                    <div class="col-6 col-lg-3"><div class="showcase-inline-stat"><strong>0.4%</strong><span>Errors</span></div></div>
-                    <div class="col-6 col-lg-3"><div class="showcase-inline-stat"><strong>14</strong><span>Queue</span></div></div>
                   </div>
                 </div>
               </div>
             </div>
-
-            <div class="col-12 col-xl-5">
+            <div class="col-12 col-xl-4">
               <div class="card h-100">
-                <div class="card-header"><i class="bi bi-pie-chart me-2 text-primary"></i>Donut chart surface</div>
-                <div class="card-body">
-                  <div class="d-flex justify-content-center mb-3">
-                    <svg width="210" height="210" viewBox="0 0 210 210" aria-label="Donut chart">
-                      <circle cx="105" cy="105" r="68" fill="none" stroke="#e2e8f0" stroke-width="24"/>
-                      <circle cx="105" cy="105" r="68" fill="none" stroke="#2563eb" stroke-width="24" stroke-linecap="round" stroke-dasharray="150 427" transform="rotate(-90 105 105)"/>
-                      <circle cx="105" cy="105" r="68" fill="none" stroke="#16a34a" stroke-width="24" stroke-linecap="round" stroke-dasharray="108 427" stroke-dashoffset="-156" transform="rotate(-90 105 105)"/>
-                      <circle cx="105" cy="105" r="68" fill="none" stroke="#d97706" stroke-width="24" stroke-linecap="round" stroke-dasharray="74 427" stroke-dashoffset="-269" transform="rotate(-90 105 105)"/>
-                      <circle cx="105" cy="105" r="68" fill="none" stroke="#dc2626" stroke-width="24" stroke-linecap="round" stroke-dasharray="46 427" stroke-dashoffset="-349" transform="rotate(-90 105 105)"/>
-                      <circle cx="105" cy="105" r="42" fill="#fff"/>
-                      <text x="105" y="100" text-anchor="middle" font-size="13" fill="#6b7a8d">Total</text>
-                      <text x="105" y="121" text-anchor="middle" font-size="22" font-weight="700" fill="#1e293b">2.8k</text>
-                    </svg>
-                  </div>
-                  <div class="d-grid gap-2 fs-sm">
-                    <div class="d-flex justify-content-between rounded px-2 py-1" style="background:#f8fafc;border:1px solid var(--card-border);"><span><span class="badge me-2" style="background:#2563eb;">&nbsp;</span>UI</span><strong>35%</strong></div>
-                    <div class="d-flex justify-content-between rounded px-2 py-1" style="background:#f8fafc;border:1px solid var(--card-border);"><span><span class="badge me-2" style="background:#16a34a;">&nbsp;</span>Jobs</span><strong>27%</strong></div>
-                    <div class="d-flex justify-content-between rounded px-2 py-1" style="background:#f8fafc;border:1px solid var(--card-border);"><span><span class="badge me-2" style="background:#d97706;">&nbsp;</span>Add-ons</span><strong>18%</strong></div>
-                    <div class="d-flex justify-content-between rounded px-2 py-1" style="background:#f8fafc;border:1px solid var(--card-border);"><span><span class="badge me-2" style="background:#dc2626;">&nbsp;</span>Retry</span><strong>12%</strong></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="col-12">
-              <div class="card">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                  <span><i class="bi bi-diagram-3 me-2 text-primary"></i>Dependency graph</span>
-                  <span class="badge bg-warning-subtle text-warning-emphasis">network</span>
-                </div>
-                <div class="card-body">
-                  <div class="chart-shell chart-shell-dark">
-                    <svg viewBox="0 0 560 280" class="w-100" aria-label="Graph demo">
-                      <line x1="110" y1="84" x2="274" y2="66" stroke="#4a6080" stroke-width="3"/>
-                      <line x1="110" y1="84" x2="276" y2="206" stroke="#4a6080" stroke-width="3"/>
-                      <line x1="274" y1="66" x2="442" y2="106" stroke="#2563eb" stroke-width="3"/>
-                      <line x1="276" y1="206" x2="442" y2="178" stroke="#16a34a" stroke-width="3"/>
-                      <line x1="274" y1="66" x2="276" y2="206" stroke="#94a3b8" stroke-width="3"/>
-                      <line x1="442" y1="106" x2="442" y2="178" stroke="#d97706" stroke-width="3"/>
-                      <rect x="64" y="58" width="92" height="52" rx="18" fill="#fff" stroke="#0f1923" stroke-width="3"/>
-                      <rect x="228" y="40" width="92" height="52" rx="18" fill="#fff" stroke="#2563eb" stroke-width="3"/>
-                      <rect x="230" y="180" width="92" height="52" rx="18" fill="#fff" stroke="#16a34a" stroke-width="3"/>
-                      <rect x="396" y="80" width="92" height="52" rx="18" fill="#fff" stroke="#d97706" stroke-width="3"/>
-                      <rect x="396" y="152" width="92" height="52" rx="18" fill="#fff" stroke="#7c3aed" stroke-width="3"/>
-                      <text x="110" y="87" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">core</text>
-                      <text x="274" y="69" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">widgets_ui</text>
-                      <text x="276" y="209" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">pages</text>
-                      <text x="442" y="109" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">charts</text>
-                      <text x="442" y="181" text-anchor="middle" font-size="15" font-weight="700" fill="#1e293b">forms</text>
-                    </svg>
-                  </div>
+                <div class="card-header"><i class="bi bi-pie-chart me-2 text-primary"></i>Ripartizione workload</div>
+                <div class="card-body d-grid gap-2 fs-sm">
+                  <div class="d-flex align-items-center justify-content-between rounded px-2 py-1 wu-surface-muted"><span class="d-flex align-items-center gap-2"><span class="rounded-circle wu-dot" style="background:#2563eb;"></span>UI requests</span><strong>35%</strong></div>
+                  <div class="d-flex align-items-center justify-content-between rounded px-2 py-1 wu-surface-muted"><span class="d-flex align-items-center gap-2"><span class="rounded-circle wu-dot" style="background:#16a34a;"></span>Background jobs</span><strong>27%</strong></div>
+                  <div class="d-flex align-items-center justify-content-between rounded px-2 py-1 wu-surface-muted"><span class="d-flex align-items-center gap-2"><span class="rounded-circle wu-dot" style="background:#d97706;"></span>Addon hooks</span><strong>18%</strong></div>
+                  <div class="d-flex align-items-center justify-content-between rounded px-2 py-1 wu-surface-muted"><span class="d-flex align-items-center gap-2"><span class="rounded-circle wu-dot" style="background:#dc2626;"></span>Errors / retry</span><strong>12%</strong></div>
                 </div>
               </div>
             </div>
           </div>
         </div>
 
-        <div class="tab-pane fade" id="tab-layout" role="tabpanel">
+        <div class="tab-pane fade" id="tabtabs" role="tabpanel">
           <div class="row g-4">
-            <div class="col-12 col-xl-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Navigation patterns</h6>
-              <div class="showcase-mini-card mb-3">
-                <h3>Static shell navigation</h3>
-                <p>The shell links now stay inside `ui_template/`, so each preview page works from a GitHub Pages repository path without requiring root deployment.</p>
-              </div>
+            <div class="col-12 col-lg-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Segment control</h6>
               <ul class="nav nav-tabs-segment mb-3" role="tablist">
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link active" type="button"><i class="bi bi-grid-3x3-gap me-1"></i>Showcase</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" type="button"><i class="bi bi-sliders me-1"></i>Settings</button>
-                </li>
-                <li class="nav-item" role="presentation">
-                  <button class="nav-link" type="button"><i class="bi bi-hdd me-1"></i>Database</button>
-                </li>
+                <li class="nav-item"><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#demotab1" type="button"><i class="bi bi-database me-1"></i>Postgres</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#demotab2" type="button"><i class="bi bi-lightning-charge me-1"></i>Queue</button></li>
+                <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#demotab3" type="button"><i class="bi bi-cloud me-1"></i>Storage</button></li>
               </ul>
               <div class="tab-content tab-content-surface tab-content-surface-compact">
-                <div class="d-flex flex-column gap-2">
-                  <a class="sidebar-link active" href="index.html"><i class="bi bi-grid-3x3-gap sidebar-icon"></i>Widget &amp; UI showcase</a>
-                  <a class="sidebar-link" href="settings.html"><i class="bi bi-sliders sidebar-icon"></i>Static settings page</a>
-                  <a class="sidebar-link" href="communications.html"><i class="bi bi-megaphone sidebar-icon"></i>Static communications page</a>
-                  <a class="sidebar-link" href="database.html"><i class="bi bi-hdd sidebar-icon"></i>Static database page</a>
-                </div>
+                <div class="tab-pane fade show active" id="demotab1"><div class="card"><div class="card-header"><i class="bi bi-database me-2 text-primary"></i>Database Principale</div><div class="card-body fs-sm text-muted">PostgreSQL: audit strutturato e seed runtime coerente.</div></div></div>
+                <div class="tab-pane fade" id="demotab2"><div class="card"><div class="card-header"><i class="bi bi-lightning-charge me-2 text-success"></i>Redis</div><div class="card-body fs-sm text-muted">Connesso, ping 1.2ms, 3 queue attive.</div></div></div>
+                <div class="tab-pane fade" id="demotab3"><div class="card"><div class="card-header"><i class="bi bi-cloud me-2 text-muted"></i>S3 / Storage</div><div class="card-body fs-sm text-muted">Non configurato. Abilita nelle impostazioni.</div></div></div>
               </div>
             </div>
-            <div class="col-12 col-xl-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Composable surfaces</h6>
-              <div class="row g-3">
-                <div class="col-12">
-                  <div class="showcase-mini-card">
-                    <h3>Cards</h3>
-                    <p>Header, body, footer, badges, and icon slots align with the same visual language used by the other template pages.</p>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <div class="showcase-mini-card">
-                    <h3>Responsive layout</h3>
-                    <p>Fixed desktop sidebar, compact mobile drawer, and the same CSS variables for topbar and content offsets.</p>
-                  </div>
-                </div>
-                <div class="col-12">
-                  <div class="showcase-mini-card">
-                    <h3>Next static pages</h3>
-                    <p class="mb-0">Use the links below to keep the Pages deploy as a multi-page UI preview:</p>
-                    <div class="d-flex flex-wrap gap-2 mt-3">
-                      <a class="btn btn-sm btn-outline-primary" href="settings.html">Settings</a>
-                      <a class="btn btn-sm btn-outline-primary" href="communications.html">Communications</a>
-                      <a class="btn btn-sm btn-outline-primary" href="database.html">Database</a>
-                    </div>
-                  </div>
-                </div>
+            <div class="col-12 col-lg-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Sidebar-link pattern</h6>
+              <div class="p-2 rounded wu-sidebar-demo">
+                <a href="#" class="sidebar-link" onclick="return false;"><i class="bi bi-house sidebar-icon"></i> Dashboard</a>
+                <a href="index.html" class="sidebar-link active"><i class="bi bi-grid-3x3-gap sidebar-icon"></i> Widget &amp; UI</a>
+                <a href="#" class="sidebar-link" onclick="return false;"><i class="bi bi-people sidebar-icon"></i> Utenti</a>
+                <a href="#" class="sidebar-link" onclick="return false;"><i class="bi bi-journal-text sidebar-icon"></i> Log eventi</a>
               </div>
             </div>
           </div>
         </div>
-        <!-- ===== WIDGETS TAB ===== -->
-        <div class="tab-pane fade" id="tab-widgets" role="tabpanel">
+
+        <div class="tab-pane fade" id="tablayout" role="tabpanel">
           <div class="row g-4">
-
-            <!-- Chat bubbles -->
-            <div class="col-12 col-xl-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Chat bubbles</h6>
+            <div class="col-12 col-xl-7">
               <div class="card h-100">
-                <div class="card-header"><i class="bi bi-chat-dots me-2 text-primary"></i>Conversation surface</div>
-                <div class="card-body d-flex flex-column gap-2" style="background:#f8fafc;">
-                  <div class="chat-row is-other">
-                    <div class="chat-bubble bot">Hello! How can I help you today?<div class="bubble-meta">12:01</div></div>
-                  </div>
-                  <div class="chat-row is-me">
-                    <div class="chat-bubble me">I need to review the UI token system.<div class="bubble-meta">12:02</div></div>
-                  </div>
-                  <div class="chat-row is-other">
-                    <div class="chat-bubble bot">Sure! All design tokens live in <code>app.css</code> under <em>:root</em>. You can override any of them per-component.<div class="bubble-meta">12:02</div></div>
-                  </div>
-                  <div class="chat-row is-me">
-                    <div class="chat-bubble me">Perfect. And the showcase pages?<div class="bubble-meta">12:03</div></div>
-                  </div>
-                  <div class="chat-row is-other">
-                    <div class="chat-bubble bot">They are static and live inside <code>ui_template/</code>, so they work fine on GitHub Pages too.<div class="bubble-meta">12:03</div></div>
-                  </div>
-                  <div class="chat-row is-other">
-                    <div class="chat-bubble error">Connection error – retry to continue.<div class="bubble-meta">12:04</div></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Log badges & flash totems -->
-            <div class="col-12 col-xl-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Log badges &amp; flash totems</h6>
-              <div class="d-flex flex-wrap gap-2 mb-3">
-                <span class="log-badge INFO">INFO</span>
-                <span class="log-badge WARNING">WARNING</span>
-                <span class="log-badge ERROR">ERROR</span>
-                <span class="log-badge DEBUG">DEBUG</span>
-                <span class="log-type-pill">api.request</span>
-                <span class="log-type-pill">auth.login</span>
-              </div>
-              <div class="flash-totem-stack mb-3">
-                <div class="flash-totem flash-totem-success">
-                  <div class="flash-totem-bar"></div>
-                  <div class="flash-totem-icon"><i class="bi bi-check-circle-fill"></i></div>
-                  <div class="flash-totem-body"><strong>Saved</strong> — Settings have been updated successfully.</div>
-                </div>
-                <div class="flash-totem flash-totem-danger">
-                  <div class="flash-totem-bar"></div>
-                  <div class="flash-totem-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
-                  <div class="flash-totem-body"><strong>Error</strong> — Could not reach the backend endpoint.</div>
-                </div>
-                <div class="flash-totem flash-totem-warning">
-                  <div class="flash-totem-bar"></div>
-                  <div class="flash-totem-icon"><i class="bi bi-exclamation-circle-fill"></i></div>
-                  <div class="flash-totem-body"><strong>Warning</strong> — Unsaved changes will be lost.</div>
-                </div>
-                <div class="flash-totem flash-totem-info">
-                  <div class="flash-totem-bar"></div>
-                  <div class="flash-totem-icon"><i class="bi bi-info-circle-fill"></i></div>
-                  <div class="flash-totem-body"><strong>Notice</strong> — Your session expires in 15 minutes.</div>
-                </div>
-              </div>
-            </div>
-
-            <!-- User card -->
-            <div class="col-12 col-xl-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">User card</h6>
-              <div class="user-card">
-                <div class="user-card-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
-                  <div class="user-card-avatar">JD</div>
-                  <div class="min-width-0">
-                    <div class="fw-700">Jane Doe</div>
-                    <div class="text-muted fs-sm">jane@example.com</div>
-                  </div>
-                  <span class="badge bg-primary ms-auto">admin</span>
-                  <span class="badge bg-success ms-1">active</span>
-                  <i class="bi bi-chevron-down user-card-chevron ms-2"></i>
-                </div>
-                <div class="user-card-body open">
-                  <div class="row g-2 mb-2">
-                    <div class="col-6"><div class="compact-panel"><div class="text-muted fs-xs mb-1">Joined</div><strong class="fs-sm">Jan 2024</strong></div></div>
-                    <div class="col-6"><div class="compact-panel"><div class="text-muted fs-xs mb-1">Last login</div><strong class="fs-sm">Today 09:41</strong></div></div>
-                  </div>
-                  <div class="d-flex gap-2 flex-wrap">
-                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil me-1"></i>Edit</button>
-                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-person-dash me-1"></i>Disable</button>
-                    <button class="btn btn-sm btn-outline-primary" onclick="showToast('Impersonating Jane Doe.','info')"><i class="bi bi-person-check me-1"></i>Impersonate</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Progress bars -->
-            <div class="col-12 col-xl-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Progress &amp; KPI patterns</h6>
-              <div class="d-flex flex-column gap-3">
-                <div>
-                  <div class="d-flex justify-content-between mb-1 fs-sm"><span class="fw-600">CPU</span><strong>72%</strong></div>
-                  <div class="progress progress-thin"><div class="progress-bar bg-primary" style="width:72%"></div></div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1 fs-sm"><span class="fw-600">Memory</span><strong>48%</strong></div>
-                  <div class="progress progress-thin"><div class="progress-bar bg-success" style="width:48%"></div></div>
-                </div>
-                <div>
-                  <div class="d-flex justify-content-between mb-1 fs-sm"><span class="fw-600">Disk</span><strong>91%</strong></div>
-                  <div class="progress progress-thin"><div class="progress-bar bg-danger" style="width:91%"></div></div>
-                </div>
-                <div class="adaptive-card-grid adaptive-card-grid--compact mt-1">
-                  <div class="stat-card">
-                    <div class="stat-val">99.8<span style="font-size:.9rem">%</span></div>
-                    <div class="stat-lbl">Uptime</div>
-                    <div class="stat-icon"><i class="bi bi-activity"></i></div>
-                  </div>
-                  <div class="stat-card success">
-                    <div class="stat-val">14</div>
-                    <div class="stat-lbl">Jobs active</div>
-                    <div class="stat-icon"><i class="bi bi-gear"></i></div>
-                  </div>
-                  <div class="stat-card warning">
-                    <div class="stat-val">3</div>
-                    <div class="stat-lbl">Pending</div>
-                    <div class="stat-icon"><i class="bi bi-hourglass"></i></div>
-                  </div>
-                  <div class="stat-card danger">
-                    <div class="stat-val">0</div>
-                    <div class="stat-lbl">Errors</div>
-                    <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Settings section blocks -->
-            <div class="col-12 col-xl-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Settings section block</h6>
-              <div class="settings-section">
-                <div class="settings-section-header"><i class="bi bi-sliders me-2 text-primary"></i>Feature toggles</div>
-                <div class="settings-section-body">
-                  <div class="settings-row">
-                    <div class="settings-row-info">
-                      <strong>Maintenance mode</strong>
-                      <small>Redirect all users to the maintenance page.</small>
-                    </div>
-                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw1"><label class="form-check-label" for="sw1"></label></div>
-                  </div>
-                  <div class="settings-row">
-                    <div class="settings-row-info">
-                      <strong>User registration</strong>
-                      <small>Allow new accounts to register.</small>
-                    </div>
-                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw2" checked><label class="form-check-label" for="sw2"></label></div>
-                  </div>
-                  <div class="settings-row">
-                    <div class="settings-row-info">
-                      <strong>Two-factor auth</strong>
-                      <small>Require TOTP for all admin accounts.</small>
-                    </div>
-                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw3" checked><label class="form-check-label" for="sw3"></label></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- Addon card -->
-            <div class="col-12 col-xl-6">
-              <h6 class="text-muted text-uppercase fs-xs mb-3">Add-on card</h6>
-              <div class="settings-addon-card">
-                <div class="settings-addon-card-head">
-                  <div class="flex-grow-1 min-width-0">
-                    <div class="settings-addon-card-topline">
-                      <strong>Widget &amp; UI</strong>
-                      <span class="settings-addon-status is-enabled">enabled</span>
-                    </div>
-                    <div class="settings-addon-meta-row">
-                      <span class="settings-addon-meta-pill"><i class="bi bi-tag me-1"></i>v1.4.0</span>
-                      <span class="settings-addon-meta-pill"><i class="bi bi-person me-1"></i>admin + user</span>
-                      <span class="settings-addon-meta-pill is-warning"><i class="bi bi-exclamation-triangle me-1"></i>beta</span>
-                    </div>
-                    <div class="settings-addon-note mt-2">Complete showcase of all Bootstrap 5 + custom CSS design system components, available as a live reference inside the admin panel.</div>
-                  </div>
-                  <div class="settings-addon-toggle-wrap">
-                    <div class="settings-addon-card-icon"><i class="bi bi-grid-3x3-gap"></i></div>
-                    <div class="settings-addon-toggle-label">on</div>
-                  </div>
-                </div>
-                <div class="settings-addon-card-body">
-                  <div class="settings-addon-card-actions">
-                    <button class="btn btn-sm btn-outline-primary w-100" onclick="showToast('Opened Widget & UI addon.','info')"><i class="bi bi-box-arrow-up-right me-1"></i>Open</button>
-                    <button class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-gear me-1"></i>Configure</button>
-                    <button class="btn btn-sm btn-outline-danger w-100"><i class="bi bi-toggle-off me-1"></i>Disable</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-          </div>
-        </div>
-      </div>
-        <div class="col-12 col-xl-7">
-          <div class="card h-100">
-            <div class="card-header d-flex justify-content-between align-items-center">
-              <span><i class="bi bi-github me-2 text-primary"></i>GitHub Pages checklist</span>
-              <span class="badge bg-success">clean</span>
-            </div>
-            <div class="card-body">
-              <div class="row g-3">
-                <div class="col-12 col-md-6">
-                  <div class="showcase-mini-card">
-                    <h3>Relative assets</h3>
-                    <p>`static/css/app.css` and the JS bundle load relative to the page instead of assuming the site root.</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="showcase-mini-card">
-                    <h3>Relative navigation</h3>
-                    <p>All actionable links from this page now resolve to local HTML files or in-page demo actions.</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="showcase-mini-card">
-                    <h3>No backend context</h3>
-                    <p>The dashboard no longer depends on Flask routes, Jinja variables, or runtime data refresh flows.</p>
-                  </div>
-                </div>
-                <div class="col-12 col-md-6">
-                  <div class="showcase-mini-card">
-                    <h3>Widget-focused homepage</h3>
-                    <p>The repo’s Pages landing page is now the UI catalog rather than a generic shell mock.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="col-12 col-xl-5">
-          <div class="card h-100">
-            <div class="card-header"><i class="bi bi-lightbulb me-2 text-primary"></i>Recommended use</div>
-            <div class="card-body">
-              <div class="d-flex flex-column gap-3">
-                <div class="settings-addon-card">
-                  <div class="settings-addon-card-head">
-                    <div>
-                      <div class="settings-addon-card-topline">
-                        <strong>Component review</strong>
-                        <span class="settings-addon-status is-enabled">QA</span>
+                <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-grid-1x2 me-2 text-primary"></i>Layout composition</span><span class="badge bg-primary-subtle text-primary-emphasis">12-col grid</span></div>
+                <div class="card-body">
+                  <div class="row g-3">
+                    <div class="col-12">
+                      <div class="rounded p-3 wu-surface-muted">
+                        <div class="row g-2">
+                          <div class="col-12"><div class="text-center py-2 rounded fs-xs fw-700 wu-grid-topbar">Topbar / toolbar span 12</div></div>
+                          <div class="col-12 col-md-8"><div class="text-center py-4 rounded fs-xs fw-700 h-100 wu-grid-main">Primary content span 8</div></div>
+                          <div class="col-12 col-md-4">
+                            <div class="d-grid gap-2 h-100">
+                              <div class="text-center py-3 rounded fs-xs fw-700 wu-grid-side">Sidebar card span 4</div>
+                              <div class="text-center py-3 rounded fs-xs fw-700 wu-grid-side">Quick actions span 4</div>
+                            </div>
+                          </div>
+                          <div class="col-12 col-md-4"><div class="text-center py-3 rounded fs-xs fw-700 wu-grid-stat">Stat block span 4</div></div>
+                          <div class="col-12 col-md-4"><div class="text-center py-3 rounded fs-xs fw-700 wu-grid-chart">Chart block span 4</div></div>
+                          <div class="col-12 col-md-4"><div class="text-center py-3 rounded fs-xs fw-700 wu-grid-list">List block span 4</div></div>
+                        </div>
                       </div>
-                      <div class="text-muted fs-sm mt-1">Use this page to review the live visual grammar before porting new widgets into Flask templates.</div>
                     </div>
-                    <div class="settings-addon-card-icon"><i class="bi bi-eye"></i></div>
+                    <div class="col-12">
+                      <div class="alert alert-light border fs-sm mb-0">
+                        <div class="fw-semibold mb-1"><i class="bi bi-rulers me-2 text-primary"></i>Compact shell rules</div>
+                        <div class="text-muted">Preferisci split 8/4 o 7/5 e usa i pannelli laterali per metadata e azioni, non nuove righe di card sparse.</div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <div class="settings-addon-card">
-                  <div class="settings-addon-card-head">
-                    <div>
-                      <div class="settings-addon-card-topline">
-                        <strong>Static prototype base</strong>
-                        <span class="settings-addon-status is-enabled">MVP</span>
-                      </div>
-                      <div class="text-muted fs-sm mt-1">Duplicate sections from here when you need a quick static proof-of-concept under the same shell.</div>
+              </div>
+            </div>
+            <div class="col-12 col-xl-5">
+              <div class="card h-100">
+                <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-card-text me-2 text-primary"></i>Card anatomy</span><span class="badge bg-success-subtle text-success-emphasis">preferred pattern</span></div>
+                <div class="card-body d-grid gap-3">
+                  <div class="card card-soft card-accent">
+                    <div class="card-header d-flex justify-content-between align-items-center"><span><i class="bi bi-layout-text-window-reverse me-2 text-primary"></i>Header + body + footer</span><span class="badge bg-primary">Live</span></div>
+                    <div class="card-body"><div class="card-title">Operational card</div><div class="card-subtitle">Compact title row, one status, one action lane.</div><p class="mb-0 text-muted fs-sm">Questo è il pattern base da replicare nel resto del template statico.</p></div>
+                    <div class="card-footer d-flex justify-content-between align-items-center"><span class="text-muted fs-xs">Updated 2m ago</span><button class="btn btn-secondary btn-sm py-0 px-2">Details</button></div>
+                  </div>
+                  <div class="rounded p-3 wu-surface-shell">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                      <div><div class="text-uppercase fs-xs fw-600 wu-shell-muted-text">Preview shell</div><div class="fw-700">Topbar + sidebar + cards</div></div>
+                      <span class="badge text-bg-light">coherent</span>
                     </div>
-                    <div class="settings-addon-card-icon"><i class="bi bi-copy"></i></div>
+                    <div class="row g-2">
+                      <div class="col-4">
+                        <div class="rounded p-2 wu-shell-panel">
+                          <div class="fs-xs text-uppercase mb-2 wu-shell-muted-text">Nav</div>
+                          <div class="d-grid gap-1 fs-sm"><span>Dashboard</span><span class="wu-shell-active">Widget &amp; UI</span><span class="wu-shell-dim">Logs</span></div>
+                        </div>
+                      </div>
+                      <div class="col-8">
+                        <div class="rounded p-2 wu-shell-panel-light">
+                          <div class="d-flex justify-content-between align-items-center mb-2"><strong>Card header</strong><span class="badge bg-primary">live</span></div>
+                          <div class="progress mb-2"><div class="progress-bar bg-primary" style="width:72%"></div></div>
+                          <div class="small text-muted">Questa anteprima riassume i token principali della shell da tenere coerenti.</div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

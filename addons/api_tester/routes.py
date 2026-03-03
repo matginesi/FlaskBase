@@ -354,7 +354,7 @@ def run_request():
             logger=log,
             context={"user_id": int(current_user.id), "path": str(data.get("path", "")), "method": str(data.get("method", "GET")).upper()},
         )
-        return jsonify({"ok": False, "error": "path_not_allowed", "allowed_prefixes": list(_ALLOWED_PROXY_PATHS)}), 400
+        return jsonify({"ok": False, "proxy_status": 400, "result": {"ok": False, "error": "path_not_allowed", "allowed_prefixes": list(_ALLOWED_PROXY_PATHS)}, **_meta_payload()})
     method = str(data.get("method", "GET")).strip().upper()
     if method not in {"GET", "POST"}:
         log_warning(
@@ -363,7 +363,7 @@ def run_request():
             logger=log,
             context={"user_id": int(current_user.id), "path": path, "method": method},
         )
-        return jsonify({"ok": False, "error": "unsupported_method"}), 400
+        return jsonify({"ok": False, "proxy_status": 400, "result": {"ok": False, "error": "unsupported_method"}, **_meta_payload()})
     raw_token = str(data.get("token", "") or "").strip()
     if raw_token:
         token_row = validate_api_token(raw_token)
@@ -374,7 +374,7 @@ def run_request():
                 logger=log,
                 context={"user_id": int(current_user.id), "path": path, "method": method},
             )
-            return jsonify({"ok": False, "error": "invalid_token"}), 401
+            return jsonify({"ok": False, "proxy_status": 401, "result": {"ok": False, "error": "invalid_token"}, **_meta_payload()})
         if int(token_row.user_id) != int(current_user.id):
             log_warning(
                 "addon.api_tester.token_not_owned",
@@ -382,7 +382,7 @@ def run_request():
                 logger=log,
                 context={"user_id": int(current_user.id), "token_owner_id": int(token_row.user_id), "path": path, "method": method},
             )
-            return jsonify({"ok": False, "error": "token_not_owned_by_current_user"}), 403
+            return jsonify({"ok": False, "proxy_status": 403, "result": {"ok": False, "error": "token_not_owned_by_current_user"}, **_meta_payload()})
     payload = data.get("payload")
     payload_text = payload if isinstance(payload, str) else json.dumps(payload or {})
     status, result = _proxy_api_request(path=path, method=method, raw_token=raw_token or None, payload=payload_text)
@@ -393,4 +393,4 @@ def run_request():
         logger=log,
         context={"user_id": int(current_user.id), "path": path, "method": method, "status": status, "token_supplied": bool(raw_token)},
     )
-    return jsonify({"ok": status < 400, "proxy_status": status, "result": result, **_meta_payload()}), status
+    return jsonify({"ok": status < 400, "proxy_status": status, "result": result, **_meta_payload()})

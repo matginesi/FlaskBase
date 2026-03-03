@@ -40,7 +40,7 @@ def resolve_api_public_base_url(flask_app: Flask) -> str:
     explicit = str(cfg.get("PUBLIC_BASE_URL", "") or "").strip().rstrip("/")
     if not explicit:
         return default_url
-    return default_url
+    return explicit
 
 
 def build_api_error(*, code: str, detail: str, request_id: str | None = None, extras: dict[str, Any] | None = None) -> dict[str, Any]:

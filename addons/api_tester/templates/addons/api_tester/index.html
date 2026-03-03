@@ -53,6 +53,28 @@
     color: #6b7a8d;
     line-height: 1.5;
   }
+  .api-tester-note {
+    display: grid;
+    gap: .25rem;
+    padding: .75rem .85rem;
+    border: 1px solid rgba(148, 163, 184, .3);
+    border-radius: .85rem;
+    background: #f8fafc;
+  }
+  .api-tester-note.is-warning {
+    border-color: rgba(245, 158, 11, .32);
+    background: linear-gradient(180deg, #fffbeb 0%, #fff7dd 100%);
+  }
+  .api-tester-note-title {
+    font-size: .78rem;
+    font-weight: 700;
+    color: #334155;
+  }
+  .api-tester-note-copy {
+    font-size: .74rem;
+    color: #64748b;
+    line-height: 1.45;
+  }
   @media (max-width: 767.98px) {
     .api-tester-inline-grid { grid-template-columns: 1fr; }
     .api-tester-response { min-height: 300px; }
@@ -146,11 +168,15 @@
           </div>
           <div class="d-flex flex-wrap gap-2">
             <button class="btn btn-primary btn-sm" id="loadAccountKeysBtn" type="button">
-              <i class="bi bi-arrow-repeat me-1"></i>Load account keys
+              <i class="bi bi-arrow-repeat me-1"></i>Sync account keys
             </button>
             <button class="btn btn-outline-secondary btn-sm" id="mintTokenBtn" type="button">
               <i class="bi bi-plus-circle me-1"></i>Mint tester token
             </button>
+          </div>
+          <div class="api-tester-note" id="tokenWorkspaceHint">
+            <div class="api-tester-note-title">Raw bearer tokens are one-time values</div>
+            <div class="api-tester-note-copy">Seeded or previously saved account keys are usually available only as references. To test immediately, paste a raw key you already copied, mint a tester token, or create a new personal key below.</div>
           </div>
           <div>
             <label class="form-label mb-1">Bearer token</label>
@@ -340,7 +366,11 @@
     const tokenWorkspaceList = document.getElementById("tokenWorkspaceList");
     const rawTokenCountBadge = document.getElementById("rawTokenCountBadge");
     const tokenInventoryBadge = document.getElementById("tokenInventoryBadge");
+    const tokenWorkspaceHint = document.getElementById("tokenWorkspaceHint");
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
+    const runRequestUrl = {{ url_for('api_tester.run_request') | tojson }};
+    const statusUrl = {{ url_for('api_tester.api_status') | tojson }};
+    const mintTokenUrl = {{ url_for('api_tester.mint_token') | tojson }};
     const prettyJson = {{ 'true' if pretty_json else 'false' }};
     const tokenCatalogState = {
       accountTokens: {{ user_tokens | tojson }},
@@ -356,6 +386,31 @@
 
     function renderOutput(data) {
       output.textContent = prettyJson ? JSON.stringify(data, null, 2) : JSON.stringify(data);
+    }
+
+    function setReferenceState(prefix) {
+      tokenInput.value = "";
+      setWorkspaceHint(
+        "Selected key is reference-only",
+        "The key " + String(prefix || "").trim() + "... exists in the account, but its raw bearer value cannot be recovered. Paste the raw token if you already copied it, or mint/create a new one from this page.",
+        "warning"
+      );
+      renderOutput({
+        ok: false,
+        error: "reference_only_token",
+        prefix: prefix,
+        detail: "Stored account keys expose metadata and prefix only. The raw bearer token is shown once at creation time and is not recoverable later."
+      });
+      setStatus("reference-only", "bg-warning");
+    }
+
+    function setWorkspaceHint(title, copy, tone) {
+      if (!tokenWorkspaceHint) return;
+      tokenWorkspaceHint.classList.toggle("is-warning", tone === "warning");
+      tokenWorkspaceHint.innerHTML = `
+        <div class="api-tester-note-title">${escapeHtml(title)}</div>
+        <div class="api-tester-note-copy">${escapeHtml(copy)}</div>
+      `;
     }
 
     function escapeHtml(value) {
@@ -416,8 +471,22 @@
 
     function renderTokenWorkspace() {
       const rawTokens = dedupeTokens(tokenCatalogState.rawTokens.concat(tokenCatalogState.testerTokens));
+      const refs = Array.isArray(tokenCatalogState.accountTokens) ? tokenCatalogState.accountTokens : [];
       rawTokenCountBadge.textContent = `${rawTokens.length} raw`;
       if (!rawTokens.length) {
+        if (refs.length) {
+          setWorkspaceHint(
+            "Account keys synced as references only",
+            "These keys exist and can be selected by prefix, but their raw bearer value cannot be recovered from storage. This includes keys created in a previous session or seeded into the database.",
+            "warning"
+          );
+        } else {
+          setWorkspaceHint(
+            "No raw token loaded yet",
+            "Paste a raw token you already copied, mint a temporary tester token, or create a new personal API key below.",
+            "default"
+          );
+        }
         tokenWorkspaceList.innerHTML = `
           <div class="api-tester-token-item">
             <div class="api-tester-token-name">No raw token loaded</div>
@@ -426,6 +495,11 @@
         `;
         return;
       }
+      setWorkspaceHint(
+        "Raw bearer tokens ready",
+        "Use one of the currently loaded raw tokens, or paste a different bearer value that belongs to the current user.",
+        "default"
+      );
       tokenWorkspaceList.innerHTML = rawTokens.map(function (token, index) {
         const prefix = String(token.prefix || token.token_prefix || "").trim();
         const scopes = Array.isArray(token.scopes) && token.scopes.length ? token.scopes.join(", ") : "scopes unavailable";
@@ -456,12 +530,22 @@
       try {
         const response = await fetch(path, {
           method: method || "POST",
-          headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
+          headers: method === "GET"
+            ? { "Accept": "application/json", "X-CSRFToken": csrfToken }
+            : { "Accept": "application/json", "Content-Type": "application/json", "X-CSRFToken": csrfToken },
           body: method === "GET" ? undefined : JSON.stringify(payload || {})
         });
-        const data = await response.json();
+        const rawText = await response.text();
+        let data = null;
+        try {
+          data = rawText ? JSON.parse(rawText) : {};
+        } catch (_err) {
+          data = { ok: false, error: "non_json_response", raw: rawText };
+        }
         renderOutput(data);
-        setStatus(String(response.status), response.ok ? "bg-success" : "bg-warning");
+        const effectiveStatus = Number((data && data.proxy_status) || response.status || 0);
+        const effectiveOk = typeof data?.ok === "boolean" ? data.ok : response.ok;
+        setStatus(String(effectiveStatus || response.status), effectiveOk ? "bg-success" : "bg-warning");
         return { response, data };
       } catch (err) {
         output.textContent = String(err);
@@ -472,16 +556,29 @@
     }
 
     async function runManualRequest(pathOverride, methodOverride) {
+      const rawToken = tokenInput.value.trim();
+      const requestedPath = pathOverride || endpointPathInput.value || endpointSelect.value;
+      const requestedMethod = methodOverride || methodSelect.value;
+      if (!rawToken && requestedPath !== "/v1/health" && requestedPath !== "/docs" && requestedPath !== "/openapi.json" && requestedPath !== "/redoc") {
+        renderOutput({
+          ok: false,
+          error: "missing_token",
+          detail: "This endpoint requires a real bearer token. Stored account key references are not enough; paste a raw token or mint/create one in this page."
+        });
+        setStatus("missing-token", "bg-warning");
+        if (window.showToast) window.showToast("A real bearer token is required for this endpoint", "warning");
+        return null;
+      }
       let payload = {};
       try {
         payload = JSON.parse(payloadInput.value || "{}");
       } catch (err) {
         payload = { raw: payloadInput.value, parse_error: String(err) };
       }
-      return await requestJson("/addons/api_tester/api/run", {
-        path: pathOverride || endpointPathInput.value || endpointSelect.value,
-        method: methodOverride || methodSelect.value,
-        token: tokenInput.value.trim(),
+      return await requestJson(runRequestUrl, {
+        path: requestedPath,
+        method: requestedMethod,
+        token: rawToken,
         payload: payload
       }, "POST");
     }
@@ -497,7 +594,7 @@
         tokenInput.value = data.revealed_tokens[0].token || "";
         if (window.showToast) window.showToast("Loaded newly revealed account keys", "success");
       } else if (window.showToast) {
-        window.showToast("No newly revealable account keys were available", "info");
+        window.showToast("Account keys synced. Existing seeded or previously saved keys remain reference-only.", "info");
       }
     }
 
@@ -535,7 +632,7 @@
     });
 
     document.getElementById("loadStatusBtn").addEventListener("click", function () {
-      requestJson("/addons/api_tester/api/status", {}, "GET");
+      requestJson(statusUrl, {}, "GET");
     });
 
     document.getElementById("loadRoutesBtn").addEventListener("click", function () {
@@ -549,7 +646,7 @@
     });
 
     document.getElementById("mintTokenBtn").addEventListener("click", async function () {
-      const result = await requestJson("/addons/api_tester/api/mint-token", {}, "POST");
+      const result = await requestJson(mintTokenUrl, {}, "POST");
       if (!result) return;
       const data = result.data || {};
       if (data && data.token) {
@@ -595,12 +692,7 @@
         return;
       }
       if (prefix) {
-        renderOutput({
-          info: "Selected existing account key reference.",
-          prefix: prefix,
-          note: "Raw values cannot be recovered from storage. Paste the key if you already have it, or create a new one from this page."
-        });
-        setStatus("reference", "bg-secondary");
+        setReferenceState(prefix);
       }
     });
 

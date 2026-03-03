@@ -2,6 +2,8 @@
 
 WebApp Base is a Flask and PostgreSQL application foundation for internal tools, MVPs, and modular business apps.
 
+UI showcase: https://matginesi.github.io/FlaskBase/
+
 It ships with a ready-to-run web UI, authentication, admin operations, runtime configuration stored in the database, a FastAPI integration surface, background job execution, and an add-on system for extending the platform without rebuilding the core project structure.
 
 ## Highlights

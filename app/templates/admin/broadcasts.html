@@ -1,7 +1,139 @@
 {% extends "base.html" %}
 {% block title %} · Communications{% endblock %}
+{% block head %}
+<style nonce="{{ g.csp_nonce }}">
+.comms-page{--comms-panel-border:#dbe5f0;--comms-panel-shadow:0 12px 30px rgba(15,23,42,.06)}
+.comms-shell{display:grid;gap:1rem}
+.comms-workbench{
+  display:grid;
+  gap:1rem;
+  grid-template-columns:minmax(0,1.35fr) minmax(320px,.85fr);
+  align-items:start;
+}
+.comms-card{
+  border:1px solid var(--comms-panel-border);
+  border-radius:1rem;
+  background:linear-gradient(180deg,#fff 0%,#f9fbff 100%);
+  box-shadow:var(--comms-panel-shadow);
+  overflow:hidden;
+}
+.comms-card-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.75rem;
+  padding:.9rem 1rem;
+  border-bottom:1px solid #e7eef6;
+  background:linear-gradient(180deg,#fff 0%,#fbfdff 100%);
+}
+.comms-card-title{
+  display:flex;
+  flex-direction:column;
+  gap:.12rem;
+}
+.comms-card-title strong{
+  font-size:.88rem;
+  color:#0f172a;
+}
+.comms-card-title span{
+  color:#64748b;
+  font-size:.72rem;
+}
+.comms-card-body{padding:1rem}
+.comms-composer-card .comms-card-body{padding:1rem 1rem 1.1rem}
+.comms-tabs{margin-bottom:.9rem}
+.comms-form-grid{display:grid;gap:.85rem}
+.comms-form-grid .row{--bs-gutter-x:.65rem;--bs-gutter-y:.65rem}
+.comms-form label.form-label-sm{
+  font-size:.7rem;
+  font-weight:800;
+  letter-spacing:.05em;
+  text-transform:uppercase;
+  color:#64748b;
+}
+.comms-recipient-panel{
+  border:1px solid #dbe5f0;
+  border-radius:.95rem;
+  padding:1rem;
+  background:
+    radial-gradient(circle at top right, rgba(37,99,235,.08), transparent 34%),
+    linear-gradient(180deg,#fff 0%,#f8fbff 100%);
+  box-shadow:0 10px 26px rgba(15,23,42,.05);
+}
+.comms-recipient-title{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.7rem}
+.comms-mode-stack{display:grid;gap:.55rem}
+.comms-mode-option{
+  display:flex;
+  align-items:flex-start;
+  gap:.65rem;
+  border:1px solid #dbe5f0;
+  border-radius:.85rem;
+  padding:.75rem .8rem;
+  background:#fff;
+  box-shadow:0 1px 3px rgba(15,23,42,.04);
+}
+.comms-mode-copy strong{display:block;font-size:.78rem;color:#0f172a}
+.comms-mode-copy span{display:block;font-size:.69rem;color:#64748b;line-height:1.35}
+.comms-recipient-panel .form-select[size]{min-height:16.6rem;background:#fff}
+.comms-side-stack{display:grid;gap:1rem}
+.comms-side-card{position:sticky;top:calc(var(--topbar-h) + 1rem)}
+.comms-stat-grid{display:grid;gap:.75rem}
+.comms-stat{
+  border:1px solid #dbe5f0;
+  border-radius:.95rem;
+  padding:.85rem .9rem;
+  background:#fff;
+}
+.comms-stat-top{display:flex;align-items:center;justify-content:space-between;gap:.5rem;margin-bottom:.35rem}
+.comms-stat-top span{
+  font-size:.67rem;
+  font-weight:800;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:#64748b;
+}
+.comms-stat-top i{color:#94a3b8}
+.comms-stat strong{display:block;font-size:1.2rem;line-height:1;color:#0f172a}
+.comms-stat small{display:block;margin-top:.24rem;color:#64748b;font-size:.72rem;line-height:1.35}
+.comms-template-list,.comms-guide-list{display:grid;gap:.65rem}
+.comms-template-item,.comms-guide-item{
+  border:1px solid #e3ebf4;
+  border-radius:.85rem;
+  padding:.78rem .82rem;
+  background:#fff;
+}
+.comms-template-item strong,.comms-guide-item strong{display:block;font-size:.78rem;color:#0f172a}
+.comms-template-item span,.comms-guide-item span{display:block;margin-top:.18rem;font-size:.69rem;color:#64748b;line-height:1.4}
+.comms-history-grid{
+  display:grid;
+  gap:1rem;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+}
+.comms-history-card .table-responsive{min-width:0}
+.comms-history-card .table thead th{
+  font-size:.68rem;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  color:#64748b;
+  background:#f8fbff;
+}
+.comms-history-card .table td{vertical-align:middle}
+@media (max-width:1399.98px){
+  .comms-workbench{grid-template-columns:minmax(0,1fr)}
+  .comms-side-card{position:static}
+}
+@media (max-width:991.98px){
+  .comms-history-grid{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:767.98px){
+  .comms-card-head,.comms-card-body{padding:.85rem}
+  .comms-recipient-panel{padding:.85rem}
+  .comms-mode-option{padding:.72rem}
+}
+</style>
+{% endblock %}
 {% block content %}
-<div class="page-header settings-page-header">
+<div class="page-header settings-page-header comms-page">
   <div class="settings-header-row">
     <div class="min-w-0">
       <div class="page-breadcrumb"><i class="bi bi-megaphone me-1"></i>Admin</div>
@@ -16,7 +148,7 @@
   </div>
 </div>
 
-<div class="adaptive-card-grid adaptive-card-grid--compact mb-3 settings-kpi-row">
+<div class="adaptive-card-grid adaptive-card-grid--compact mb-3 settings-kpi-row comms-page">
   <div>
     <div class="stat-card stat-card-compact settings-kpi-card settings-kpi-card-modern">
       <div class="settings-kpi-strip"></div>
@@ -70,15 +202,18 @@
   </div>
 </div>
 
-<div class="row g-3">
-  <div class="col-12 col-xxl-5">
-    <div class="card settings-panel-card">
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <span>Composer</span>
+<div class="comms-shell comms-page">
+  <div class="comms-workbench">
+    <div class="comms-card comms-composer-card">
+      <div class="comms-card-head">
+        <div class="comms-card-title">
+          <strong>Composer</strong>
+          <span>Direct inbox notices and HTML email sends share the same operational workspace.</span>
+        </div>
         <span class="badge bg-light text-dark border">2 channels</span>
       </div>
-      <div class="card-body">
-        <ul class="nav nav-tabs-segment mb-3" role="tablist">
+      <div class="comms-card-body">
+        <ul class="nav nav-tabs-segment comms-tabs" role="tablist">
           <li class="nav-item" role="presentation">
             <button class="nav-link active" id="tab-messages" data-bs-toggle="tab" data-bs-target="#pane-messages" type="button" role="tab">
               <i class="bi bi-chat-left-text me-1"></i>Messaggi
@@ -93,7 +228,7 @@
 
         <div class="tab-content tab-content-surface tab-content-surface-compact">
           <div class="tab-pane fade show active" id="pane-messages" role="tabpanel" aria-labelledby="tab-messages">
-            <form method="post" class="d-flex flex-column gap-3 comms-form" data-channel="messages">
+            <form method="post" class="comms-form comms-form-grid" data-channel="messages">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="kind" value="user">
               <input type="hidden" name="send_email" value="">
@@ -104,21 +239,21 @@
               <input type="hidden" name="action_url" value="">
 
               <div class="comms-recipient-panel">
-                <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="comms-recipient-title">
                   <div class="fw-semibold">Destinatari</div>
                   <span class="badge bg-light text-dark border">max 10 righe</span>
                 </div>
                 <div class="row g-2 align-items-start">
                   <div class="col-12 col-md-4">
                     <label class="form-label form-label-sm">Modalita'</label>
-                    <div class="d-grid gap-2">
-                      <label class="border rounded px-2 py-2 bg-white">
+                    <div class="comms-mode-stack">
+                      <label class="comms-mode-option">
                         <input class="form-check-input me-2 js-kind-toggle" type="radio" name="audience_mode_messages" value="user" checked>
-                        Un utente
+                        <span class="comms-mode-copy"><strong>Un utente</strong><span>Invio diretto in inbox verso un singolo account.</span></span>
                       </label>
-                      <label class="border rounded px-2 py-2 bg-white">
+                      <label class="comms-mode-option">
                         <input class="form-check-input me-2 js-kind-toggle" type="radio" name="audience_mode_messages" value="broadcast">
-                        Broadcast
+                        <span class="comms-mode-copy"><strong>Broadcast</strong><span>Pubblicazione generale per tutta la base utenti.</span></span>
                       </label>
                     </div>
                   </div>
@@ -174,28 +309,28 @@
           </div>
 
           <div class="tab-pane fade" id="pane-email" role="tabpanel" aria-labelledby="tab-email">
-            <form method="post" class="d-flex flex-column gap-3 comms-form" data-channel="email">
+            <form method="post" class="comms-form comms-form-grid" data-channel="email">
               <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
               <input type="hidden" name="kind" value="user">
               <input type="hidden" name="send_email" value="1">
               <input type="hidden" name="body_format" value="html">
 
               <div class="comms-recipient-panel">
-                <div class="d-flex align-items-center justify-content-between mb-2">
+                <div class="comms-recipient-title">
                   <div class="fw-semibold">Destinatari</div>
                   <span class="badge bg-light text-dark border">max 10 righe</span>
                 </div>
                 <div class="row g-2 align-items-start">
                   <div class="col-12 col-md-4">
                     <label class="form-label form-label-sm">Modalita'</label>
-                    <div class="d-grid gap-2">
-                      <label class="border rounded px-2 py-2 bg-white">
+                    <div class="comms-mode-stack">
+                      <label class="comms-mode-option">
                         <input class="form-check-input me-2 js-kind-toggle" type="radio" name="audience_mode_email" value="user" checked>
-                        Un utente
+                        <span class="comms-mode-copy"><strong>Un utente</strong><span>Email singola con template server-side e body sanitizzato.</span></span>
                       </label>
-                      <label class="border rounded px-2 py-2 bg-white">
+                      <label class="comms-mode-option">
                         <input class="form-check-input me-2 js-kind-toggle" type="radio" name="audience_mode_email" value="broadcast">
-                        Broadcast
+                        <span class="comms-mode-copy"><strong>Broadcast</strong><span>Distribuzione coordinata con lo stesso flusso editoriale.</span></span>
                       </label>
                     </div>
                   </div>
@@ -272,12 +407,94 @@
         </div>
       </div>
     </div>
+
+    <div class="comms-side-stack">
+      <div class="comms-card comms-side-card">
+        <div class="comms-card-head">
+          <div class="comms-card-title">
+            <strong>Operations snapshot</strong>
+            <span>Quick read of current throughput, templates, and recent channel use.</span>
+          </div>
+        </div>
+        <div class="comms-card-body">
+          <div class="comms-stat-grid">
+            <div class="comms-stat">
+              <div class="comms-stat-top"><span>Broadcasts</span><i class="bi bi-broadcast-pin"></i></div>
+              <strong>{{ broadcasts|length }}</strong>
+              <small>Public or system-wide sends currently visible in recent history.</small>
+            </div>
+            <div class="comms-stat">
+              <div class="comms-stat-top"><span>Direct inbox</span><i class="bi bi-person-lines-fill"></i></div>
+              <strong>{{ user_messages|length }}</strong>
+              <small>Latest targeted messages delivered to individual accounts.</small>
+            </div>
+            <div class="comms-stat">
+              <div class="comms-stat-top"><span>Templates</span><i class="bi bi-envelope-paper-heart"></i></div>
+              <strong>{{ email_templates|length }}</strong>
+              <small>HTML email layouts available to the composer right now.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="comms-card">
+        <div class="comms-card-head">
+          <div class="comms-card-title">
+            <strong>Email templates</strong>
+            <span>Available layouts for branded sends.</span>
+          </div>
+        </div>
+        <div class="comms-card-body">
+          <div class="comms-template-list">
+            {% for tpl in email_templates %}
+            <div class="comms-template-item">
+              <strong>{{ tpl.label }}</strong>
+              <span><code>{{ tpl.key }}</code> ready for HTML body injection and CTA metadata.</span>
+            </div>
+            {% else %}
+            <div class="comms-template-item">
+              <strong>No templates loaded</strong>
+              <span>Configure email templates before sending branded messages.</span>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+
+      <div class="comms-card">
+        <div class="comms-card-head">
+          <div class="comms-card-title">
+            <strong>Channel guide</strong>
+            <span>Keep communication flow consistent across inbox and email.</span>
+          </div>
+        </div>
+        <div class="comms-card-body">
+          <div class="comms-guide-list">
+            <div class="comms-guide-item">
+              <strong>Inbox message</strong>
+              <span>Use for operational notices, direct follow-up, and fast in-product communication.</span>
+            </div>
+            <div class="comms-guide-item">
+              <strong>HTML email</strong>
+              <span>Use when a branded subject, preheader, and action link are part of the delivery.</span>
+            </div>
+            <div class="comms-guide-item">
+              <strong>Broadcast mode</strong>
+              <span>Switch to broadcast only for shared announcements that should appear to everyone.</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <div class="col-12 col-xxl-7">
-    <div class="card settings-panel-card mb-3">
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <span>Storico broadcast</span>
+  <div class="comms-history-grid">
+    <div class="comms-card comms-history-card">
+      <div class="comms-card-head">
+        <div class="comms-card-title">
+          <strong>Storico broadcast</strong>
+          <span>Recent public or system-wide communication runs.</span>
+        </div>
         <span class="badge bg-light text-dark border">{{ broadcasts|length }} recenti</span>
       </div>
       <div class="card-body p-0">
@@ -299,9 +516,12 @@
       </div>
     </div>
 
-    <div class="card settings-panel-card">
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <span>Messaggi diretti recenti</span>
+    <div class="comms-card comms-history-card">
+      <div class="comms-card-head">
+        <div class="comms-card-title">
+          <strong>Messaggi diretti recenti</strong>
+          <span>Latest user-specific communications stored in inbox.</span>
+        </div>
         <span class="badge bg-light text-dark border">{{ user_messages|length }} recenti</span>
       </div>
       <div class="card-body p-0">

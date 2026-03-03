@@ -1,5 +1,34 @@
 {% extends "base.html" %}
 {% block title %} · Log{% endblock %}
+{% block head %}
+<style nonce="{{ g.csp_nonce }}">
+  .log-detail-inner {
+    display: none;
+  }
+
+  .log-detail-row.open .log-detail-inner {
+    display: block;
+  }
+
+  .js-log-context {
+    max-height: 120px;
+    overflow: auto;
+    white-space: pre-wrap;
+  }
+
+  .log-chevron {
+    transition: transform .18s ease;
+  }
+
+  .log-chevron.is-open {
+    transform: rotate(180deg);
+  }
+
+  .log-import-note {
+    font-size: .75rem;
+  }
+</style>
+{% endblock %}
 {% block content %}
 <div class="page-header d-flex align-items-start justify-content-between flex-wrap gap-2">
   <div>
@@ -129,11 +158,11 @@
             <td class="fs-sm cell-truncate-260">{{ e.message }}</td>
             <td class="fs-xs cell-muted">{{ e.method or '—' }}</td>
             <td class="fs-xs cell-muted">{{ e.ip or '—' }}</td>
-            <td class="text-center"><i class="bi bi-chevron-down fs-xs text-muted" id="chev-{{ eid }}"></i></td>
+            <td class="text-center"><i class="bi bi-chevron-down fs-xs text-muted log-chevron" id="chev-{{ eid }}"></i></td>
           </tr>
           <tr class="log-detail-row" id="logdetail-{{ eid }}">
             <td colspan="8">
-              <div class="log-detail-inner" style="display:none;" id="logdetailinner-{{ eid }}">
+              <div class="log-detail-inner" id="logdetailinner-{{ eid }}">
                 <div class="row g-3">
                   <div class="col-12 col-md-6">
                     <div class="log-detail-grid-2">
@@ -178,7 +207,6 @@
                     <div class="fs-xs mb-1 detail-label">Contesto JSON</div>
                     <pre
                       class="p-2 rounded mb-0 fs-xs detail-message js-log-context"
-                      style="max-height:120px;overflow:auto;white-space:pre-wrap;"
                       data-context="{{ (e.context or {}) | tojson | forceescape }}"
                     ></pre>
                     {% endif %}
@@ -277,22 +305,19 @@ function renderLogContexts() {
 }
 
 function toggleLogRow(eid) {
-  const inner = document.getElementById("logdetailinner-" + eid);
   const detailRow = document.getElementById("logdetail-" + eid);
   const chev  = document.getElementById("chev-" + eid);
   const row   = document.getElementById("logrow-" + eid);
   const isOpen = detailRow.classList.contains("open");
 
   // close all
-  document.querySelectorAll("[id^='logdetailinner-']").forEach(el => el.style.display = "none");
   document.querySelectorAll(".log-detail-row.open").forEach(el => el.classList.remove("open"));
-  document.querySelectorAll("[id^='chev-']").forEach(el => el.style.transform = "");
+  document.querySelectorAll(".log-chevron.is-open").forEach(el => el.classList.remove("is-open"));
   document.querySelectorAll(".log-row.expanded").forEach(el => el.classList.remove("expanded"));
 
   if (!isOpen) {
     detailRow.classList.add("open");
-    inner.style.display = "block";
-    chev.style.transform = "rotate(180deg)";
+    chev.classList.add("is-open");
     row.classList.add("expanded");
   }
 }
@@ -317,7 +342,7 @@ importFile && importFile.addEventListener("change", e => {
       const count = Array.isArray(importData) ? importData.length : "?";
       importPreview.innerHTML = `<div class="small text-muted"><i class="bi bi-file-earmark-text me-2"></i><strong>${file.name}</strong><br>
         Record trovati: <strong>${count}</strong><br>
-        <span class="text-muted" style="font-size:.75rem;">Gli ID già presenti saranno ignorati.</span></div>`;
+        <span class="text-muted log-import-note">Gli ID già presenti saranno ignorati.</span></div>`;
       confirmImport.disabled = false;
     } catch { importPreview.innerHTML = '<div class="small text-muted">Anteprima non disponibile.</div>'; if(window.showToast){showToast("JSON non valido.", "danger");} confirmImport.disabled = true; }
     importModal.show();

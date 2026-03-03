@@ -43,7 +43,7 @@
       </button>
       <a href="index.html" class="mobile-topnav-brand">
         <span class="mobile-topnav-brand-title">WebApp</span>
-        <span class="mobile-topnav-brand-subtitle">Widget &amp; UI showcase</span>
+        <span class="mobile-topnav-brand-subtitle">Admin workspace</span>
       </a>
       <a class="mobile-topnav-icon" href="#" onclick="return false;" aria-label="Messages">
         <i class="bi bi-bell"></i>
@@ -67,18 +67,28 @@
       <div class="mobile-topnav-section">
         <div class="mobile-topnav-section-title">Workspace</div>
         <div class="mobile-topnav-grid">
-          <a href="index.html" class="mobile-topnav-link active"><i class="bi bi-house"></i><span>Dashboard</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-house"></i><span>Dashboard</span></a>
           <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-envelope"></i><span>Messages</span><em class="mobile-topnav-pill">4</em></a>
           <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-person-gear"></i><span>Account</span></a>
         </div>
       </div>
       <div class="mobile-topnav-section">
-        <div class="mobile-topnav-section-title">Showcase</div>
+        <div class="mobile-topnav-section-title">Add-ons</div>
         <div class="mobile-topnav-grid">
           <a href="index.html" class="mobile-topnav-link active"><i class="bi bi-grid-3x3-gap"></i><span>Widget &amp; UI</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-chat-dots"></i><span>Hello</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-book"></i><span>Docs</span></a>
+        </div>
+      </div>
+      <div class="mobile-topnav-section">
+        <div class="mobile-topnav-section-title">Admin</div>
+        <div class="mobile-topnav-grid">
           <a href="settings.html" class="mobile-topnav-link"><i class="bi bi-sliders"></i><span>Settings</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-people"></i><span>Users</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-journal-text"></i><span>Logs</span></a>
           <a href="communications.html" class="mobile-topnav-link"><i class="bi bi-megaphone"></i><span>Comms</span></a>
           <a href="database.html" class="mobile-topnav-link"><i class="bi bi-hdd"></i><span>Database</span></a>
+          <a href="#" onclick="return false;" class="mobile-topnav-link"><i class="bi bi-shield-check"></i><span>Deploy Health</span></a>
         </div>
       </div>
       <div class="mobile-topnav-section">
@@ -100,14 +110,20 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-inner">
         <div class="sidebar-section">Workspace</div>
-        <a href="index.html" class="sidebar-link active"><i class="bi bi-house sidebar-icon"></i> Dashboard</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-house sidebar-icon"></i> Dashboard</a>
         <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-envelope sidebar-icon"></i> Messages</a>
         <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-person-gear sidebar-icon"></i> Account</a>
-        <div class="sidebar-section">Showcase</div>
+        <div class="sidebar-section">Add-ons</div>
         <a href="index.html" class="sidebar-link active"><i class="bi bi-grid-3x3-gap sidebar-icon"></i> Widget &amp; UI</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-chat-dots sidebar-icon"></i> Hello World</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-book sidebar-icon"></i> Documentation</a>
+        <div class="sidebar-section">Admin</div>
         <a href="settings.html" class="sidebar-link"><i class="bi bi-sliders sidebar-icon"></i> WebApp Config</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-people sidebar-icon"></i> Users</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-journal-text sidebar-icon"></i> Event Logs</a>
         <a href="communications.html" class="sidebar-link"><i class="bi bi-megaphone sidebar-icon"></i> Communications</a>
         <a href="database.html" class="sidebar-link"><i class="bi bi-hdd sidebar-icon"></i> Database</a>
+        <a href="#" onclick="return false;" class="sidebar-link"><i class="bi bi-shield-check sidebar-icon"></i> Deploy Health</a>
       </div>
       <div class="sidebar-footer">
         <a href="#" onclick="return false;" class="sidebar-link sidebar-footer-link">
@@ -118,9 +134,14 @@
 
     <main class="content-area">
       <div class="page-header">
-        <div class="page-breadcrumb"><i class="bi bi-grid-3x3-gap me-1"></i> UI Template</div>
-        <h1>Widget &amp; UI showcase for GitHub Pages</h1>
-        <p>This dashboard now mirrors the `widgets_ui` add-on as a static catalog of the design system. Everything here stays inside `ui_template/`, uses relative assets, and works when published from a repository subpath on GitHub Pages.</p>
+        <div class="page-breadcrumb"><i class="bi bi-grid-3x3-gap me-1"></i> Add-on</div>
+        <h1>Widget &amp; UI</h1>
+        <p>Static catalog of the real <code>widgets_ui</code> add-on. The shell matches the current admin workspace, while the content stays self-contained inside <code>ui_template/</code> with relative assets only.</p>
+      </div>
+
+      <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
+        <span class="badge bg-primary-subtle text-primary-emphasis">widgets_ui</span>
+        <span class="badge bg-warning-subtle text-warning-emphasis">admin</span>
       </div>
 
       <div class="d-flex flex-wrap gap-2 mb-3">
@@ -1023,17 +1044,16 @@
     </main>
   </div>
 
-  <div id="cookieBanner" class="cookie-banner">
-    <div class="cookie-banner-inner">
-      <div>
-        <strong>Cookie notice</strong>
-        <div class="text-muted fs-sm">Static demo banner stored with localStorage only.</div>
-      </div>
-      <button class="btn btn-primary btn-sm" id="cookieAccept" type="button">Accept</button>
-    </div>
-  </div>
+  <div class="toast-stack" id="toastStack"></div>
+  <script type="application/json" id="flashMessagesData">[["success","Widget & UI template loaded"],["info","This static page mirrors the shared add-on shell and component catalog."]]</script>
 
-  <div class="toast-container position-fixed bottom-0 end-0 p-3" id="toastStack"></div>
+  <div class="cookie-banner" id="cookieBanner">
+    <span><i class="bi bi-cookie me-2"></i>
+      We use essential technical cookies for site operation only.
+      <a href="#" onclick="return false;">Privacy Policy</a>
+    </span>
+    <button class="btn btn-sm btn-outline-light flex-shrink-0" id="cookieAccept">Accept</button>
+  </div>
 
   <div class="modal fade" id="modalInfo" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">

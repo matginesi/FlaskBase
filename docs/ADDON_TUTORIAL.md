@@ -15,6 +15,7 @@ This tutorial creates a minimal but correct add-on with:
 
 ```text
 addons/my_demo/
+  __init__.py
   addon.py
   routes.py
   api.py
@@ -104,6 +105,7 @@ def build_addon(app: Flask) -> AddonManifest:
         name="My Demo",
         version="1.0.0",
         description="Demo add-on",
+        min_app_version="1.0.0",
         blueprints=[bp],
         api_mounts=[
             AddonApiMount(
@@ -122,7 +124,9 @@ def build_addon(app: Flask) -> AddonManifest:
                 href="/addons/my_demo/",
                 icon="puzzle",
                 role="user",
+                section="tools",
                 order=60,
+                page_key="my_demo",
                 active_prefix="/addons/my_demo",
             ),
             AddonNavItem(
@@ -131,6 +135,7 @@ def build_addon(app: Flask) -> AddonManifest:
                 href="/addons/my_demo/admin",
                 icon="shield-check",
                 role="admin",
+                section="tools",
                 order=60,
                 active_prefix="/addons/my_demo/admin",
             ),
@@ -248,6 +253,7 @@ Valid structure:
 ```text
 my_demo.zip
   my_demo/
+    __init__.py
     addon.py
     routes.py
     api.py
@@ -258,6 +264,26 @@ my_demo.zip
         my_demo/
           index.html
           admin.html
+```
+
+## 13. Documentation Blocks
+
+When you document the add-on, always use fenced code blocks with an explicit language so the in-app Documentation add-on can render them correctly.
+
+```json
+{
+  "enabled": true,
+  "welcome_copy": "Hello from My Demo"
+}
+```
+
+```python
+def build_addon(app: Flask) -> AddonManifest:
+    return AddonManifest(addon_id="my_demo", name="My Demo", version="1.0.0")
+```
+
+```bash
+curl -H "Authorization: Bearer <token>" http://127.0.0.1:8000/v1/addons/my-demo/hello
 ```
 
 ## Practical Rules

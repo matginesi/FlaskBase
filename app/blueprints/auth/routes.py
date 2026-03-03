@@ -17,6 +17,7 @@ from flask_login import current_user, login_required, login_user, logout_user
 from ...extensions import db, limiter
 from ...models import ApiToken, ApiTokenReveal, EmailVerificationToken, User, UserSession, _derive_fernet_key, now_utc
 from ...services.audit import audit
+from ...services.app_logger import log_event, log_warning
 from ...services.email_service import EmailServiceError, runtime_email_settings, send_email
 from ...services.i18n import normalize_language, translate
 from ...services.job_service import enqueue_email_job
@@ -1113,7 +1114,7 @@ def settings():
     form = UserSettingsForm(
         name=current_user.name,
         username=current_user.username or "",
-        locale=current_user.locale or ("it-IT" if session.get("ui_lang") == "it" else "en"),
+        locale=current_user.locale or session.get("ui_lang") or "en",
         timezone=current_user.timezone or "",
         notes=current_user.notes or "",
         notification_email_enabled=bool(current_user.notification_email_enabled),
@@ -1146,8 +1147,8 @@ def settings():
                 return redirect(url_for("auth.settings"))
         current_user.name = form.name.data.strip()
         current_user.username = new_username or None
-        current_user.locale = (form.locale.data or "").strip()[:16] or None
-        session["ui_lang"] = normalize_language(current_user.locale or session.get("ui_lang"))
+        current_user.locale = normalize_language(session.get("ui_lang") or current_user.locale or "en")
+        session["ui_lang"] = current_user.locale
         current_user.timezone = (form.timezone.data or "").strip()[:64] or None
         current_user.notes = (form.notes.data or "").strip()[:4000] or None
         current_user.notification_email_enabled = bool(form.notification_email_enabled.data)
@@ -1409,6 +1410,13 @@ def api_keys_revoke(token_id: int):
 @login_required
 def api_keys_data():
     revealed_tokens = _rehydrate_pending_token_reveals(int(current_user.id))
+    log_event(
+        "INFO",
+        "auth.api_keys_workspace_loaded",
+        "Loaded personal API key workspace payload",
+        logger=log,
+        context={"user_id": int(current_user.id), "revealed_token_count": len(revealed_tokens)},
+    )
     return jsonify({"ok": True, **_api_key_workspace_payload(int(current_user.id), revealed_tokens=revealed_tokens)})
 
 
@@ -1428,6 +1436,12 @@ def api_keys_create_json():
         )
     except ValueError as exc:
         db.session.rollback()
+        log_warning(
+            "auth.api_key_create_json_rejected",
+            "Rejected personal API key JSON creation request",
+            logger=log,
+            context={"user_id": int(current_user.id), "error": str(exc)[:160]},
+        )
         return jsonify({"ok": False, "error": str(exc)}), 400
     payload = _api_key_workspace_payload(
         int(current_user.id),
@@ -1442,6 +1456,13 @@ def api_keys_create_json():
             }
         ],
     )
+    log_event(
+        "INFO",
+        "auth.api_key_created_json",
+        "Created personal API key through JSON endpoint",
+        logger=log,
+        context={"user_id": int(current_user.id), "token_id": int(token_row.id), "token_name": str(token_row.name or "")},
+    )
     return jsonify({"ok": True, **payload})
 
 
@@ -1451,10 +1472,23 @@ def api_keys_create_json():
 def api_keys_revoke_json(token_id: int):
     token = ApiToken.query.filter_by(id=int(token_id), user_id=int(current_user.id)).first()
     if token is None or str(token.name or "") == "browser-session":
+        log_warning(
+            "auth.api_key_revoke_json_not_found",
+            "Personal API key JSON revoke target not found",
+            logger=log,
+            context={"user_id": int(current_user.id), "token_id": int(token_id)},
+        )
         return jsonify({"ok": False, "error": "API key not found."}), 404
     if token.revoked_at is None:
         token.revoked_at = now_utc()
         db.session.commit()
+        log_event(
+            "INFO",
+            "auth.api_key_revoked_json",
+            "Revoked personal API key through JSON endpoint",
+            logger=log,
+            context={"user_id": int(current_user.id), "token_id": int(token.id), "token_name": str(token.name or "")},
+        )
         audit(
             "auth.api_key_revoked",
             "Personal API key revoked",

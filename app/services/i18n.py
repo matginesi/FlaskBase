@@ -53,8 +53,7 @@ def resolve_language(*, user_locale: str | None = None, default_language: str | 
         return normalize_language(session_lang)
     if user_locale:
         return normalize_language(user_locale)
-    best = request.accept_languages.best_match(list(SUPPORTED_LANGUAGES.keys()))
-    return normalize_language(best or default_lang)
+    return default_lang
 
 
 def translate(key: str, default: str | None = None, *, lang: str | None = None, **kwargs: Any) -> str:

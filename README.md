@@ -271,6 +271,13 @@ Current behavior:
 - users can revoke their own keys
 - temporary tester tokens are kept separate from long-lived personal keys
 
+API Tester integration details:
+
+- the add-on loads account key inventory from `GET /auth/api-keys/data`
+- personal key creation inside the add-on uses `POST /auth/api-keys/create.json`
+- the tester refuses bearer tokens owned by another user
+- temporary `api_tester` tokens are short-lived and system-managed
+
 ## Background Jobs
 
 The project includes a job runtime for asynchronous work such as email delivery and queued operations.
@@ -298,6 +305,7 @@ ZIP-installed add-ons are validated before installation and must be considered t
 Important operational detail:
 
 - new Flask routes from a freshly installed add-on require restart to become active
+- add-on routes should log operational failures through [app/services/app_logger.py](/home/matteo/PycharmProjects/webApp/app/services/app_logger.py) and use audit entries for user-visible lifecycle events
 
 ## Database Administration
 
@@ -324,6 +332,10 @@ Language resolution considers:
 - authenticated user preference
 - browser language headers
 
+Default behavior:
+
+- English is the application fallback when no higher-priority preference is available
+
 ## Testing
 
 Basic test run:
@@ -331,6 +343,10 @@ Basic test run:
 ```bash
 pytest -q
 ```
+
+Coverage notes:
+
+- [tests/test_api_tester.py](/home/matteo/PycharmProjects/webApp/tests/test_api_tester.py) covers the API Tester auth workspace routes and token ownership checks
 
 Full-stack stress run:
 

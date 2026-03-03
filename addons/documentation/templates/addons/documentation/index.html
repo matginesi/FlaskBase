@@ -4,6 +4,11 @@
 {% block head %}
 <style nonce="{{ g.csp_nonce }}">
 /* Documentation add-on — responsive + UI-consistent */
+.docs-intro-copy{font-size:.84rem}
+.docs-section-label{
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
 .docs-nav-card .list-group-item{
   border-color: var(--card-border);
   background: var(--card-bg);
@@ -109,7 +114,7 @@
 <div class="page-header">
   <div class="page-breadcrumb"><i class="bi bi-journal-text me-1"></i>Add-on</div>
   <h1>Documentazione</h1>
-  <p class="text-muted" style="font-size:.84rem;">I documenti sono <code>Markdown</code> renderizzati in HTML (sola lettura). Il testo è in serif per lettura lunga; titoli e UI seguono lo stile dell’app.</p>
+  <p class="text-muted docs-intro-copy">I documenti sono <code>Markdown</code> renderizzati in HTML (sola lettura). Il testo è in serif per lettura lunga; titoli e UI seguono lo stile dell’app.</p>
 </div>
 
 {# Mobile offcanvas nav #}
@@ -130,7 +135,7 @@
   <div class="offcanvas-body">
     <div class="card docs-nav-card">
       <div class="card-header">
-        <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;">Navigazione</span>
+        <span class="small text-muted fw-bold docs-section-label">Navigazione</span>
       </div>
       <div class="list-group list-group-flush">
         <a class="list-group-item {{ 'active' if active_kind == 'readme' else '' }}" href="/addons/documentation/readme">
@@ -151,7 +156,7 @@
   <div class="col-lg-3 d-none d-lg-block">
     <div class="card docs-nav-card">
       <div class="card-header d-flex align-items-center justify-content-between">
-        <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;">Documenti</span>
+        <span class="small text-muted fw-bold docs-section-label">Documenti</span>
         <span class="badge text-bg-light">MD</span>
       </div>
       <div class="list-group list-group-flush">
@@ -196,7 +201,7 @@
     {% if toc and toc|length %}
       <div class="card">
         <div class="card-header">
-          <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;"><i class="bi bi-list-ul me-1"></i>Indice</span>
+          <span class="small text-muted fw-bold docs-section-label"><i class="bi bi-list-ul me-1"></i>Indice</span>
         </div>
         <div class="card-body docs-toc">
           {% for item in toc %}

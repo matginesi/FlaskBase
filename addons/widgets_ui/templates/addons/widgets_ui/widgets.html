@@ -7,6 +7,71 @@
   <p>Showcase completo di componenti Bootstrap 5. {% if view_mode == 'admin' %}Vista admin per QA visuale, review e governance del design system.{% else %}Vista utente come reference pronta da riusare.{% endif %}</p>
 </div>
 
+<style nonce="{{ g.csp_nonce }}">
+.wu-type-sample--display { font-size: 26px; font-weight: 800; letter-spacing: normal; line-height: 1.28; }
+.wu-type-sample--title { font-size: 20px; font-weight: 700; letter-spacing: normal; line-height: 1.28; }
+.wu-type-sample--section { font-size: 17px; font-weight: 700; letter-spacing: normal; line-height: 1.28; }
+.wu-type-sample--card-title { font-size: 15px; font-weight: 600; letter-spacing: normal; line-height: 1.28; }
+.wu-type-sample--body { font-size: 14px; font-weight: 400; letter-spacing: normal; line-height: 1.28; }
+.wu-type-sample--meta { font-size: 12px; font-weight: 600; letter-spacing: .05em; line-height: 1.28; }
+.wu-surface-muted { background: #f8fafc; border: 1px solid var(--card-border); }
+.wu-surface-dark { background: linear-gradient(135deg, #0f1923 0%, #1b2b3c 100%); border: 1px solid #223446; color: #fff; }
+.wu-surface-shell { background: linear-gradient(135deg, #0f1923 0%, #1e2f40 100%); border: 1px solid #223446; color: #fff; }
+.wu-border-shell { border: 1px solid var(--card-border); border-radius: var(--radius); overflow: hidden; }
+.wu-table-head { background: #f8fafc; }
+.wu-icon-16 { width: 16px; }
+.wu-icon-xs { font-size: .7rem; }
+.wu-carousel-shell { border: 1px solid var(--card-border); }
+.wu-carousel-media { height: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #fff; }
+.wu-carousel-media--1 { background: linear-gradient(135deg, #0f766e, #14b8a6); }
+.wu-carousel-media--2 { background: linear-gradient(135deg, #1d4ed8, #60a5fa); }
+.wu-carousel-media--3 { background: linear-gradient(135deg, #7c3aed, #a78bfa); }
+.wu-carousel-num { font-size: 2rem; font-weight: 800; }
+.wu-carousel-copy { font-size: .9rem; opacity: .8; }
+.wu-audio { border-radius: .4rem; height: 36px; }
+.wu-progress-track-sm { height: 10px; border-radius: 999px; }
+.wu-progress-track-md { height: 12px; border-radius: 12px; }
+.wu-progress-track-lg { height: 16px; border-radius: 999px; background: rgba(255,255,255,.12); }
+.wu-progress-track-upload { height: 10px; border-radius: 10px; }
+.wu-progress-track-install { height: 12px; border-radius: 12px; }
+.wu-progress-fill { width: 0%; }
+.wu-progress-fill[data-progress],
+.wu-progress-segment[data-progress] { width: 0%; }
+.wu-progress-label { width: 120px; }
+.wu-dashboard-kpi { font-size: 1.35rem; }
+.wu-dot { width: 10px; height: 10px; }
+.wu-accent-dot { width: 28px; height: 28px; }
+.wu-shell-muted-text { color: #8fa3b8; }
+.wu-shell-panel { background: rgba(255,255,255,.06); min-height: 110px; }
+.wu-shell-panel-light { background: #ffffff; color: #1e293b; min-height: 110px; }
+.wu-shell-active { color: #fff; }
+.wu-shell-dim { color: #8fa3b8; }
+.wu-surface-tab { background: #f8fafc; border: 1px solid var(--card-border); }
+.wu-sidebar-demo { background: #0f1923; border-radius: .6rem; }
+.wu-grid-topbar { background: #dbeafe; color: #1d4ed8; }
+.wu-grid-main,
+.wu-grid-stat,
+.wu-grid-chart,
+.wu-grid-list { background: #eff6ff; border: 1px solid #bfdbfe; color: #1d4ed8; }
+.wu-grid-side { background: #f8fafc; border: 1px solid var(--card-border); color: #475569; }
+.wu-timeline-time { min-width: 64px; }
+.wu-danger-icon { font-size: 2.5rem; color: #dc2626; }
+.wu-upload-icon { font-size: 2.5rem; color: #2563eb; }
+.wu-toast {
+  min-width: 280px;
+  background: #fff;
+  box-shadow: 0 4px 20px rgba(0,0,0,.13);
+  border-radius: .6rem;
+  overflow: hidden;
+}
+.wu-toast-head { padding: .75rem 1rem .5rem; display: flex; align-items: center; gap: .5rem; }
+.wu-toast-icon { font-size: 1rem; flex-shrink: 0; }
+.wu-toast-close { background: none; border: none; cursor: pointer; font-size: 1rem; color: #94a3b8; padding: 0; line-height: 1; }
+.wu-toast-body { padding: 0 1rem .75rem; }
+.wu-toast-track { background: #f1f5f9; border-radius: 4px; height: 4px; overflow: hidden; }
+.wu-toast-bar { height: 100%; width: 100%; border-radius: 4px; }
+</style>
+
 <div class="d-flex align-items-center gap-2 mb-3">
   <span class="badge bg-primary-subtle text-primary-emphasis">widgets_ui</span>
   <span class="badge {% if view_mode == 'admin' %}bg-warning-subtle text-warning-emphasis{% else %}bg-success-subtle text-success-emphasis{% endif %}">{{ view_mode or 'user' }}</span>
@@ -177,8 +242,7 @@
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label">Range: <span id="rval">50</span></label>
-            <input type="range" class="form-range" min="0" max="100" value="50"
-                   oninput="document.getElementById('rval').textContent=this.value">
+            <input type="range" class="form-range" min="0" max="100" value="50" data-range-output="rval">
           </div>
           <div class="col-12 col-md-6">
             <label class="form-label d-block">Checkbox & Switch</label>
@@ -194,7 +258,7 @@
             </div>
           </div>
           <div class="col-12 d-flex gap-2">
-            <button type="button" class="btn btn-primary" onclick="showToast('Form inviato!','success')">
+            <button type="button" class="btn btn-primary" data-demo-toast="Form inviato!" data-demo-toast-type="success">
               <i class="bi bi-send me-1"></i>Invia
             </button>
             <button type="reset" class="btn btn-outline-secondary">Reset</button>
@@ -253,8 +317,7 @@
                 <code class="fs-xs">{{ token }}</code>
                 <span class="text-muted fs-xs">{{ px }} / {{ wt }}</span>
               </div>
-              <div class="{% if token == 'meta' %}text-muted text-uppercase{% endif %}"
-                   style="font-size:{{ px }};font-weight:{{ wt }};letter-spacing:{% if token == 'meta' %}.05em{% else %}normal{% endif %};line-height:1.28;">
+              <div class="{% if token == 'meta' %}text-muted text-uppercase{% endif %} wu-type-sample--{{ token }}">
                 {{ sample }}
               </div>
             </div>
@@ -272,7 +335,7 @@
             <div class="d-flex flex-wrap gap-3 mb-3">
               <span class="text-muted fs-xs">Pubblicato 22 Feb 2026</span>
               <span class="text-muted fs-xs">Tempo lettura 3 min</span>
-              <a href="#" onclick="return false;" class="fs-xs">Apri changelog</a>
+              <a href="#" data-no-nav class="fs-xs">Apri changelog</a>
             </div>
             <p class="mb-2 fs-sm">
               Questo blocco simula il contenuto reale di una pagina admin: un titolo forte, micro metadata e testo
@@ -282,7 +345,7 @@
               Usa <strong>grassetto</strong> per evidenziare dati chiave, <em>corsivo</em> per note di tono e
               <code>inline code</code> per riferimenti tecnici.
             </p>
-            <div class="p-2 rounded fs-sm" style="background:#f8fafc;border:1px solid var(--card-border);">
+            <div class="p-2 rounded fs-sm wu-surface-muted">
               “La gerarchia tipografica deve rendere ovvio cosa leggere prima, senza aumentare il rumore visivo.”
             </div>
           </div>
@@ -301,7 +364,7 @@
               <div class="card-subtitle mb-2">Ultima esecuzione 12:40 · durata 1.8s</div>
               <div class="fs-sm text-muted">Descrizione breve: cosa è successo e qual è lo stato corrente.</div>
             </div>
-            <div class="p-2 rounded" style="border:1px solid var(--card-border);background:#f8fafc;">
+            <div class="p-2 rounded wu-surface-muted">
               <div class="fw-600 fs-sm mb-1">Messaggio toast</div>
               <div class="fs-sm text-muted">Backup completato con successo. Nessun intervento richiesto.</div>
             </div>
@@ -355,8 +418,8 @@
       <div class="col-12 col-lg-8">
         <h6 class="text-muted text-uppercase fs-xs mb-3">Tabella dati compatta</h6>
         <div class="table-responsive">
-          <table class="table table-compact table-hover mb-0" style="border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;">
-            <thead style="background:#f8fafc;">
+          <table class="table table-compact table-hover mb-0 wu-border-shell">
+            <thead class="wu-table-head">
               <tr>
                 <th>ID</th><th>Nome</th><th>Email</th><th>Ruolo</th><th>Stato</th><th>Data</th>
               </tr>
@@ -386,12 +449,12 @@
       </div>
       <div class="col-12 col-lg-4">
         <h6 class="text-muted text-uppercase fs-xs mb-3">Lista compatta</h6>
-        <div class="list-group list-group-flush" style="border:1px solid var(--card-border);border-radius:var(--radius);overflow:hidden;">
+        <div class="list-group list-group-flush wu-border-shell">
           {% for item, icon in [('Dashboard','house'),('Impostazioni','gear'),('Utenti','people'),('Log eventi','journal'),('API','code-slash'),('Chat','chat-dots')] %}
           <div class="list-group-item d-flex align-items-center gap-2 py-2 px-3">
-            <i class="bi bi-{{ icon }} text-primary" style="width:16px;"></i>
+            <i class="bi bi-{{ icon }} text-primary wu-icon-16"></i>
             <span class="fs-sm">{{ item }}</span>
-            <i class="bi bi-chevron-right ms-auto text-muted" style="font-size:.7rem;"></i>
+            <i class="bi bi-chevron-right ms-auto text-muted wu-icon-xs"></i>
           </div>
           {% endfor %}
         </div>
@@ -416,7 +479,7 @@
       <!-- Carousel -->
       <div class="col-12 col-lg-6">
         <h6 class="text-muted text-uppercase fs-xs mb-3">Carousel</h6>
-        <div id="carouselDemo" class="carousel slide rounded overflow-hidden" data-bs-ride="carousel" style="border:1px solid var(--card-border);">
+        <div id="carouselDemo" class="carousel slide rounded overflow-hidden wu-carousel-shell" data-bs-ride="carousel">
           <div class="carousel-indicators">
             {% for i in range(3) %}
             <button type="button" data-bs-target="#carouselDemo" data-bs-slide-to="{{ i }}" {% if i==0 %}class="active"{% endif %}></button>
@@ -425,9 +488,9 @@
           <div class="carousel-inner">
             {% for n, bg, lbl in [(1,'#1d4ed8','Slide Alpha'),(2,'#15803d','Slide Beta'),(3,'#9f1239','Slide Gamma')] %}
             <div class="carousel-item {% if n==1 %}active{% endif %}">
-              <div style="height:200px;background:{{ bg }};display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;">
-                <div style="font-size:2rem;font-weight:800;">{{ n }}</div>
-                <div style="font-size:.9rem;opacity:.8;">{{ lbl }}</div>
+              <div class="wu-carousel-media wu-carousel-media--{{ loop.index }}">
+                <div class="wu-carousel-num">{{ n }}</div>
+                <div class="wu-carousel-copy">{{ lbl }}</div>
               </div>
             </div>
             {% endfor %}
@@ -458,7 +521,7 @@
         </p>
 
         <h6 class="text-muted text-uppercase fs-xs mb-3">Audio player</h6>
-        <audio controls class="w-100" style="border-radius:.4rem;height:36px;">
+        <audio controls class="w-100 wu-audio">
           <source src="" type="audio/mpeg">
           <span class="text-muted fs-sm">Browser non supporta audio HTML5.</span>
         </audio>
@@ -490,135 +553,175 @@
   <!-- ── PROGRESS ── -->
   <div class="tab-pane fade" id="tabprogress" role="tabpanel">
     <div class="row g-4">
-
-      <!-- Basic progress bars -->
-      <div class="col-12 col-lg-6">
-        <h6 class="text-muted text-uppercase fs-xs mb-3">Progress bar statiche</h6>
-        <div class="d-flex flex-column gap-3">
-          {% for lbl, val, col, h in [
-            ('Successo','85','success',8),
-            ('In corso','55','primary',8),
-            ('Attenzione','30','warning',8),
-            ('Critico','12','danger',8),
-            ('Striped animata','65','info',10)
-          ] %}
-          <div>
-            <div class="d-flex justify-content-between fs-xs mb-1">
-              <span class="text-muted fw-600">{{ lbl }}</span>
-              <span class="fw-700">{{ val }}%</span>
+      <div class="col-12 col-xl-7">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-cloud-arrow-up me-2 text-primary"></i>Operational progress surfaces</span>
+            <span class="badge bg-primary-subtle text-primary-emphasis">recommended</span>
+          </div>
+          <div class="card-body d-grid gap-3">
+            {% for title, meta, val, tone in [
+              ('Addon package validation','Inspecting manifest, visual metadata and config schema','24','primary'),
+              ('File upload to runtime','Encrypted transport with server-side buffering','68','info'),
+              ('Controlled restart request','Waiting for a safe bootstrap window','82','warning')
+            ] %}
+            <div class="rounded p-3 wu-surface-muted">
+              <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                <div>
+                  <div class="fw-700 fs-sm">{{ title }}</div>
+                  <div class="text-muted fs-xs">{{ meta }}</div>
+                </div>
+                <span class="badge {% if tone == 'warning' %}bg-warning-subtle text-warning-emphasis{% elif tone == 'info' %}bg-info-subtle text-info-emphasis{% else %}bg-primary-subtle text-primary-emphasis{% endif %}">{{ val }}%</span>
+              </div>
+              <div class="progress wu-progress-track-sm">
+                <div class="progress-bar bg-{{ tone }} wu-progress-segment" role="progressbar" data-progress="{{ val }}" aria-valuenow="{{ val }}" aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
             </div>
-            <div class="progress" style="height:{{ h }}px;border-radius:{{ h }}px;">
-              <div class="progress-bar bg-{{ col }}
-                {% if 'Striped' in lbl %}progress-bar-striped progress-bar-animated{% endif %}"
-                   role="progressbar" style="width:{{ val }}%;"
-                   aria-valuenow="{{ val }}" aria-valuemin="0" aria-valuemax="100">
+            {% endfor %}
+
+            <div class="rounded p-3 wu-surface-dark">
+              <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                  <div class="text-uppercase fs-xs fw-600 wu-shell-muted-text">Deployment pipeline</div>
+                  <div class="fw-700">Multi-stage status bar</div>
+                </div>
+                <span class="badge bg-light text-dark">4 stages</span>
+              </div>
+              <div class="progress mb-3 wu-progress-track-lg">
+                <div class="progress-bar bg-success wu-progress-segment" data-progress="34">Build</div>
+                <div class="progress-bar bg-primary wu-progress-segment" data-progress="28">Upload</div>
+                <div class="progress-bar bg-warning text-dark wu-progress-segment" data-progress="20">Restart</div>
+              </div>
+              <div class="d-flex flex-wrap gap-3 fs-xs text-white-50">
+                <span><span class="badge bg-success me-1"> </span>Build completed</span>
+                <span><span class="badge bg-primary me-1"> </span>Upload active</span>
+                <span><span class="badge bg-warning text-dark me-1"> </span>Restart queued</span>
               </div>
             </div>
           </div>
-          {% endfor %}
-        </div>
-
-        <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Multi-segment</h6>
-        <div class="progress" style="height:18px;border-radius:9px;">
-          <div class="progress-bar bg-success" style="width:40%;" title="Completato 40%">40%</div>
-          <div class="progress-bar bg-warning" style="width:25%;" title="In corso 25%">25%</div>
-          <div class="progress-bar bg-danger" style="width:15%;" title="Errori 15%">15%</div>
-        </div>
-        <div class="d-flex gap-3 mt-2 fs-xs text-muted">
-          <span><span class="badge bg-success me-1"> </span>Completato 40%</span>
-          <span><span class="badge bg-warning me-1"> </span>In corso 25%</span>
-          <span><span class="badge bg-danger me-1"> </span>Errori 15%</span>
         </div>
       </div>
 
-      <!-- Interactive progress bar -->
-      <div class="col-12 col-lg-6">
-        <h6 class="text-muted text-uppercase fs-xs mb-3">Progress bar interattiva</h6>
-        <div class="p-3 rounded" style="background:#f8fafc;border:1px solid var(--card-border);">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <span class="fs-sm fw-600">Avanzamento operazione</span>
-            <span class="fw-700 fs-sm" id="liveProgressLabel">0%</span>
+      <div class="col-12 col-xl-5">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-sliders2 me-2 text-primary"></i>Interactive progress</span>
+            <span class="badge bg-secondary">mock</span>
           </div>
-          <div class="progress mb-3" style="height:12px;border-radius:12px;">
-            <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
-                 id="liveProgressBar" role="progressbar" style="width:0%;" aria-valuenow="0"
-                 aria-valuemin="0" aria-valuemax="100"></div>
-          </div>
-          <div class="d-flex gap-2">
-            <button class="btn btn-primary btn-sm" onclick="startProgress()">
-              <i class="bi bi-play-fill me-1"></i>Avvia
-            </button>
-            <button class="btn btn-outline-secondary btn-sm" onclick="resetProgress()">
-              <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
-            </button>
-          </div>
-          <div class="text-muted fs-xs mt-2" id="liveProgressStatus">Premi Avvia per simulare un'operazione.</div>
-        </div>
+          <div class="card-body d-grid gap-3">
+            <div class="rounded p-3 wu-surface-muted">
+              <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="fs-sm fw-600">Runtime operation</span>
+                <span class="fw-700 fs-sm" id="liveProgressLabel">0%</span>
+              </div>
+              <div class="progress mb-3 wu-progress-track-md">
+                <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
+                     id="liveProgressBar" role="progressbar" aria-valuenow="0"
+                     aria-valuemin="0" aria-valuemax="100"></div>
+              </div>
+              <div class="d-flex gap-2">
+                <button class="btn btn-primary btn-sm" data-demo-action="start-progress">
+                  <i class="bi bi-play-fill me-1"></i>Start
+                </button>
+                <button class="btn btn-secondary btn-sm" data-demo-action="reset-progress">
+                  <i class="bi bi-arrow-counterclockwise me-1"></i>Reset
+                </button>
+              </div>
+              <div class="text-muted fs-xs mt-2" id="liveProgressStatus">Press start to simulate a long-running operation.</div>
+            </div>
 
-        <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Dimensioni</h6>
-        <div class="d-flex flex-column gap-2">
-          {% for h, lbl in [(4,'Sottile (4px)'),(8,'Normale (8px)'),(16,'Spessa (16px)'),(24,'Molto spessa (24px)')] %}
-          <div class="d-flex align-items-center gap-3">
-            <span class="text-muted fs-xs" style="width:130px;">{{ lbl }}</span>
-            <div class="progress flex-grow-1" style="height:{{ h }}px;border-radius:{{ h }}px;">
-              <div class="progress-bar bg-primary" style="width:65%;"></div>
+            <div class="rounded p-3 wu-surface-muted">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <div class="fw-700 fs-sm">Progress density scale</div>
+                  <div class="text-muted fs-xs">Use the thin variant for inline telemetry, the thicker one for modal workflows.</div>
+                </div>
+              </div>
+              <div class="d-grid gap-2">
+                {% for h, lbl in [(4,'Telemetry inline'),(8,'Default surface'),(14,'Panel status'),(22,'Primary workflow')] %}
+                <div class="d-flex align-items-center gap-3">
+                  <span class="text-muted fs-xs wu-progress-label">{{ lbl }}</span>
+                  <div class="progress flex-grow-1" data-progress-height="{{ h }}">
+                    <div class="progress-bar bg-primary wu-progress-segment" data-progress="65"></div>
+                  </div>
+                </div>
+                {% endfor %}
+              </div>
             </div>
           </div>
-          {% endfor %}
         </div>
       </div>
 
-      <!-- Modal with progress -->
       <div class="col-12 col-lg-6">
-        <h6 class="text-muted text-uppercase fs-xs mb-3">Modal con progress bar</h6>
-        <div class="d-flex flex-column gap-2">
-          <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUpload">
-            <i class="bi bi-cloud-upload me-2"></i>Simula upload file
-          </button>
-          <button class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalInstall">
-            <i class="bi bi-download me-2"></i>Simula installazione
-          </button>
-        </div>
-      </div>
-
-      <!-- Toast with progress -->
-      <div class="col-12 col-lg-6">
-        <h6 class="text-muted text-uppercase fs-xs mb-3">Toast con progress bar (auto-dismiss)</h6>
-        <div class="d-flex flex-wrap gap-2">
-          <button class="btn btn-success btn-sm" onclick="showProgressToast('Backup completato!', 'success', 4000)">
-            <i class="bi bi-check-circle me-1"></i>Success toast
-          </button>
-          <button class="btn btn-primary btn-sm" onclick="showProgressToast('Sincronizzazione in corso...', 'primary', 6000)">
-            <i class="bi bi-arrow-repeat me-1"></i>Info toast
-          </button>
-          <button class="btn btn-warning btn-sm text-dark" onclick="showProgressToast('Attenzione: sessione in scadenza', 'warning', 8000)">
-            <i class="bi bi-exclamation-triangle me-1"></i>Warning toast
-          </button>
-          <button class="btn btn-danger btn-sm" onclick="showProgressToast('Errore di connessione', 'danger', 5000)">
-            <i class="bi bi-x-circle me-1"></i>Error toast
-          </button>
-        </div>
-        <div class="text-muted fs-xs mt-3">
-          I toast con progress bar mostrano visivamente il tempo rimasto prima del dismiss automatico.
-        </div>
-      </div>
-
-      <!-- Circular / custom progress -->
-      <div class="col-12">
-        <h6 class="text-muted text-uppercase fs-xs mb-3">Progress circolari (SVG)</h6>
-        <div class="d-flex flex-wrap gap-4 align-items-center">
-          {% for val, col, lbl in [(75,'#2563eb','75%'),(45,'#16a34a','45%'),(90,'#d97706','90%'),(20,'#dc2626','20%')] %}
-          <div class="text-center">
-            <svg width="80" height="80" viewBox="0 0 80 80">
-              <circle cx="40" cy="40" r="32" fill="none" stroke="#e2e8f0" stroke-width="8"/>
-              <circle cx="40" cy="40" r="32" fill="none" stroke="{{ col }}" stroke-width="8"
-                      stroke-dasharray="{{ (val / 100 * 201.06) | round(2) }} 201.06"
-                      stroke-dashoffset="50.265" stroke-linecap="round"
-                      transform="rotate(-90 40 40)"/>
-              <text x="40" y="45" text-anchor="middle" font-size="14" font-weight="700" fill="{{ col }}">{{ lbl }}</text>
-            </svg>
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-window-stack me-2 text-primary"></i>Modal workflows</span>
+            <span class="badge bg-light text-dark border">install flows</span>
           </div>
-          {% endfor %}
+          <div class="card-body d-grid gap-2">
+            <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#modalUpload">
+              <i class="bi bi-cloud-upload me-2"></i>Simulate upload modal
+            </button>
+            <button class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#modalInstall">
+              <i class="bi bi-box-arrow-in-down me-2"></i>Simulate install modal
+            </button>
+            <div class="text-muted fs-xs mt-2">The preferred pattern is: compact intro, current stage, a single main progress surface, and one primary CTA.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-lg-6">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-bell me-2 text-primary"></i>Toast with timeout progress</span>
+            <span class="badge bg-info-subtle text-info-emphasis">feedback</span>
+          </div>
+          <div class="card-body">
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-success btn-sm" data-progress-toast="Backup completed" data-progress-toast-type="success" data-progress-toast-duration="4000">
+                <i class="bi bi-check-circle me-1"></i>Success
+              </button>
+              <button class="btn btn-primary btn-sm" data-progress-toast="Sync in progress" data-progress-toast-type="primary" data-progress-toast-duration="6000">
+                <i class="bi bi-arrow-repeat me-1"></i>Info
+              </button>
+              <button class="btn btn-warning btn-sm text-dark" data-progress-toast="Session expiry approaching" data-progress-toast-type="warning" data-progress-toast-duration="8000">
+                <i class="bi bi-exclamation-triangle me-1"></i>Warning
+              </button>
+              <button class="btn btn-danger btn-sm" data-progress-toast="Connection failed" data-progress-toast-type="danger" data-progress-toast-duration="5000">
+                <i class="bi bi-x-circle me-1"></i>Error
+              </button>
+            </div>
+            <div class="text-muted fs-xs mt-3">Toast progress is useful for auto-dismiss feedback. Keep it secondary: it should support the message, not replace it.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-circle-square me-2 text-primary"></i>Circular progress</span>
+            <span class="badge bg-success-subtle text-success-emphasis">dashboard</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              {% for val, col, lbl, meta in [(75,'#2563eb','Release readiness','3 blockers left'),(45,'#16a34a','Background jobs','9/20 workers'),(90,'#d97706','Migration status','waiting final review'),(20,'#dc2626','Incident triage','critical backlog')] %}
+              <div class="col-6 col-lg-3">
+                <div class="rounded p-3 text-center h-100 wu-surface-muted">
+                  <svg width="84" height="84" viewBox="0 0 80 80" class="mb-2">
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="#e2e8f0" stroke-width="8"/>
+                    <circle cx="40" cy="40" r="32" fill="none" stroke="{{ col }}" stroke-width="8"
+                            stroke-dasharray="{{ (val / 100 * 201.06) | round(2) }} 201.06"
+                            stroke-dashoffset="50.265" stroke-linecap="round"
+                            transform="rotate(-90 40 40)"/>
+                    <text x="40" y="45" text-anchor="middle" font-size="14" font-weight="700" fill="{{ col }}">{{ val }}%</text>
+                  </svg>
+                  <div class="fw-700 fs-sm">{{ lbl }}</div>
+                  <div class="text-muted fs-xs">{{ meta }}</div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
         </div>
       </div>
 
@@ -645,9 +748,9 @@
                 ('P95 latency','284 ms','+16 ms','warning')
               ] %}
               <div class="col-12 col-md-4">
-                <div class="rounded p-3 h-100" style="background:#f8fafc;border:1px solid var(--card-border);">
+                <div class="rounded p-3 h-100 wu-surface-muted">
                   <div class="text-muted text-uppercase fs-xs fw-600 mb-1">{{ label }}</div>
-                  <div class="fw-700" style="font-size:1.35rem;">{{ value }}</div>
+                  <div class="fw-700 wu-dashboard-kpi">{{ value }}</div>
                   <div class="fs-xs {% if tone == 'success' %}text-success{% elif tone == 'warning' %}text-warning{% else %}text-danger{% endif %}">
                     {{ delta }} vs ieri
                   </div>
@@ -715,9 +818,9 @@
                 ('Addon hooks','18%','#d97706'),
                 ('Errors / retry','12%','#dc2626')
               ] %}
-              <div class="d-flex align-items-center justify-content-between rounded px-2 py-1" style="background:#f8fafc;border:1px solid var(--card-border);">
+              <div class="d-flex align-items-center justify-content-between rounded px-2 py-1 wu-surface-muted">
                 <span class="d-flex align-items-center gap-2">
-                  <span class="rounded-circle" style="width:10px;height:10px;background:{{ color }};"></span>
+                  <span class="rounded-circle wu-dot" data-bg-color="{{ color }}"></span>
                   {{ label }}
                 </span>
                 <strong>{{ value }}</strong>
@@ -746,17 +849,17 @@
                 <span class="fw-600">{{ name }}</span>
                 <span class="text-muted">{{ total }}%</span>
               </div>
-              <div class="d-flex rounded overflow-hidden" style="height:14px;border:1px solid var(--card-border);background:#eef2f7;">
-                <div style="width:{{ live }}%;background:#2563eb;"></div>
-                <div style="width:{{ queue }}%;background:#16a34a;"></div>
-                <div style="width:{{ cache }}%;background:#d97706;"></div>
+              <div class="d-flex rounded overflow-hidden wu-surface-stackbar" data-progress-height="14">
+                <div class="wu-progress-segment" data-progress="{{ live }}" data-bg-color="#2563eb"></div>
+                <div class="wu-progress-segment" data-progress="{{ queue }}" data-bg-color="#16a34a"></div>
+                <div class="wu-progress-segment" data-progress="{{ cache }}" data-bg-color="#d97706"></div>
               </div>
             </div>
             {% endfor %}
             <div class="d-flex flex-wrap gap-3 fs-xs text-muted pt-2 border-top">
-              <span><span class="badge" style="background:#2563eb;">&nbsp;</span> Live</span>
-              <span><span class="badge" style="background:#16a34a;">&nbsp;</span> Queue</span>
-              <span><span class="badge" style="background:#d97706;">&nbsp;</span> Cache</span>
+              <span><span class="badge wu-legend-chip" data-bg-color="#2563eb">&nbsp;</span> Live</span>
+              <span><span class="badge wu-legend-chip" data-bg-color="#16a34a">&nbsp;</span> Queue</span>
+              <span><span class="badge wu-legend-chip" data-bg-color="#d97706">&nbsp;</span> Cache</span>
             </div>
           </div>
         </div>
@@ -827,12 +930,12 @@
                 <label class="form-label">Brand accent</label>
                 <div class="d-flex gap-2">
                   {% for color in ['#2563eb','#0891b2','#16a34a','#d97706','#dc2626','#0f172a'] %}
-                  <button type="button" class="btn p-0 border-0 rounded-circle" style="width:28px;height:28px;background:{{ color }};" aria-label="Accent {{ loop.index }}"></button>
+                  <button type="button" class="btn p-0 border-0 rounded-circle wu-accent-dot" data-bg-color="{{ color }}" aria-label="Accent {{ loop.index }}"></button>
                   {% endfor %}
                 </div>
               </div>
               <div class="col-12 col-lg-5">
-                <div class="rounded p-3 h-100" style="background:#f8fafc;border:1px solid var(--card-border);">
+                <div class="rounded p-3 h-100 wu-surface-muted">
                   <div class="text-uppercase fs-xs fw-600 text-muted mb-2">Toggles coerenti</div>
                   <div class="d-grid gap-2">
                     <div class="form-check form-switch">
@@ -851,33 +954,33 @@
                 </div>
               </div>
               <div class="col-12 col-lg-7">
-                <div class="rounded p-3 h-100" style="background:linear-gradient(135deg,#0f1923 0%,#1e2f40 100%);border:1px solid #223446;color:#fff;">
+                <div class="rounded p-3 h-100 wu-surface-shell">
                   <div class="d-flex justify-content-between align-items-start mb-3">
                     <div>
-                      <div class="text-uppercase fs-xs fw-600" style="color:#8fa3b8;">Preview shell</div>
+                      <div class="text-uppercase fs-xs fw-600 wu-shell-muted-text">Preview shell</div>
                       <div class="fw-700">Topbar + sidebar + cards</div>
                     </div>
                     <span class="badge text-bg-light">coherent</span>
                   </div>
                   <div class="row g-2">
                     <div class="col-4">
-                      <div class="rounded p-2" style="background:rgba(255,255,255,.06);min-height:110px;">
-                        <div class="fs-xs text-uppercase mb-2" style="color:#8fa3b8;">Nav</div>
+                      <div class="rounded p-2 wu-shell-panel">
+                        <div class="fs-xs text-uppercase mb-2 wu-shell-muted-text">Nav</div>
                         <div class="d-grid gap-1 fs-sm">
                           <span>Dashboard</span>
-                          <span style="color:#fff;">Widget & UI</span>
-                          <span style="color:#8fa3b8;">Logs</span>
+                          <span class="wu-shell-active">Widget & UI</span>
+                          <span class="wu-shell-dim">Logs</span>
                         </div>
                       </div>
                     </div>
                     <div class="col-8">
-                      <div class="rounded p-2" style="background:#ffffff;color:#1e293b;min-height:110px;">
+                      <div class="rounded p-2 wu-shell-panel-light">
                         <div class="d-flex justify-content-between align-items-center mb-2">
                           <strong>Card header</strong>
                           <span class="badge bg-primary">live</span>
                         </div>
-                        <div class="progress mb-2" style="height:8px;">
-                          <div class="progress-bar bg-primary" style="width:72%;"></div>
+                        <div class="progress mb-2" data-progress-height="8">
+                          <div class="progress-bar bg-primary wu-progress-segment" data-progress="72"></div>
                         </div>
                         <div class="small text-muted">Questa anteprima mostra i token principali da replicare nei nuovi PoC.</div>
                       </div>
@@ -945,9 +1048,9 @@
           <li class="nav-item"><button class="nav-link" data-bs-toggle="tab" data-bs-target="#ptab3" type="button"><i class="bi bi-gear me-1"></i>Config</button></li>
         </ul>
         <div class="tab-content">
-          <div class="tab-pane fade show active" id="ptab1"><div class="p-3 rounded fs-sm text-muted" style="background:#f8fafc;border:1px solid var(--card-border)">Vista panoramica del sistema.</div></div>
-          <div class="tab-pane fade" id="ptab2"><div class="p-3 rounded fs-sm text-muted" style="background:#f8fafc;border:1px solid var(--card-border)">Grafici e KPI principali.</div></div>
-          <div class="tab-pane fade" id="ptab3"><div class="p-3 rounded fs-sm text-muted" style="background:#f8fafc;border:1px solid var(--card-border)">Parametri di configurazione.</div></div>
+          <div class="tab-pane fade show active" id="ptab1"><div class="p-3 rounded fs-sm text-muted wu-surface-tab">Vista panoramica del sistema.</div></div>
+          <div class="tab-pane fade" id="ptab2"><div class="p-3 rounded fs-sm text-muted wu-surface-tab">Grafici e KPI principali.</div></div>
+          <div class="tab-pane fade" id="ptab3"><div class="p-3 rounded fs-sm text-muted wu-surface-tab">Parametri di configurazione.</div></div>
         </div>
 
         <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Breadcrumb & Pagination</h6>
@@ -969,9 +1072,9 @@
         </nav>
 
         <h6 class="text-muted text-uppercase fs-xs mb-3 mt-4">Sidebar-link pattern</h6>
-        <div class="p-2 rounded" style="background:#0f1923;border-radius:.6rem;">
+        <div class="p-2 rounded wu-sidebar-demo">
           {% for icon, label, active in [('house','Dashboard',False),('sliders','Impostazioni',True),('people','Utenti',False),('journal-text','Log eventi',False)] %}
-          <a href="#" class="sidebar-link {% if active %}active{% endif %}" onclick="return false;">
+          <a href="#" class="sidebar-link {% if active %}active{% endif %}" data-no-nav>
             <i class="bi bi-{{ icon }} sidebar-icon"></i> {{ label }}
           </a>
           {% endfor %}
@@ -984,71 +1087,80 @@
   <!-- ── LAYOUT ── -->
   <div class="tab-pane fade" id="tablayout" role="tabpanel">
     <div class="row g-4">
-      <div class="col-12">
-        <h6 class="text-muted text-uppercase fs-xs mb-3">Grid 12 colonne</h6>
-        <div class="row g-2">
-          {% for n in [12,6,6,4,4,4,3,3,3,3,2,2,2,2,2,2] %}
-          <div class="col-{{ n }}">
-            <div class="text-center py-2 rounded fs-xs fw-600" style="background:#eff6ff;border:1px solid #bfdbfe;color:#1d4ed8;">
-              col-{{ n }}
+      <div class="col-12 col-xl-7">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-grid-1x2 me-2 text-primary"></i>Layout composition</span>
+            <span class="badge bg-primary-subtle text-primary-emphasis">12-col grid</span>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-12">
+                <div class="rounded p-3 wu-surface-muted">
+                  <div class="row g-2">
+                    <div class="col-12">
+                      <div class="text-center py-2 rounded fs-xs fw-700 wu-grid-topbar">Topbar / toolbar span 12</div>
+                    </div>
+                    <div class="col-12 col-md-8">
+                      <div class="text-center py-4 rounded fs-xs fw-700 h-100 wu-grid-main">Primary content span 8</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <div class="d-grid gap-2 h-100">
+                        <div class="text-center py-3 rounded fs-xs fw-700 wu-grid-side">Sidebar card span 4</div>
+                        <div class="text-center py-3 rounded fs-xs fw-700 wu-grid-side">Quick actions span 4</div>
+                      </div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <div class="text-center py-3 rounded fs-xs fw-700 wu-grid-stat">Stat block span 4</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <div class="text-center py-3 rounded fs-xs fw-700 wu-grid-chart">Chart block span 4</div>
+                    </div>
+                    <div class="col-12 col-md-4">
+                      <div class="text-center py-3 rounded fs-xs fw-700 wu-grid-list">List block span 4</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="col-12">
+                <div class="alert alert-light border fs-sm mb-0">
+                  <div class="fw-semibold mb-1"><i class="bi bi-rulers me-2 text-primary"></i>Compact shell rules</div>
+                  <div class="text-muted">Prefer 8/4 or 7/5 splits for admin pages, keep card headers tight, and use side panels for metadata instead of adding more stacked rows to the main column.</div>
+                </div>
+              </div>
             </div>
           </div>
-          {% endfor %}
         </div>
       </div>
 
-      <div class="col-12">
-        <h6 class="text-muted text-uppercase fs-xs mb-3">Anatomia Card</h6>
-        <div class="alert alert-light border fs-sm mb-3">
-          <div class="fw-semibold mb-1"><i class="bi bi-rulers me-2 text-primary"></i>Preset compatto (globale)</div>
-          <div class="text-muted">
-            Header: <code>.62rem .85rem</code> · Footer: <code>.56rem .85rem</code> · Titoli e azioni compatti, corpo card invariato per leggibilita.
+      <div class="col-12 col-xl-5">
+        <div class="card h-100">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <span><i class="bi bi-card-text me-2 text-primary"></i>Card anatomy</span>
+            <span class="badge bg-success-subtle text-success-emphasis">preferred pattern</span>
           </div>
-        </div>
-        <div class="row g-3">
-          <div class="col-12 col-lg-4">
-            <div class="card card-soft card-accent h-100">
+          <div class="card-body d-grid gap-3">
+            <div class="card card-soft card-accent">
               <div class="card-header d-flex justify-content-between align-items-center">
-                <span><i class="bi bi-card-text me-2 text-primary"></i>Header + Body + Footer</span>
-                <span class="badge bg-primary-subtle text-primary-emphasis">Default</span>
+                <span><i class="bi bi-layout-text-window-reverse me-2 text-primary"></i>Header + body + footer</span>
+                <span class="badge bg-primary">Live</span>
               </div>
               <div class="card-body">
-                <div class="card-title">Card Bilanciata</div>
-                <div class="card-subtitle">Pattern consigliato per contenuti operativi.</div>
-                <p class="mb-0 text-muted fs-sm">Usa header per titolo/azioni, body per contenuto principale e footer per azioni secondarie o metadata.</p>
+                <div class="card-title">Operational card</div>
+                <div class="card-subtitle">Compact title row, one status, one action lane.</div>
+                <p class="mb-0 text-muted fs-sm">This is the base pattern to replicate in Config WebApp, installer modal panels, and admin tools.</p>
               </div>
               <div class="card-footer d-flex justify-content-between align-items-center">
-                <span class="text-muted fs-xs">Aggiornata 2m fa</span>
-                <button class="btn btn-outline-secondary btn-sm py-0 px-2">Dettagli</button>
+                <span class="text-muted fs-xs">Updated 2m ago</span>
+                <button class="btn btn-secondary btn-sm py-0 px-2">Details</button>
               </div>
             </div>
-          </div>
-          <div class="col-12 col-lg-4">
-            <div class="card h-100">
-              <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                  <div class="card-kpi">
-                    <span class="kpi-value">12.8k</span>
-                    <span class="kpi-label">Request giornaliere</span>
-                  </div>
-                  <span class="badge bg-success-subtle text-success-emphasis">+8.1%</span>
-                </div>
-                <div class="progress mt-3" style="height:7px;">
-                  <div class="progress-bar bg-success" style="width:72%;"></div>
-                </div>
-                <div class="d-flex justify-content-between mt-2 fs-xs text-muted">
-                  <span>Obiettivo</span><span>72%</span>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col-12 col-lg-4">
-            <div class="card card-ghost h-100">
-              <div class="card-body d-flex flex-column justify-content-center align-items-center text-center">
-                <i class="bi bi-plus-circle text-primary" style="font-size:1.5rem;"></i>
-                <div class="card-title mt-2 mb-1">Card Placeholder</div>
-                <p class="text-muted fs-sm mb-3">Ideale per stato vuoto e CTA di creazione.</p>
-                <button class="btn btn-primary btn-sm"><i class="bi bi-plus me-1"></i>Crea elemento</button>
+            <div class="rounded p-3 wu-surface-muted">
+              <div class="text-uppercase fs-xs fw-600 text-muted mb-2">Card checklist</div>
+              <div class="d-grid gap-2 fs-sm">
+                <div class="d-flex justify-content-between"><span class="text-muted">Header</span><strong>Title + status + action</strong></div>
+                <div class="d-flex justify-content-between"><span class="text-muted">Body</span><strong>One primary message</strong></div>
+                <div class="d-flex justify-content-between"><span class="text-muted">Footer</span><strong>Secondary metadata only</strong></div>
               </div>
             </div>
           </div>
@@ -1077,18 +1189,26 @@
             <div class="card h-100">
               <div class="card-header d-flex justify-content-between align-items-center">
                 <span><i class="bi bi-activity me-2 text-info"></i>Timeline eventi</span>
-                <button class="btn btn-outline-secondary btn-sm py-0 px-2">Filtri</button>
+                <button class="btn btn-secondary btn-sm py-0 px-2">Filtri</button>
               </div>
-              <div class="card-body p-0">
-                <table class="table table-compact mb-0">
-                  <thead><tr><th>Ora</th><th>Evento</th><th>Stato</th></tr></thead>
-                  <tbody>
-                    <tr><td>10:41:02</td><td>Worker queue sync</td><td><span class="badge bg-success">ok</span></td></tr>
-                    <tr><td>10:40:47</td><td>API token refresh</td><td><span class="badge bg-warning text-dark">warn</span></td></tr>
-                    <tr><td>10:39:11</td><td>Import utenti</td><td><span class="badge bg-info text-dark">info</span></td></tr>
-                    <tr><td>10:37:55</td><td>Postgres vacuum analyze</td><td><span class="badge bg-secondary">done</span></td></tr>
-                  </tbody>
-                </table>
+              <div class="card-body d-grid gap-3">
+                {% for time, title, copy, badge, tone in [
+                  ('10:41:02','Worker queue synchronized','Backlog drained and delayed jobs rescheduled.','ok','success'),
+                  ('10:40:47','API token rotation','One token expired; clients have been asked to re-authenticate.','warning','warning'),
+                  ('10:39:11','Bulk user import','Profiles indexed and audit trail persisted.','info','info'),
+                  ('10:37:55','Postgres maintenance','Vacuum analyze completed without lock escalation.','done','secondary')
+                ] %}
+                <div class="d-flex align-items-start justify-content-between gap-3 rounded p-3 wu-surface-muted">
+                  <div class="d-flex gap-3">
+                    <div class="text-muted fs-xs fw-700 wu-timeline-time">{{ time }}</div>
+                    <div>
+                      <div class="fw-700 fs-sm">{{ title }}</div>
+                      <div class="text-muted fs-xs">{{ copy }}</div>
+                    </div>
+                  </div>
+                  <span class="badge bg-{{ tone }} {% if tone in ['warning','info'] %}text-dark{% endif %}">{{ badge }}</span>
+                </div>
+                {% endfor %}
               </div>
             </div>
           </div>
@@ -1096,10 +1216,10 @@
             <div class="card h-100">
               <div class="card-header"><i class="bi bi-lightning-charge me-2 text-warning"></i>Azioni rapide</div>
               <div class="card-body d-grid gap-2">
-                <button class="btn btn-outline-primary btn-sm text-start"><i class="bi bi-people me-2"></i>Gestisci utenti</button>
-                <button class="btn btn-outline-primary btn-sm text-start"><i class="bi bi-list-task me-2"></i>Controlla job</button>
-                <button class="btn btn-outline-secondary btn-sm text-start"><i class="bi bi-journal-text me-2"></i>Esporta log</button>
-                <button class="btn btn-outline-danger btn-sm text-start"><i class="bi bi-shield-lock me-2"></i>Sicurezza</button>
+                <button class="btn btn-primary btn-sm text-start"><i class="bi bi-people me-2"></i>Gestisci utenti</button>
+                <button class="btn btn-secondary btn-sm text-start"><i class="bi bi-list-task me-2"></i>Controlla job</button>
+                <button class="btn btn-light btn-sm text-start border"><i class="bi bi-journal-text me-2"></i>Esporta log</button>
+                <button class="btn btn-danger btn-sm text-start"><i class="bi bi-shield-lock me-2"></i>Sicurezza</button>
               </div>
             </div>
           </div>
@@ -1148,7 +1268,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Chiudi</button>
-        <button class="btn btn-primary" onclick="showToast('Azione confermata!','success');bootstrap.Modal.getInstance(document.getElementById('modalInfo')).hide()">Conferma</button>
+        <button class="btn btn-primary" data-modal-action="confirm-info">Conferma</button>
       </div>
     </div>
   </div>
@@ -1158,13 +1278,13 @@
   <div class="modal-dialog modal-sm">
     <div class="modal-content">
       <div class="modal-body text-center pt-4 pb-2">
-        <div style="font-size:2.5rem;color:#dc2626;"><i class="bi bi-trash3-fill"></i></div>
+        <div class="wu-danger-icon"><i class="bi bi-trash3-fill"></i></div>
         <h5 class="mt-2 mb-1">Conferma eliminazione</h5>
         <p class="text-muted fs-sm mb-0">L'operazione non è reversibile.</p>
       </div>
       <div class="modal-footer border-0 justify-content-center gap-2">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
-        <button class="btn btn-danger" onclick="showToast('Eliminato!','danger');bootstrap.Modal.getInstance(document.getElementById('modalConfirm')).hide()">Elimina</button>
+        <button class="btn btn-danger" data-modal-action="confirm-delete">Elimina</button>
       </div>
     </div>
   </div>
@@ -1181,7 +1301,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline-secondary" data-bs-dismiss="modal">Annulla</button>
-        <button class="btn btn-primary" onclick="showToast('Salvato!','success');bootstrap.Modal.getInstance(document.getElementById('modalForm')).hide()">Salva</button>
+        <button class="btn btn-primary" data-modal-action="save-form">Salva</button>
       </div>
     </div>
   </div>
@@ -1212,7 +1332,7 @@
       </div>
       <div class="modal-body">
         <div class="text-center mb-3">
-          <div id="uploadIcon" style="font-size:2.5rem;color:#2563eb;"><i class="bi bi-file-earmark-arrow-up"></i></div>
+          <div id="uploadIcon" class="wu-upload-icon"><i class="bi bi-file-earmark-arrow-up"></i></div>
           <div class="fw-600 mt-1" id="uploadFileName">documento_progetto.pdf</div>
           <div class="text-muted fs-xs">2.4 MB</div>
         </div>
@@ -1220,15 +1340,15 @@
           <span class="text-muted" id="uploadStatus">In attesa...</span>
           <span class="fw-700" id="uploadPct">0%</span>
         </div>
-        <div class="progress mb-2" style="height:10px;border-radius:10px;">
+        <div class="progress mb-2 wu-progress-track-upload">
           <div class="progress-bar bg-primary progress-bar-striped progress-bar-animated"
-               id="uploadBar" style="width:0%;transition:width .3s ease;"></div>
+               id="uploadBar"></div>
         </div>
         <div class="text-muted fs-xs text-end" id="uploadSpeed">—</div>
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" id="uploadCancelBtn">Annulla</button>
-        <button class="btn btn-primary btn-sm" id="uploadStartBtn" onclick="startUpload()">
+        <button class="btn btn-primary btn-sm" id="uploadStartBtn" data-demo-action="start-upload">
           <i class="bi bi-play-fill me-1"></i>Avvia Upload
         </button>
       </div>
@@ -1248,15 +1368,15 @@
           <span class="text-muted fw-600" id="installStepLabel">Pronto</span>
           <span class="fw-700" id="installPct">0%</span>
         </div>
-        <div class="progress mb-3" style="height:12px;border-radius:12px;">
+        <div class="progress mb-3 wu-progress-track-install">
           <div class="progress-bar bg-success" id="installBar"
-               style="width:0%;transition:width .5s ease;"></div>
+               ></div>
         </div>
         <div id="installSteps" class="d-flex flex-column gap-1">
           {% for step in ['Download pacchetti','Verifica integrità','Configurazione','Migrazione DB','Avvio servizi'] %}
           {% set i = loop.index0 %}
           <div class="d-flex align-items-center gap-2 fs-sm" id="istep{{ i }}">
-            <i class="bi bi-circle text-muted" id="istepicon{{ i }}" style="width:16px;"></i>
+            <i class="bi bi-circle text-muted wu-icon-16" id="istepicon{{ i }}"></i>
             <span class="text-muted" id="isteplbl{{ i }}">{{ step }}</span>
           </div>
           {% endfor %}
@@ -1264,7 +1384,7 @@
       </div>
       <div class="modal-footer">
         <button class="btn btn-outline-secondary btn-sm" data-bs-dismiss="modal" id="installCloseBtn" disabled>Chiudi</button>
-        <button class="btn btn-success btn-sm" id="installStartBtn" onclick="startInstall()">
+        <button class="btn btn-success btn-sm" id="installStartBtn" data-demo-action="start-install">
           <i class="bi bi-play-fill me-1"></i>Installa
         </button>
       </div>
@@ -1280,20 +1400,43 @@
 document.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
 document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => new bootstrap.Popover(el));
 
+function setProgressValue(el, value) {
+  if (!el) return;
+  const safeValue = Math.max(0, Math.min(100, Number(value) || 0));
+  el.style.width = safeValue + "%";
+  el.setAttribute("aria-valuenow", safeValue);
+}
+
+function setBgColor(el, color) {
+  if (!el || !color) return;
+  el.style.backgroundColor = color;
+}
+
+function setProgressHeight(el, height) {
+  if (!el || !height) return;
+  el.style.height = `${height}px`;
+  el.style.borderRadius = `${height}px`;
+}
+
+function closeModalById(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  bootstrap.Modal.getInstance(el)?.hide();
+}
+
 // ── INTERACTIVE PROGRESS ──
 let progressTimer = null;
 function startProgress() {
   const bar   = document.getElementById("liveProgressBar");
   const label = document.getElementById("liveProgressLabel");
   const status= document.getElementById("liveProgressStatus");
-  let pct = parseInt(bar.style.width) || 0;
+  let pct = parseInt(bar.getAttribute("aria-valuenow") || "0", 10) || 0;
   if (pct >= 100) return;
   clearInterval(progressTimer);
   const steps = ["Inizializzazione...","Elaborazione dati...","Sincronizzazione...","Finalizzazione...","Completato ✓"];
   progressTimer = setInterval(() => {
     pct = Math.min(100, pct + Math.floor(Math.random() * 8) + 2);
-    bar.style.width = pct + "%";
-    bar.setAttribute("aria-valuenow", pct);
+    setProgressValue(bar, pct);
     label.textContent = pct + "%";
     const si = Math.floor(pct / 25);
     status.textContent = steps[Math.min(si, steps.length-1)];
@@ -1307,17 +1450,40 @@ function startProgress() {
 function resetProgress() {
   clearInterval(progressTimer);
   const bar = document.getElementById("liveProgressBar");
-  bar.style.width = "0%"; bar.setAttribute("aria-valuenow",0);
+  setProgressValue(bar, 0);
   bar.classList.add("progress-bar-animated");
   bar.classList.replace("bg-success","bg-primary");
   document.getElementById("liveProgressLabel").textContent = "0%";
-  document.getElementById("liveProgressStatus").textContent = "Premi Avvia per simulare un'operazione.";
+  document.getElementById("liveProgressStatus").textContent = "Press start to simulate a long-running operation.";
 }
-window.startProgress = startProgress;
-window.resetProgress = resetProgress;
 
 // ── MODAL UPLOAD ──
 let uploadTimer = null;
+function resetUploadDemo() {
+  const bar = document.getElementById("uploadBar");
+  const pctEl = document.getElementById("uploadPct");
+  const status = document.getElementById("uploadStatus");
+  const speed = document.getElementById("uploadSpeed");
+  const icon = document.getElementById("uploadIcon");
+  const startBtn = document.getElementById("uploadStartBtn");
+  const cancelBtn = document.getElementById("uploadCancelBtn");
+  clearInterval(uploadTimer);
+  setProgressValue(bar, 0);
+  pctEl.textContent = "0%";
+  status.textContent = "In attesa...";
+  speed.textContent = "—";
+  bar.classList.remove("bg-success");
+  bar.classList.add("bg-primary","progress-bar-striped","progress-bar-animated");
+  icon.innerHTML = '<i class="bi bi-file-earmark-arrow-up"></i>';
+  icon.classList.remove("text-success");
+  icon.classList.add("wu-upload-icon");
+  startBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Avvia Upload';
+  startBtn.disabled = false;
+  startBtn.dataset.demoAction = "start-upload";
+  cancelBtn.textContent = "Annulla";
+  cancelBtn.disabled = false;
+}
+
 function startUpload() {
   const bar    = document.getElementById("uploadBar");
   const pctEl  = document.getElementById("uploadPct");
@@ -1330,7 +1496,7 @@ function startUpload() {
   clearInterval(uploadTimer);
   uploadTimer = setInterval(() => {
     pct = Math.min(100, pct + Math.floor(Math.random()*6)+2);
-    bar.style.width = pct + "%";
+    setProgressValue(bar, pct);
     pctEl.textContent = pct + "%";
     status.textContent = pct < 100 ? "Caricamento in corso..." : "Upload completato!";
     speed.textContent = pct < 100 ? (Math.random()*3+0.5).toFixed(1) + " MB/s" : "—";
@@ -1338,24 +1504,20 @@ function startUpload() {
       clearInterval(uploadTimer);
       bar.classList.remove("bg-primary","progress-bar-striped","progress-bar-animated");
       bar.classList.add("bg-success");
-      document.getElementById("uploadIcon").innerHTML = '<i class="bi bi-check-circle-fill" style="color:#16a34a;"></i>';
+      const icon = document.getElementById("uploadIcon");
+      icon.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+      icon.classList.remove("wu-upload-icon");
+      icon.classList.add("text-success");
       document.getElementById("uploadCancelBtn").textContent = "Chiudi";
       document.getElementById("uploadCancelBtn").disabled = false;
       startBtn.innerHTML = '<i class="bi bi-arrow-counterclockwise me-1"></i>Ricarica';
       startBtn.disabled = false;
-      startBtn.onclick = () => {
-        pct=0; bar.style.width="0%"; pctEl.textContent="0%"; status.textContent="In attesa..."; speed.textContent="—";
-        bar.classList.remove("bg-success"); bar.classList.add("bg-primary","progress-bar-striped","progress-bar-animated");
-        document.getElementById("uploadIcon").innerHTML = '<i class="bi bi-file-earmark-arrow-up"></i>';
-        startBtn.innerHTML = '<i class="bi bi-play-fill me-1"></i>Avvia Upload';
-        startBtn.onclick = startUpload;
-      };
+      startBtn.dataset.demoAction = "reset-upload";
     }
   }, 160);
 }
-window.startUpload = startUpload;
 document.getElementById("modalUpload") && document.getElementById("modalUpload").addEventListener("hidden.bs.modal", () => {
-  clearInterval(uploadTimer);
+  resetUploadDemo();
 });
 
 // ── MODAL INSTALL ──
@@ -1370,29 +1532,29 @@ function startInstall() {
   installStep = 0; installPct = 0;
   // Reset icons
   INSTALL_STEPS.forEach((_,i) => {
-    document.getElementById("istepicon"+i).className = "bi bi-circle text-muted";
+    document.getElementById("istepicon"+i).className = "bi bi-circle text-muted wu-icon-16";
     document.getElementById("isteplbl"+i).className = "text-muted";
   });
   clearInterval(installTimer);
   installTimer = setInterval(() => {
     installPct = Math.min(100, installPct + Math.floor(Math.random()*5)+2);
-    bar.style.width = installPct + "%";
+    setProgressValue(bar, installPct);
     pctEl.textContent = installPct + "%";
     const curStep = Math.floor(installPct / (100/INSTALL_STEPS.length));
     if (curStep !== installStep && curStep < INSTALL_STEPS.length) {
       // complete previous
       const prev = document.getElementById("istepicon"+(curStep-1));
-      if(prev) { prev.className="bi bi-check-circle-fill text-success"; document.getElementById("isteplbl"+(curStep-1)).className="fw-500"; }
+      if(prev) { prev.className="bi bi-check-circle-fill text-success wu-icon-16"; document.getElementById("isteplbl"+(curStep-1)).className="fw-500"; }
       installStep = curStep;
       stepLbl.textContent = INSTALL_STEPS[Math.min(curStep, INSTALL_STEPS.length-1)];
       const cur = document.getElementById("istepicon"+curStep);
-      if(cur) cur.className="bi bi-arrow-repeat text-primary";
+      if(cur) cur.className="bi bi-arrow-repeat text-primary wu-icon-16";
       document.getElementById("isteplbl"+curStep) && (document.getElementById("isteplbl"+curStep).className="text-primary fw-600");
     }
     if (installPct >= 100) {
       clearInterval(installTimer);
       INSTALL_STEPS.forEach((_,i) => {
-        document.getElementById("istepicon"+i).className = "bi bi-check-circle-fill text-success";
+        document.getElementById("istepicon"+i).className = "bi bi-check-circle-fill text-success wu-icon-16";
         document.getElementById("isteplbl"+i).className = "fw-500";
       });
       stepLbl.textContent = "Installazione completata ✓";
@@ -1401,8 +1563,18 @@ function startInstall() {
     }
   }, 150);
 }
-window.startInstall = startInstall;
-document.getElementById("modalInstall") && document.getElementById("modalInstall").addEventListener("hidden.bs.modal", () => clearInterval(installTimer));
+document.getElementById("modalInstall") && document.getElementById("modalInstall").addEventListener("hidden.bs.modal", () => {
+  clearInterval(installTimer);
+  setProgressValue(document.getElementById("installBar"), 0);
+  document.getElementById("installPct").textContent = "0%";
+  document.getElementById("installStepLabel").textContent = "Pronto";
+  document.getElementById("installCloseBtn").disabled = true;
+  document.getElementById("installStartBtn").disabled = false;
+  INSTALL_STEPS.forEach((_, i) => {
+    document.getElementById("istepicon"+i).className = "bi bi-circle text-muted wu-icon-16";
+    document.getElementById("isteplbl"+i).className = "text-muted";
+  });
+});
 
 // ── PROGRESS TOAST ──
 function showProgressToast(msg, type, duration) {
@@ -1413,38 +1585,89 @@ function showProgressToast(msg, type, duration) {
   const id = "ptst-" + Date.now();
 
   const toastEl = document.createElement("div");
-  toastEl.className = "toast show align-items-center border-0 mb-2";
+  toastEl.className = "toast show align-items-center border-0 mb-2 wu-toast";
   toastEl.id = id;
-  toastEl.style.cssText = `min-width:280px;background:#fff;box-shadow:0 4px 20px rgba(0,0,0,.13);border-radius:.6rem;overflow:hidden;`;
   toastEl.innerHTML = `
-    <div style="padding:.75rem 1rem .5rem;display:flex;align-items:center;gap:.5rem;">
-      <i class="bi bi-${icon}" style="color:${color};font-size:1rem;flex-shrink:0;"></i>
+    <div class="wu-toast-head">
+      <i class="bi bi-${icon} wu-toast-icon" data-fg-color="${color}"></i>
       <div class="flex-grow-1 fs-sm fw-500">${msg}</div>
-      <button onclick="this.closest('.toast').remove()" style="background:none;border:none;cursor:pointer;font-size:1rem;color:#94a3b8;padding:0;line-height:1;">&times;</button>
+      <button type="button" class="wu-toast-close" data-toast-close>&times;</button>
     </div>
-    <div style="padding:0 1rem .75rem;">
-      <div style="background:#f1f5f9;border-radius:4px;height:4px;overflow:hidden;">
-        <div id="tpbar-${id}" style="height:100%;background:${color};width:100%;transition:width ${duration}ms linear;border-radius:4px;"></div>
+    <div class="wu-toast-body">
+      <div class="wu-toast-track">
+        <div id="tpbar-${id}" class="wu-toast-bar" data-bg-color="${color}"></div>
       </div>
     </div>`;
 
   const stack = document.getElementById("toastStack");
   if (stack) stack.prepend(toastEl);
+  toastEl.querySelectorAll("[data-fg-color]").forEach(el => { el.style.color = el.dataset.fgColor; });
+  toastEl.querySelectorAll("[data-bg-color]").forEach(el => setBgColor(el, el.dataset.bgColor));
+  const pbar = document.getElementById("tpbar-" + id);
+  if (pbar) {
+    pbar.style.transition = `width ${duration}ms linear`;
+    setProgressValue(pbar, 100);
+  }
+  toastEl.querySelector("[data-toast-close]")?.addEventListener("click", () => toastEl.remove());
 
   // Start shrinking
   requestAnimationFrame(() => {
     requestAnimationFrame(() => {
-      const pbar = document.getElementById("tpbar-" + id);
       if (pbar) pbar.style.width = "0%";
     });
   });
 
-  setTimeout(() => { toastEl.style.opacity="0"; toastEl.style.transition="opacity .3s"; setTimeout(()=>toastEl.remove(),300); }, duration);
+  setTimeout(() => {
+    toastEl.style.opacity = "0";
+    toastEl.style.transition = "opacity .3s";
+    setTimeout(() => toastEl.remove(), 300);
+  }, duration);
 }
 window.showProgressToast = showProgressToast;
 
 document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll("[data-range-output]").forEach(el => {
+    const output = document.getElementById(el.dataset.rangeOutput);
+    if (!output) return;
+    el.addEventListener("input", () => { output.textContent = el.value; });
+  });
+  document.querySelectorAll("[data-no-nav]").forEach(el => {
+    el.addEventListener("click", event => event.preventDefault());
+  });
+  document.querySelectorAll("[data-bg-color]").forEach(el => setBgColor(el, el.dataset.bgColor));
+  document.querySelectorAll("[data-progress]").forEach(el => setProgressValue(el, el.dataset.progress));
+  document.querySelectorAll("[data-progress-height]").forEach(el => setProgressHeight(el, el.dataset.progressHeight));
+  document.querySelectorAll("[data-demo-toast]").forEach(el => {
+    el.addEventListener("click", () => showToast(el.dataset.demoToast, el.dataset.demoToastType || "success"));
+  });
+  document.querySelectorAll("[data-progress-toast]").forEach(el => {
+    el.addEventListener("click", () => showProgressToast(el.dataset.progressToast, el.dataset.progressToastType || "primary", Number(el.dataset.progressToastDuration || "4000")));
+  });
+  document.querySelectorAll("[data-modal-action]").forEach(el => {
+    el.addEventListener("click", () => {
+      if (el.dataset.modalAction === "confirm-info") {
+        showToast("Azione confermata!", "success");
+        closeModalById("modalInfo");
+      } else if (el.dataset.modalAction === "confirm-delete") {
+        showToast("Eliminato!", "danger");
+        closeModalById("modalConfirm");
+      } else if (el.dataset.modalAction === "save-form") {
+        showToast("Salvato!", "success");
+        closeModalById("modalForm");
+      }
+    });
+  });
+  document.querySelectorAll("[data-demo-action]").forEach(el => {
+    el.addEventListener("click", () => {
+      if (el.dataset.demoAction === "start-progress") startProgress();
+      else if (el.dataset.demoAction === "reset-progress") resetProgress();
+      else if (el.dataset.demoAction === "start-upload") startUpload();
+      else if (el.dataset.demoAction === "reset-upload") resetUploadDemo();
+      else if (el.dataset.demoAction === "start-install") startInstall();
+    });
+  });
   resetProgress();
+  resetUploadDemo();
 });
 </script>
 {% endblock %}

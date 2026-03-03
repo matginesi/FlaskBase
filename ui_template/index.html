@@ -7,121 +7,6 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
   <link href="static/css/app.css" rel="stylesheet">
-  <style>
-    :root {
-      --accent: #2563eb;
-      --sidebar-w: 260px;
-      --topbar-h: 56px;
-      --radius: 10px;
-      --font-base: system-ui, -apple-system, Segoe UI, Roboto, Helvetica Neue, Arial, sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, Liberation Mono, Courier New, monospace;
-      --font-size-base: 14px;
-      --line-height-base: 1.45;
-      --page-title-size: 1.26rem;
-      --card-header-size: 0.80rem;
-      --btn-font-size: 0.82rem;
-      --btn-py: 0.24rem;
-      --btn-px: 0.58rem;
-      --btn-sm-font-size: 0.79rem;
-      --btn-sm-py: 0.20rem;
-      --btn-sm-px: 0.48rem;
-      --body-bg: #f0f4f8;
-      --text-color: #1e293b;
-      --text-muted: #6b7a8d;
-      --card-bg: #ffffff;
-      --card-border: #e5eaf0;
-      --topbar-bg: #0f1923;
-      --topbar-border: #1e2f40;
-      --sidebar-bg: #0f1923;
-      --sidebar-text: #8fa3b8;
-      --sidebar-active: #ffffff;
-      --sidebar-section: #4a6080;
-      --sidebar-hover-bg: rgba(255,255,255,.06);
-      --success: #16a34a;
-      --warning: #d97706;
-      --danger: #dc2626;
-      --info: #0891b2;
-      --accent-light: #eff4ff;
-    }
-
-    .showcase-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: .35rem;
-      padding: .32rem .58rem;
-      border-radius: 999px;
-      border: 1px solid #dbe5f0;
-      background: #fff;
-      color: #475569;
-      font-size: .7rem;
-      font-weight: 700;
-      letter-spacing: .05em;
-      text-transform: uppercase;
-    }
-
-    .showcase-mini-card {
-      border: 1px solid #dbe5f0;
-      border-radius: .9rem;
-      background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
-      padding: .85rem;
-      height: 100%;
-    }
-
-    .showcase-mini-card h3 {
-      margin: 0 0 .2rem;
-      font-size: .9rem;
-      font-weight: 700;
-    }
-
-    .showcase-mini-card p {
-      margin: 0;
-      color: var(--text-muted);
-      font-size: .78rem;
-      line-height: 1.4;
-    }
-
-    .showcase-swatch {
-      height: 76px;
-      border-radius: .9rem;
-      padding: .75rem;
-      border: 1px solid rgba(255,255,255,.24);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      color: #fff;
-      font-size: .74rem;
-      font-weight: 700;
-    }
-
-    .showcase-swatch code {
-      color: inherit;
-      font-size: .68rem;
-      opacity: .86;
-    }
-
-    .showcase-inline-stat {
-      border: 1px solid #dbe5f0;
-      border-radius: .85rem;
-      background: #f8fafc;
-      padding: .65rem .75rem;
-      text-align: center;
-    }
-
-    .showcase-inline-stat strong {
-      display: block;
-      font-size: 1rem;
-      line-height: 1.05;
-    }
-
-    .showcase-inline-stat span {
-      display: block;
-      margin-top: .18rem;
-      color: var(--text-muted);
-      font-size: .7rem;
-      text-transform: uppercase;
-      letter-spacing: .08em;
-    }
-  </style>
 </head>
 <body class="app-body">
   <header class="topbar" id="topbar">
@@ -295,10 +180,10 @@
                 <span class="settings-kpi-icon-wrap"><i class="bi bi-layout-text-window settings-kpi-icon"></i></span>
               </div>
               <div class="settings-kpi-body">
-                <div class="stat-val">5</div>
+                <div class="stat-val">6</div>
                 <div class="stat-lbl">UI groups</div>
               </div>
-              <div class="settings-kpi-meta">Feedback, forms, data, charts, and layout patterns.</div>
+              <div class="settings-kpi-meta">Feedback, forms, data, charts, layout, and widget patterns.</div>
             </div>
             <div class="stat-card success settings-kpi-card settings-kpi-card-modern">
               <div class="settings-kpi-strip"></div>
@@ -358,6 +243,11 @@
         <li class="nav-item" role="presentation">
           <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-layout" type="button" role="tab">
             <i class="bi bi-grid me-1"></i>Layout
+          </button>
+        </li>
+        <li class="nav-item" role="presentation">
+          <button class="nav-link" data-bs-toggle="tab" data-bs-target="#tab-widgets" type="button" role="tab">
+            <i class="bi bi-puzzle me-1"></i>Widgets
           </button>
         </li>
       </ul>
@@ -858,9 +748,208 @@
             </div>
           </div>
         </div>
-      </div>
+        <!-- ===== WIDGETS TAB ===== -->
+        <div class="tab-pane fade" id="tab-widgets" role="tabpanel">
+          <div class="row g-4">
 
-      <div class="row g-3">
+            <!-- Chat bubbles -->
+            <div class="col-12 col-xl-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Chat bubbles</h6>
+              <div class="card h-100">
+                <div class="card-header"><i class="bi bi-chat-dots me-2 text-primary"></i>Conversation surface</div>
+                <div class="card-body d-flex flex-column gap-2" style="background:#f8fafc;">
+                  <div class="chat-row is-other">
+                    <div class="chat-bubble bot">Hello! How can I help you today?<div class="bubble-meta">12:01</div></div>
+                  </div>
+                  <div class="chat-row is-me">
+                    <div class="chat-bubble me">I need to review the UI token system.<div class="bubble-meta">12:02</div></div>
+                  </div>
+                  <div class="chat-row is-other">
+                    <div class="chat-bubble bot">Sure! All design tokens live in <code>app.css</code> under <em>:root</em>. You can override any of them per-component.<div class="bubble-meta">12:02</div></div>
+                  </div>
+                  <div class="chat-row is-me">
+                    <div class="chat-bubble me">Perfect. And the showcase pages?<div class="bubble-meta">12:03</div></div>
+                  </div>
+                  <div class="chat-row is-other">
+                    <div class="chat-bubble bot">They are static and live inside <code>ui_template/</code>, so they work fine on GitHub Pages too.<div class="bubble-meta">12:03</div></div>
+                  </div>
+                  <div class="chat-row is-other">
+                    <div class="chat-bubble error">Connection error – retry to continue.<div class="bubble-meta">12:04</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Log badges & flash totems -->
+            <div class="col-12 col-xl-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Log badges &amp; flash totems</h6>
+              <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="log-badge INFO">INFO</span>
+                <span class="log-badge WARNING">WARNING</span>
+                <span class="log-badge ERROR">ERROR</span>
+                <span class="log-badge DEBUG">DEBUG</span>
+                <span class="log-type-pill">api.request</span>
+                <span class="log-type-pill">auth.login</span>
+              </div>
+              <div class="flash-totem-stack mb-3">
+                <div class="flash-totem flash-totem-success">
+                  <div class="flash-totem-bar"></div>
+                  <div class="flash-totem-icon"><i class="bi bi-check-circle-fill"></i></div>
+                  <div class="flash-totem-body"><strong>Saved</strong> — Settings have been updated successfully.</div>
+                </div>
+                <div class="flash-totem flash-totem-danger">
+                  <div class="flash-totem-bar"></div>
+                  <div class="flash-totem-icon"><i class="bi bi-exclamation-triangle-fill"></i></div>
+                  <div class="flash-totem-body"><strong>Error</strong> — Could not reach the backend endpoint.</div>
+                </div>
+                <div class="flash-totem flash-totem-warning">
+                  <div class="flash-totem-bar"></div>
+                  <div class="flash-totem-icon"><i class="bi bi-exclamation-circle-fill"></i></div>
+                  <div class="flash-totem-body"><strong>Warning</strong> — Unsaved changes will be lost.</div>
+                </div>
+                <div class="flash-totem flash-totem-info">
+                  <div class="flash-totem-bar"></div>
+                  <div class="flash-totem-icon"><i class="bi bi-info-circle-fill"></i></div>
+                  <div class="flash-totem-body"><strong>Notice</strong> — Your session expires in 15 minutes.</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- User card -->
+            <div class="col-12 col-xl-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">User card</h6>
+              <div class="user-card">
+                <div class="user-card-header open" onclick="this.classList.toggle('open');this.nextElementSibling.classList.toggle('open')">
+                  <div class="user-card-avatar">JD</div>
+                  <div class="min-width-0">
+                    <div class="fw-700">Jane Doe</div>
+                    <div class="text-muted fs-sm">jane@example.com</div>
+                  </div>
+                  <span class="badge bg-primary ms-auto">admin</span>
+                  <span class="badge bg-success ms-1">active</span>
+                  <i class="bi bi-chevron-down user-card-chevron ms-2"></i>
+                </div>
+                <div class="user-card-body open">
+                  <div class="row g-2 mb-2">
+                    <div class="col-6"><div class="compact-panel"><div class="text-muted fs-xs mb-1">Joined</div><strong class="fs-sm">Jan 2024</strong></div></div>
+                    <div class="col-6"><div class="compact-panel"><div class="text-muted fs-xs mb-1">Last login</div><strong class="fs-sm">Today 09:41</strong></div></div>
+                  </div>
+                  <div class="d-flex gap-2 flex-wrap">
+                    <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil me-1"></i>Edit</button>
+                    <button class="btn btn-sm btn-outline-danger"><i class="bi bi-person-dash me-1"></i>Disable</button>
+                    <button class="btn btn-sm btn-outline-primary" onclick="showToast('Impersonating Jane Doe.','info')"><i class="bi bi-person-check me-1"></i>Impersonate</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress bars -->
+            <div class="col-12 col-xl-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Progress &amp; KPI patterns</h6>
+              <div class="d-flex flex-column gap-3">
+                <div>
+                  <div class="d-flex justify-content-between mb-1 fs-sm"><span class="fw-600">CPU</span><strong>72%</strong></div>
+                  <div class="progress progress-thin"><div class="progress-bar bg-primary" style="width:72%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1 fs-sm"><span class="fw-600">Memory</span><strong>48%</strong></div>
+                  <div class="progress progress-thin"><div class="progress-bar bg-success" style="width:48%"></div></div>
+                </div>
+                <div>
+                  <div class="d-flex justify-content-between mb-1 fs-sm"><span class="fw-600">Disk</span><strong>91%</strong></div>
+                  <div class="progress progress-thin"><div class="progress-bar bg-danger" style="width:91%"></div></div>
+                </div>
+                <div class="adaptive-card-grid adaptive-card-grid--compact mt-1">
+                  <div class="stat-card">
+                    <div class="stat-val">99.8<span style="font-size:.9rem">%</span></div>
+                    <div class="stat-lbl">Uptime</div>
+                    <div class="stat-icon"><i class="bi bi-activity"></i></div>
+                  </div>
+                  <div class="stat-card success">
+                    <div class="stat-val">14</div>
+                    <div class="stat-lbl">Jobs active</div>
+                    <div class="stat-icon"><i class="bi bi-gear"></i></div>
+                  </div>
+                  <div class="stat-card warning">
+                    <div class="stat-val">3</div>
+                    <div class="stat-lbl">Pending</div>
+                    <div class="stat-icon"><i class="bi bi-hourglass"></i></div>
+                  </div>
+                  <div class="stat-card danger">
+                    <div class="stat-val">0</div>
+                    <div class="stat-lbl">Errors</div>
+                    <div class="stat-icon"><i class="bi bi-x-circle"></i></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Settings section blocks -->
+            <div class="col-12 col-xl-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Settings section block</h6>
+              <div class="settings-section">
+                <div class="settings-section-header"><i class="bi bi-sliders me-2 text-primary"></i>Feature toggles</div>
+                <div class="settings-section-body">
+                  <div class="settings-row">
+                    <div class="settings-row-info">
+                      <strong>Maintenance mode</strong>
+                      <small>Redirect all users to the maintenance page.</small>
+                    </div>
+                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw1"><label class="form-check-label" for="sw1"></label></div>
+                  </div>
+                  <div class="settings-row">
+                    <div class="settings-row-info">
+                      <strong>User registration</strong>
+                      <small>Allow new accounts to register.</small>
+                    </div>
+                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw2" checked><label class="form-check-label" for="sw2"></label></div>
+                  </div>
+                  <div class="settings-row">
+                    <div class="settings-row-info">
+                      <strong>Two-factor auth</strong>
+                      <small>Require TOTP for all admin accounts.</small>
+                    </div>
+                    <div class="form-check form-switch"><input class="form-check-input" type="checkbox" id="sw3" checked><label class="form-check-label" for="sw3"></label></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Addon card -->
+            <div class="col-12 col-xl-6">
+              <h6 class="text-muted text-uppercase fs-xs mb-3">Add-on card</h6>
+              <div class="settings-addon-card">
+                <div class="settings-addon-card-head">
+                  <div class="flex-grow-1 min-width-0">
+                    <div class="settings-addon-card-topline">
+                      <strong>Widget &amp; UI</strong>
+                      <span class="settings-addon-status is-enabled">enabled</span>
+                    </div>
+                    <div class="settings-addon-meta-row">
+                      <span class="settings-addon-meta-pill"><i class="bi bi-tag me-1"></i>v1.4.0</span>
+                      <span class="settings-addon-meta-pill"><i class="bi bi-person me-1"></i>admin + user</span>
+                      <span class="settings-addon-meta-pill is-warning"><i class="bi bi-exclamation-triangle me-1"></i>beta</span>
+                    </div>
+                    <div class="settings-addon-note mt-2">Complete showcase of all Bootstrap 5 + custom CSS design system components, available as a live reference inside the admin panel.</div>
+                  </div>
+                  <div class="settings-addon-toggle-wrap">
+                    <div class="settings-addon-card-icon"><i class="bi bi-grid-3x3-gap"></i></div>
+                    <div class="settings-addon-toggle-label">on</div>
+                  </div>
+                </div>
+                <div class="settings-addon-card-body">
+                  <div class="settings-addon-card-actions">
+                    <button class="btn btn-sm btn-outline-primary w-100" onclick="showToast('Opened Widget & UI addon.','info')"><i class="bi bi-box-arrow-up-right me-1"></i>Open</button>
+                    <button class="btn btn-sm btn-outline-secondary w-100"><i class="bi bi-gear me-1"></i>Configure</button>
+                    <button class="btn btn-sm btn-outline-danger w-100"><i class="bi bi-toggle-off me-1"></i>Disable</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
         <div class="col-12 col-xl-7">
           <div class="card h-100">
             <div class="card-header d-flex justify-content-between align-items-center">

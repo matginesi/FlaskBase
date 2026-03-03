@@ -419,7 +419,7 @@ def set_language_post():
         lang = "en"
     session["ui_lang"] = lang
     try:
-        current_user.locale = "it-IT" if lang == "it" else "en"
+        current_user.locale = lang
         db.session.commit()
     except Exception:
         db.session.rollback()
@@ -775,5 +775,11 @@ def set_language(lang: str):
     if clean not in {"en", "it"}:
         clean = "en"
     session["ui_lang"] = clean
+    if getattr(current_user, "is_authenticated", False):
+        try:
+            current_user.locale = clean
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
     target = request.args.get("next", "") or request.referrer or url_for("main.dashboard")
     return redirect(target)

@@ -275,7 +275,8 @@
 
     function chatAppend(text, cls, user, opts = {}) {
       const thinking = typeof opts.thinking === "string" ? opts.thinking.trim() : "";
-      const now = new Date().toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" });
+      const pageLanguage = document.documentElement?.lang || "en";
+      const now = new Date().toLocaleTimeString(pageLanguage, { hour: "2-digit", minute: "2-digit" });
       const wrap = document.createElement("div");
       wrap.className = "chat-row " + (cls === "me" ? "is-me" : "is-other");
 

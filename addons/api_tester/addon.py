@@ -11,7 +11,7 @@ def build_addon(app: Flask) -> AddonManifest:
     return AddonManifest(
         addon_id="api_tester",
         name="API Tester",
-        version="2.0.0",
+        version="2.1.0",
         description="Installable add-on for testing the secure FastAPI surface with user-owned bearer tokens.",
         blueprints=[bp],
         nav_items=[

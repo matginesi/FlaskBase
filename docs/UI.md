@@ -101,6 +101,12 @@ Use:
 - persistent badges and stat cards for state
 - progress modals for multi-step operations such as add-on install or runtime restart
 
+CSP rule:
+
+- `Widget & UI` examples must not rely on inline `style=` attributes or inline event handlers
+- demo interactions should use nonce-backed `<style>` / `<script>` blocks plus classes and `data-*` hooks
+- if a component cannot survive `style-src-attr 'none'` and `script-src-attr 'none'`, it is not a valid reference implementation
+
 ## Typography
 
 Standard UI pages use:
@@ -138,6 +144,10 @@ It should cover:
 - stacked bars
 - graph/dependency maps
 - UI config panels
+
+Operational rule:
+
+- `Widget & UI` is not just a demo board; admin pages such as `Config WebApp` and add-on install flows should stay visually aligned with its modal, card, and progress patterns
 
 ## Add-on UI Rules
 

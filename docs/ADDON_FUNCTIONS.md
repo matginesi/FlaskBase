@@ -153,10 +153,20 @@ Key fields:
 - `addon_id`
 - `name`
 - `version`
+- `description`
+- `min_app_version`
 - `blueprints`
 - `nav_items`
 - `page_endpoint_map`
 - `api_mounts`
+- `metadata`
+
+Navigation-specific fields on `AddonNavItem`:
+
+- `section`
+- `page_key`
+- `feature_key`
+- `active_prefix`
 
 ## FastAPI Add-on APIs
 
@@ -173,12 +183,15 @@ Use `AddonApiMount` when an add-on needs to publish HTTP APIs through the extern
 
 Important properties:
 
+- `id`
 - `prefix`
 - `build_router`
 - `public`
+- `include_in_schema`
 - `roles`
 - `required_scopes`
 - `tags`
+- `summary`
 
 Security model:
 
@@ -193,6 +206,29 @@ At request time, add-on endpoints can read the resolved API principal from:
 - `get_request_api_principal(request)`
 
 Use this instead of custom token parsing inside the add-on.
+
+Example:
+
+```python
+from fastapi import APIRouter, Request
+
+from app.services.api_runtime import get_request_api_principal, principal_to_dict
+
+
+def build_router(app) -> APIRouter:
+    router = APIRouter()
+
+    @router.get("/health", summary="My Demo add-on API health")
+    async def health(request: Request):
+        principal = get_request_api_principal(request)
+        return {
+            "ok": True,
+            "addon": "my_demo",
+            "principal": principal_to_dict(principal),
+        }
+
+    return router
+```
 
 ## Loader
 
@@ -230,3 +266,10 @@ Constraints:
 3. Always log lifecycle changes and real failures.
 4. Never store secrets in `config.json` or `addon_configs`.
 5. Keep user and admin views clearly separated.
+6. Use fenced code blocks with language labels in documentation so the in-app documentation viewer can syntax-highlight them:
+
+````markdown
+```python
+print("hello")
+```
+````

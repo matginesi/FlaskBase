@@ -1,16 +1,75 @@
 {% extends "base.html" %}
 {% block title %} · API Tester{% endblock %}
+{% block head %}
+<style nonce="{{ g.csp_nonce }}">
+  .api-tester-stack { display: grid; gap: 1rem; }
+  .api-tester-card .card-body { display: grid; gap: .9rem; }
+  .api-tester-token-list {
+    display: grid;
+    gap: .55rem;
+    max-height: 220px;
+    overflow: auto;
+  }
+  .api-tester-token-item {
+    border: 1px solid #e2e8f0;
+    border-radius: .85rem;
+    padding: .7rem .8rem;
+    background: linear-gradient(180deg, #fff 0%, #f8fbff 100%);
+  }
+  .api-tester-token-item.is-raw {
+    border-color: rgba(37,99,235,.24);
+    box-shadow: 0 8px 22px rgba(37,99,235,.08);
+  }
+  .api-tester-token-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    margin-bottom: .28rem;
+  }
+  .api-tester-token-name {
+    font-weight: 700;
+    color: #1e293b;
+  }
+  .api-tester-token-meta {
+    font-size: .74rem;
+    color: #6b7a8d;
+    line-height: 1.4;
+  }
+  .api-tester-response {
+    min-height: 380px;
+    background: #0f1923;
+    color: #dbe7f3;
+    border: 1px solid #24364a;
+    overflow: auto;
+  }
+  .api-tester-inline-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .75rem;
+  }
+  .api-tester-microcopy {
+    font-size: .75rem;
+    color: #6b7a8d;
+    line-height: 1.5;
+  }
+  @media (max-width: 767.98px) {
+    .api-tester-inline-grid { grid-template-columns: 1fr; }
+    .api-tester-response { min-height: 300px; }
+  }
+</style>
+{% endblock %}
 {% block content %}
 <div class="page-header">
   <div class="page-breadcrumb"><i class="bi bi-plug me-1"></i> Add-on</div>
   <h1>API Tester</h1>
-  <p>{% if view_mode == 'admin' %}Admin workspace for validating the external FastAPI surface and user tokens.{% else %}Use this add-on to probe the published FastAPI routes with safe user-owned bearer tokens.{% endif %}</p>
+  <p>{% if view_mode == 'admin' %}Admin workspace for validating the external FastAPI surface and user tokens.{% else %}Probe the published API with your own bearer key, a freshly created personal key, or a temporary tester token.{% endif %}</p>
 </div>
 
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
   <span class="badge bg-primary-subtle text-primary-emphasis">api_tester</span>
   <span class="badge {% if view_mode == 'admin' %}bg-warning-subtle text-warning-emphasis{% else %}bg-success-subtle text-success-emphasis{% endif %}">{{ view_mode or 'user' }}</span>
-  <span class="badge bg-light text-dark">{{ user_tokens|length }} active token{{ '' if user_tokens|length == 1 else 's' }}</span>
+  <span class="badge bg-light text-dark" id="tokenInventoryBadge">{{ user_tokens|length }} active token{{ '' if user_tokens|length == 1 else 's' }}</span>
   {% if current_user.is_admin() %}
   <a href="{{ user_url }}" class="btn btn-sm {% if view_mode != 'admin' %}btn-primary{% else %}btn-outline-primary{% endif %}">
     <i class="bi bi-person me-1"></i>User page
@@ -70,126 +129,203 @@
 
 <div class="row g-3">
   <div class="col-12 col-xl-4">
-    <div class="card h-100">
-      <div class="card-header"><i class="bi bi-key me-2 text-primary"></i>Token workspace</div>
-      <div class="card-body d-grid gap-2">
-        <div>
-          <label class="form-label mb-1">API public base URL</label>
-          <input class="form-control form-control-sm font-monospace" value="{{ api_public_base_url or 'Not configured' }}" readonly>
+    <div class="api-tester-stack">
+      <div class="card api-tester-card">
+        <div class="card-header"><i class="bi bi-key me-2 text-primary"></i>Token workspace</div>
+        <div class="card-body">
+          <div>
+            <label class="form-label mb-1">API public base URL</label>
+            <input class="form-control form-control-sm font-monospace" value="{{ api_public_base_url or 'Not configured' }}" readonly>
+          </div>
+          <div>
+            <label class="form-label mb-1">Token source</label>
+            <select class="form-select form-select-sm" id="tokenPreset">
+              <option value="">Manual paste / none</option>
+            </select>
+            <div class="form-text">Existing keys are shown as references. Raw values can only come from a key you already copied, a newly created personal key, or a tester token minted here.</div>
+          </div>
+          <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-primary btn-sm" id="loadAccountKeysBtn" type="button">
+              <i class="bi bi-arrow-repeat me-1"></i>Load account keys
+            </button>
+            <button class="btn btn-outline-secondary btn-sm" id="mintTokenBtn" type="button">
+              <i class="bi bi-plus-circle me-1"></i>Mint tester token
+            </button>
+          </div>
+          <div>
+            <label class="form-label mb-1">Bearer token</label>
+            <textarea class="form-control form-control-sm font-monospace" id="tokenInput" rows="6" placeholder="Paste a raw API key owned by the current user"></textarea>
+            <div class="form-text">The proxy rejects tokens owned by another user.</div>
+          </div>
+          <div class="api-tester-inline-grid">
+            <div>
+              <button class="btn btn-outline-secondary btn-sm w-100" id="clearTokenBtn" type="button">
+                <i class="bi bi-eraser me-1"></i>Clear token
+              </button>
+            </div>
+            <div>
+              <button class="btn btn-outline-primary btn-sm w-100" id="copyTokenBtn" type="button">
+                <i class="bi bi-copy me-1"></i>Copy token
+              </button>
+            </div>
+          </div>
+          <div>
+            <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+              <div class="form-label mb-0">Available now</div>
+              <span class="badge bg-secondary" id="rawTokenCountBadge">0 raw</span>
+            </div>
+            <div class="api-tester-token-list" id="tokenWorkspaceList">
+              <div class="api-tester-token-item">
+                <div class="api-tester-token-name">No raw token loaded</div>
+                <div class="api-tester-token-meta">Create one below, mint a tester token, or paste a key you already have.</div>
+              </div>
+            </div>
+          </div>
+          <div class="small text-muted">
+            Allowed paths:
+            <code>/v1/*</code>,
+            <code>/docs</code>,
+            <code>/openapi.json</code>,
+            <code>/redoc</code>
+          </div>
         </div>
-        <div>
-          <label class="form-label mb-1">Available tokens</label>
-          <select class="form-select form-select-sm" id="tokenPreset">
-            <option value="">Manual / none</option>
-            {% for token in user_tokens %}
-            <option value="{{ token.prefix }}">{{ token.name }} · {{ token.prefix }}…{% if token.restricted %} · restricted{% endif %}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <button class="btn btn-outline-primary btn-sm" id="mintTokenBtn" type="button">
-          <i class="bi bi-plus-circle me-1"></i>Mint tester token
-        </button>
-        <div class="form-text">Minted tester tokens are not bound to a single add-on and inherit the scopes needed for the published add-on APIs.</div>
-        <div>
-          <label class="form-label mb-1">Bearer token</label>
-          <textarea class="form-control form-control-sm font-monospace" id="tokenInput" rows="5" placeholder="Paste a token owned by the current user"></textarea>
-          <div class="form-text">The proxy rejects tokens owned by another user.</div>
-        </div>
-        <div class="small text-muted">
-          Allowed paths:
-          <code>/v1/*</code>,
-          <code>/docs</code>,
-          <code>/openapi.json</code>,
-          <code>/redoc</code>
+      </div>
+
+      <div class="card api-tester-card">
+        <div class="card-header"><i class="bi bi-person-badge me-2 text-success"></i>Create personal API key</div>
+        <div class="card-body">
+          <div class="api-tester-microcopy">This uses the same personal API key flow as Account settings, but keeps the new raw key in this workspace so you can test immediately.</div>
+          <form id="personalKeyCreateForm" class="d-grid gap-2">
+            <div>
+              <label class="form-label mb-1">Key name</label>
+              <input type="text" class="form-control form-control-sm" id="personalKeyName" maxlength="80" placeholder="e.g. API Tester session">
+            </div>
+            <div class="api-tester-inline-grid">
+              <div>
+                <label class="form-label mb-1">Expiry (days)</label>
+                <input type="number" class="form-control form-control-sm" id="personalKeyExpiry" min="1" max="3650" placeholder="optional">
+              </div>
+              <div>
+                <label class="form-label mb-1">Scopes</label>
+                <input type="text" class="form-control form-control-sm font-monospace" id="personalKeyScopes" value="profile:read" placeholder="profile:read, api_tester:*">
+              </div>
+            </div>
+            <div>
+              <label class="form-label mb-1">Current password</label>
+              <input type="password" class="form-control form-control-sm" id="personalKeyPassword" required>
+            </div>
+            <div class="api-tester-inline-grid">
+              <div>
+                <label class="form-label mb-1">MFA code</label>
+                <input type="text" class="form-control form-control-sm" id="personalKeyOtp" placeholder="if enabled">
+              </div>
+              <div>
+                <label class="form-label mb-1">Recovery code</label>
+                <input type="text" class="form-control form-control-sm" id="personalKeyRecovery" placeholder="alternative">
+              </div>
+            </div>
+            <button class="btn btn-success btn-sm" id="createPersonalKeyBtn" type="submit">
+              <i class="bi bi-key-fill me-1"></i>Create and load key
+            </button>
+          </form>
         </div>
       </div>
     </div>
   </div>
 
   <div class="col-12 col-xl-8">
-    <div class="card h-100">
-      <div class="card-header"><i class="bi bi-send-check me-2 text-primary"></i>FastAPI request builder</div>
-      <div class="card-body">
-        <div class="row g-2">
-          <div class="col-12 col-md-3">
-            <label class="form-label">Method</label>
-            <select class="form-select form-select-sm" id="requestMethod">
-              <option>GET</option>
-              <option>POST</option>
-            </select>
-          </div>
-          <div class="col-12 col-md-9">
-            <label class="form-label">Endpoint</label>
-            <select class="form-select form-select-sm" id="endpointSelect">
-              {% for item in api_catalog %}
-              <option value="{{ item.path }}" data-methods="{{ item.methods|join(',') }}">{{ item.path }} · {{ item.auth_mode }}</option>
-              {% endfor %}
-            </select>
-          </div>
-          <div class="col-12">
-            <label class="form-label">JSON payload</label>
-            <textarea class="form-control form-control-sm font-monospace" id="payloadInput" rows="7">{"source":"api_tester","mode":"proxy"}</textarea>
-          </div>
-          <div class="col-12 d-flex flex-wrap gap-2">
-            <button class="btn btn-primary btn-sm" id="runRequestBtn" type="button"><i class="bi bi-play-fill me-1"></i>Run request</button>
-            <button class="btn btn-outline-secondary btn-sm" id="loadStatusBtn" type="button"><i class="bi bi-heart-pulse me-1"></i>API status</button>
-            <button class="btn btn-outline-secondary btn-sm" id="loadRoutesBtn" type="button"><i class="bi bi-diagram-3 me-1"></i>Route catalog</button>
-            <button class="btn btn-outline-primary btn-sm" id="whoAmIBtn" type="button"><i class="bi bi-person-check me-1"></i>Who am I</button>
+    <div class="api-tester-stack">
+      <div class="card api-tester-card">
+        <div class="card-header"><i class="bi bi-send-check me-2 text-primary"></i>FastAPI request builder</div>
+        <div class="card-body">
+          <div class="row g-2">
+            <div class="col-12 col-md-3">
+              <label class="form-label">Method</label>
+              <select class="form-select form-select-sm" id="requestMethod">
+                <option>GET</option>
+                <option>POST</option>
+              </select>
+            </div>
+            <div class="col-12 col-md-9">
+              <label class="form-label">Catalog endpoint</label>
+              <select class="form-select form-select-sm" id="endpointSelect">
+                {% for item in api_catalog %}
+                <option value="{{ item.path }}" data-methods="{{ item.methods|join(',') }}">{{ item.path }} · {{ item.auth_mode }} · {{ item.summary }}</option>
+                {% endfor %}
+              </select>
+            </div>
+            <div class="col-12">
+              <label class="form-label">Path to request</label>
+              <input type="text" class="form-control form-control-sm font-monospace" id="endpointPathInput" value="{{ api_catalog[0].path if api_catalog else '/v1/health' }}" placeholder="/v1/auth/me">
+              <div class="form-text">You can type a custom allowed path or start from the catalog above.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label">JSON payload</label>
+              <textarea class="form-control form-control-sm font-monospace" id="payloadInput" rows="8">{"source":"api_tester","mode":"proxy"}</textarea>
+            </div>
+            <div class="col-12 d-flex flex-wrap gap-2">
+              <button class="btn btn-primary btn-sm" id="runRequestBtn" type="button"><i class="bi bi-play-fill me-1"></i>Run request</button>
+              <button class="btn btn-outline-secondary btn-sm" id="loadStatusBtn" type="button"><i class="bi bi-heart-pulse me-1"></i>API status</button>
+              <button class="btn btn-outline-secondary btn-sm" id="loadRoutesBtn" type="button"><i class="bi bi-diagram-3 me-1"></i>Route catalog</button>
+              <button class="btn btn-outline-primary btn-sm" id="whoAmIBtn" type="button"><i class="bi bi-person-check me-1"></i>Who am I</button>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </div>
 
-  <div class="col-12 col-xl-5">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-diagram-3 me-2 text-primary"></i>Published APIs</span>
-        <span class="badge bg-secondary">{{ api_catalog|length }}</span>
-      </div>
-      <div class="card-body">
-        <div class="table-responsive">
-          <table class="table table-sm align-middle mb-0">
-            <thead>
-              <tr>
-                <th>Path</th>
-                <th>Methods</th>
-                <th>Auth</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for item in api_catalog %}
-              <tr>
-                <td>
-                  <div class="font-monospace fs-xs">{{ item.path }}</div>
-                  <div class="text-muted fs-xs">{{ item.summary }}</div>
-                </td>
-                <td class="fs-xs">{{ item.methods|join(', ') }}</td>
-                <td class="fs-xs">{{ item.auth_mode }}</td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
+      <div class="row g-3">
+        <div class="col-12 col-xl-5">
+          <div class="card api-tester-card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-diagram-3 me-2 text-primary"></i>Published APIs</span>
+              <span class="badge bg-secondary">{{ api_catalog|length }}</span>
+            </div>
+            <div class="card-body">
+              <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                  <thead>
+                    <tr>
+                      <th>Path</th>
+                      <th>Methods</th>
+                      <th>Auth</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for item in api_catalog %}
+                    <tr>
+                      <td>
+                        <div class="font-monospace fs-xs">{{ item.path }}</div>
+                        <div class="text-muted fs-xs">{{ item.summary }}</div>
+                      </td>
+                      <td class="fs-xs">{{ item.methods|join(', ') }}</td>
+                      <td class="fs-xs">{{ item.auth_mode }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <div class="col-12 col-xl-7">
-    <div class="card h-100">
-      <div class="card-header d-flex justify-content-between align-items-center">
-        <span><i class="bi bi-braces me-2 text-primary"></i>Response</span>
-        <span class="badge bg-secondary" id="responseStatus">idle</span>
-      </div>
-      <div class="card-body">
-        <pre class="mb-0 rounded p-3 small" id="responseOutput" style="min-height:360px;background:#0f1923;color:#dbe7f3;border:1px solid #24364a;overflow:auto;">Run a request to inspect the FastAPI response.</pre>
+        <div class="col-12 col-xl-7">
+          <div class="card api-tester-card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+              <span><i class="bi bi-braces me-2 text-primary"></i>Response</span>
+              <span class="badge bg-secondary" id="responseStatus">idle</span>
+            </div>
+            <div class="card-body">
+              <pre class="mb-0 rounded p-3 small api-tester-response" id="responseOutput">Run a request to inspect the FastAPI response.</pre>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
 </div>
 {% endblock %}
 {% block scripts %}
-<script>
+<script nonce="{{ g.csp_nonce }}">
   (function () {
     "use strict";
 
@@ -199,8 +335,18 @@
     const tokenInput = document.getElementById("tokenInput");
     const payloadInput = document.getElementById("payloadInput");
     const endpointSelect = document.getElementById("endpointSelect");
+    const endpointPathInput = document.getElementById("endpointPathInput");
     const methodSelect = document.getElementById("requestMethod");
+    const tokenWorkspaceList = document.getElementById("tokenWorkspaceList");
+    const rawTokenCountBadge = document.getElementById("rawTokenCountBadge");
+    const tokenInventoryBadge = document.getElementById("tokenInventoryBadge");
+    const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute("content") || "";
     const prettyJson = {{ 'true' if pretty_json else 'false' }};
+    const tokenCatalogState = {
+      accountTokens: {{ user_tokens | tojson }},
+      rawTokens: [],
+      testerTokens: []
+    };
 
     function setStatus(text, tone) {
       status.textContent = text;
@@ -209,11 +355,100 @@
     }
 
     function renderOutput(data) {
-      if (prettyJson) {
-        output.textContent = JSON.stringify(data, null, 2);
+      output.textContent = prettyJson ? JSON.stringify(data, null, 2) : JSON.stringify(data);
+    }
+
+    function escapeHtml(value) {
+      return String(value || "").replace(/[&<>"']/g, function (char) {
+        return ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[char] || char;
+      });
+    }
+
+    function dedupeTokens(items) {
+      const out = [];
+      const seen = new Set();
+      (Array.isArray(items) ? items : []).forEach(function (item) {
+        const raw = String(item && item.token || "").trim();
+        const prefix = String(item && item.prefix || item && item.token_prefix || "").trim();
+        const key = raw || prefix;
+        if (!key || seen.has(key)) return;
+        seen.add(key);
+        out.push(item);
+      });
+      return out;
+    }
+
+    function formatWhen(value) {
+      const raw = String(value || "").trim();
+      return raw ? raw.replace("T", " ").slice(0, 16) : "never";
+    }
+
+    function rebuildTokenPreset() {
+      const current = tokenPreset.value;
+      let html = '<option value="">Manual paste / none</option>';
+      const rawTokens = dedupeTokens(tokenCatalogState.rawTokens.concat(tokenCatalogState.testerTokens));
+      if (rawTokens.length) {
+        html += '<optgroup label="Raw tokens available now">';
+        rawTokens.forEach(function (token, index) {
+          const tokenValue = String(token.token || "");
+          const label = `${token.name || "token"} · ${(token.prefix || token.token_prefix || "").toString()}...`;
+          html += `<option value="raw-${index}" data-raw-token="${escapeHtml(tokenValue)}">${escapeHtml(label)}</option>`;
+        });
+        html += "</optgroup>";
+      }
+      const refs = Array.isArray(tokenCatalogState.accountTokens) ? tokenCatalogState.accountTokens : [];
+      if (refs.length) {
+        html += '<optgroup label="Existing account key references">';
+        refs.forEach(function (token, index) {
+          const bits = [token.name || "default", `${token.prefix || ""}...`];
+          if (token.restricted) bits.push("restricted");
+          html += `<option value="ref-${index}" data-prefix="${escapeHtml(token.prefix || "")}">${escapeHtml(bits.join(" · "))}</option>`;
+        });
+        html += "</optgroup>";
+      }
+      tokenPreset.innerHTML = html;
+      if (current && Array.from(tokenPreset.options).some(function (option) { return option.value === current; })) {
+        tokenPreset.value = current;
+      }
+      tokenInventoryBadge.textContent = `${refs.length} active token${refs.length === 1 ? "" : "s"}`;
+      renderTokenWorkspace();
+    }
+
+    function renderTokenWorkspace() {
+      const rawTokens = dedupeTokens(tokenCatalogState.rawTokens.concat(tokenCatalogState.testerTokens));
+      rawTokenCountBadge.textContent = `${rawTokens.length} raw`;
+      if (!rawTokens.length) {
+        tokenWorkspaceList.innerHTML = `
+          <div class="api-tester-token-item">
+            <div class="api-tester-token-name">No raw token loaded</div>
+            <div class="api-tester-token-meta">Create one below, mint a tester token, or paste a key you already have.</div>
+          </div>
+        `;
         return;
       }
-      output.textContent = JSON.stringify(data);
+      tokenWorkspaceList.innerHTML = rawTokens.map(function (token, index) {
+        const prefix = String(token.prefix || token.token_prefix || "").trim();
+        const scopes = Array.isArray(token.scopes) && token.scopes.length ? token.scopes.join(", ") : "scopes unavailable";
+        return `
+          <div class="api-tester-token-item is-raw">
+            <div class="api-tester-token-top">
+              <div class="api-tester-token-name">${escapeHtml(token.name || "token")}</div>
+              <button class="btn btn-outline-primary btn-sm js-use-token" type="button" data-token-index="${index}">Use</button>
+            </div>
+            <div class="api-tester-token-meta">${escapeHtml(prefix)}... · expires ${escapeHtml(formatWhen(token.expires_at))}</div>
+            <div class="api-tester-token-meta">${escapeHtml(scopes)}</div>
+          </div>
+        `;
+      }).join("");
+      tokenWorkspaceList.querySelectorAll(".js-use-token").forEach(function (button) {
+        button.addEventListener("click", function () {
+          const index = Number(button.getAttribute("data-token-index"));
+          const token = rawTokens[index];
+          if (!token || !token.token) return;
+          tokenInput.value = token.token;
+          if (window.showToast) window.showToast("Token loaded into request workspace", "success");
+        });
+      });
     }
 
     async function requestJson(path, payload, method) {
@@ -221,22 +456,17 @@
       try {
         const response = await fetch(path, {
           method: method || "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-CSRFToken": csrfToken },
           body: method === "GET" ? undefined : JSON.stringify(payload || {})
         });
         const data = await response.json();
         renderOutput(data);
         setStatus(String(response.status), response.ok ? "bg-success" : "bg-warning");
-        if (window.showToast) {
-          window.showToast("Request completed", response.ok ? "success" : "warning");
-        }
-        return data;
+        return { response, data };
       } catch (err) {
         output.textContent = String(err);
         setStatus("error", "bg-danger");
-        if (window.showToast) {
-          window.showToast("Request failed", "danger");
-        }
+        if (window.showToast) window.showToast("Request failed", "danger");
         return null;
       }
     }
@@ -249,11 +479,55 @@
         payload = { raw: payloadInput.value, parse_error: String(err) };
       }
       return await requestJson("/addons/api_tester/api/run", {
-        path: pathOverride || endpointSelect.value,
+        path: pathOverride || endpointPathInput.value || endpointSelect.value,
         method: methodOverride || methodSelect.value,
         token: tokenInput.value.trim(),
         payload: payload
       }, "POST");
+    }
+
+    async function loadAccountKeyWorkspace() {
+      const result = await requestJson("{{ url_for('auth.api_keys_data') }}", {}, "GET");
+      if (!result) return;
+      const data = result.data || {};
+      tokenCatalogState.accountTokens = Array.isArray(data.personal_tokens) ? data.personal_tokens : tokenCatalogState.accountTokens;
+      tokenCatalogState.rawTokens = dedupeTokens(tokenCatalogState.rawTokens.concat(data.revealed_tokens || []));
+      rebuildTokenPreset();
+      if (Array.isArray(data.revealed_tokens) && data.revealed_tokens.length) {
+        tokenInput.value = data.revealed_tokens[0].token || "";
+        if (window.showToast) window.showToast("Loaded newly revealed account keys", "success");
+      } else if (window.showToast) {
+        window.showToast("No newly revealable account keys were available", "info");
+      }
+    }
+
+    async function createPersonalKey(event) {
+      event.preventDefault();
+      const payload = {
+        name: document.getElementById("personalKeyName").value.trim(),
+        expiry_days: document.getElementById("personalKeyExpiry").value.trim(),
+        scopes: document.getElementById("personalKeyScopes").value.trim(),
+        current_password: document.getElementById("personalKeyPassword").value,
+        otp_code: document.getElementById("personalKeyOtp").value.trim(),
+        recovery_code: document.getElementById("personalKeyRecovery").value.trim()
+      };
+      const result = await requestJson("{{ url_for('auth.api_keys_create_json') }}", payload, "POST");
+      if (!result) return;
+      const data = result.data || {};
+      if (!result.response.ok || !data.ok) {
+        if (window.showToast) window.showToast(data.error || "Failed to create personal API key", "danger");
+        return;
+      }
+      tokenCatalogState.accountTokens = Array.isArray(data.personal_tokens) ? data.personal_tokens : tokenCatalogState.accountTokens;
+      tokenCatalogState.rawTokens = dedupeTokens(tokenCatalogState.rawTokens.concat(data.revealed_tokens || []));
+      rebuildTokenPreset();
+      if (Array.isArray(data.revealed_tokens) && data.revealed_tokens.length) {
+        tokenInput.value = data.revealed_tokens[0].token || "";
+      }
+      document.getElementById("personalKeyPassword").value = "";
+      document.getElementById("personalKeyOtp").value = "";
+      document.getElementById("personalKeyRecovery").value = "";
+      if (window.showToast) window.showToast("Personal API key created and loaded", "success");
     }
 
     document.getElementById("runRequestBtn").addEventListener("click", function () {
@@ -265,38 +539,82 @@
     });
 
     document.getElementById("loadRoutesBtn").addEventListener("click", function () {
+      endpointPathInput.value = "/v1/meta/routes";
       runManualRequest("/v1/meta/routes", "GET");
     });
 
     document.getElementById("whoAmIBtn").addEventListener("click", function () {
+      endpointPathInput.value = "/v1/auth/me";
       runManualRequest("/v1/auth/me", "GET");
     });
 
     document.getElementById("mintTokenBtn").addEventListener("click", async function () {
-      const data = await requestJson("/addons/api_tester/api/mint-token", {}, "POST");
+      const result = await requestJson("/addons/api_tester/api/mint-token", {}, "POST");
+      if (!result) return;
+      const data = result.data || {};
       if (data && data.token) {
+        tokenCatalogState.testerTokens = dedupeTokens(tokenCatalogState.testerTokens.concat([{
+          name: "api_tester",
+          prefix: data.token_prefix,
+          token: data.token,
+          expires_at: data.expires_at,
+          scopes: data.scopes || []
+        }]));
+        tokenCatalogState.accountTokens = Array.isArray(data.tokens) ? data.tokens : tokenCatalogState.accountTokens;
+        rebuildTokenPreset();
         tokenInput.value = data.token;
+        if (window.showToast) window.showToast("Tester token minted and loaded", "success");
+      }
+    });
+
+    document.getElementById("loadAccountKeysBtn").addEventListener("click", loadAccountKeyWorkspace);
+    document.getElementById("personalKeyCreateForm").addEventListener("submit", createPersonalKey);
+
+    document.getElementById("clearTokenBtn").addEventListener("click", function () {
+      tokenInput.value = "";
+    });
+
+    document.getElementById("copyTokenBtn").addEventListener("click", async function () {
+      const value = tokenInput.value.trim();
+      if (!value) return;
+      try {
+        await navigator.clipboard.writeText(value);
+        if (window.showToast) window.showToast("Token copied", "success");
+      } catch (_err) {
+        if (window.showToast) window.showToast("Clipboard copy failed", "warning");
       }
     });
 
     tokenPreset.addEventListener("change", function () {
-      if (tokenPreset.value && !tokenInput.value.trim()) {
+      const option = tokenPreset.selectedOptions[0];
+      const raw = String(option?.dataset.rawToken || "").trim();
+      const prefix = String(option?.dataset.prefix || "").trim();
+      if (raw) {
+        tokenInput.value = raw;
+        if (window.showToast) window.showToast("Token loaded into request workspace", "success");
+        return;
+      }
+      if (prefix) {
         renderOutput({
-          info: "Selected existing token prefix.",
-          prefix: tokenPreset.value,
-          note: "Paste the full raw token if you want to issue bearer-authenticated requests."
+          info: "Selected existing account key reference.",
+          prefix: prefix,
+          note: "Raw values cannot be recovered from storage. Paste the key if you already have it, or create a new one from this page."
         });
-        setStatus("token", "bg-secondary");
+        setStatus("reference", "bg-secondary");
       }
     });
 
     endpointSelect.addEventListener("change", function () {
       const option = endpointSelect.selectedOptions[0];
       const methods = String(option?.dataset.methods || "GET").split(",");
+      endpointPathInput.value = option?.value || "";
       if (!methods.includes(methodSelect.value)) {
         methodSelect.value = methods[0] || "GET";
       }
     });
+
+    rebuildTokenPreset();
+    endpointPathInput.value = endpointSelect.value || endpointPathInput.value;
   })();
 </script>
 {% endblock %}

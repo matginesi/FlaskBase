@@ -70,7 +70,7 @@ def seed_users() -> list[dict[str, Any]]:
         user.company = str(row.get("company", "")).strip()[:120] or user.company
         user.department = str(row.get("department", "")).strip()[:120] or user.department
         user.job_title = str(row.get("job_title", "")).strip()[:120] or user.job_title
-        user.locale = str(row.get("locale", "it-IT")).strip()[:16] or "it-IT"
+        user.locale = str(row.get("locale", "en")).strip()[:16] or "en"
         user.timezone = str(row.get("timezone", "Europe/Rome")).strip()[:64] or "Europe/Rome"
         user.failed_login_count = 0
         user.locked_until = None

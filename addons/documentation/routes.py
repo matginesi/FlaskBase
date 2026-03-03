@@ -5,6 +5,7 @@ from html import unescape
 from pathlib import Path
 from typing import List, Optional
 import logging
+import re
 
 from flask import Blueprint, abort, jsonify, render_template, request, g
 from flask_login import current_user, login_required
@@ -166,6 +167,8 @@ def _sanitize_html(html: str) -> str:
             "td",
             "span",
             "div",
+            "img",
+            "input",
         ]
         allowed_attrs = {
             "*": ["class", "id", "title", "aria-label"],
@@ -175,8 +178,10 @@ def _sanitize_html(html: str) -> str:
             "th": ["colspan", "rowspan"],
             "td": ["colspan", "rowspan"],
             "div": ["class"],
+            "img": ["src", "alt", "title", "loading"],
+            "input": ["type", "checked", "disabled"],
         }
-        allowed_protocols = ["http", "https", "mailto"]
+        allowed_protocols = ["http", "https", "mailto", "data"]
 
         cleaned = bleach.clean(
             str(html or ""),
@@ -196,8 +201,6 @@ def _sanitize_html(html: str) -> str:
 
 
 def _extract_toc_from_html(html: str) -> List[TocItem]:
-    import re
-
     toc: List[TocItem] = []
     # headings must have id="..."
     heading_re = re.compile(r"<h([1-6])[^>]*\sid=\"([^\"]+)\"[^>]*>(.*?)</h\1>", re.IGNORECASE | re.DOTALL)
@@ -208,6 +211,82 @@ def _extract_toc_from_html(html: str) -> List[TocItem]:
         if title_raw:
             toc.append(TocItem(level=level, slug=slug, title=title_raw))
     return toc
+
+
+def _decode_code_payloads(html: str) -> str:
+    html = re.sub(r"(<code\b[^>]*>)(.*?)(</code>)", lambda m: f"{m.group(1)}{unescape(m.group(2) or '')}{m.group(3)}", html, flags=re.IGNORECASE | re.DOTALL)
+    html = re.sub(r'(<div\b[^>]*class="[^"]*\bmermaid\b[^"]*"[^>]*>)(.*?)(</div>)', lambda m: f"{m.group(1)}{unescape(m.group(2) or '')}{m.group(3)}", html, flags=re.IGNORECASE | re.DOTALL)
+    return html
+
+
+def _language_label(raw: str) -> str:
+    value = str(raw or "").strip().lower()
+    aliases = {
+        "py": "Python",
+        "python": "Python",
+        "js": "JavaScript",
+        "javascript": "JavaScript",
+        "ts": "TypeScript",
+        "typescript": "TypeScript",
+        "html": "HTML",
+        "xml": "HTML",
+        "css": "CSS",
+        "scss": "SCSS",
+        "sql": "SQL",
+        "sh": "Shell",
+        "bash": "Bash",
+        "shell": "Shell",
+        "zsh": "Shell",
+        "console": "Console",
+        "shellsession": "Console",
+        "md": "Markdown",
+        "markdown": "Markdown",
+        "mermaid": "Mermaid",
+        "yml": "YAML",
+        "yaml": "YAML",
+        "json": "JSON",
+        "toml": "TOML",
+        "ini": "INI",
+        "dotenv": "dotenv",
+        "env": "dotenv",
+    }
+    if value in aliases:
+        return aliases[value]
+    if not value:
+        return "Plain text"
+    return value.replace("-", " ").replace("_", " ").title()
+
+
+def _decorate_code_blocks(html: str) -> tuple[str, bool]:
+    has_code_blocks = False
+
+    def _code_repl(match: re.Match) -> str:
+        nonlocal has_code_blocks
+        code_class = match.group("class_attr") or ""
+        code_inner = match.group("code") or ""
+        lang_match = re.search(r"(?:^|\s)language-([a-zA-Z0-9_+-]+)(?:\s|$)", code_class)
+        language = (lang_match.group(1) if lang_match else "").strip().lower()
+        if language == "mermaid":
+            return match.group(0)
+        has_code_blocks = True
+        label = _language_label(language)
+        data_lang = language or "text"
+        pre_class = f' class="docs-code-pre language-{data_lang}"'
+        code_attr = f' class="{code_class.strip()}"' if code_class.strip() else ""
+        return (
+            f'<div class="docs-code-block" data-lang="{data_lang}">'
+            f'<div class="docs-code-head"><span class="docs-code-lang">{label}</span></div>'
+            f"<pre{pre_class}><code{code_attr}>{code_inner}</code></pre>"
+            f"</div>"
+        )
+
+    wrapped = re.sub(
+        r"<pre(?:\s+class=\"[^\"]*\")?><code(?:\s+class=\"(?P<class_attr>[^\"]*)\")?>(?P<code>.*?)</code></pre>",
+        _code_repl,
+        html,
+        flags=re.IGNORECASE | re.DOTALL,
+    )
+    return wrapped, has_code_blocks
 
 
 def _render_markdown(md_text: str) -> tuple[str, List[TocItem], bool]:
@@ -240,8 +319,6 @@ def _render_markdown(md_text: str) -> tuple[str, List[TocItem], bool]:
         html = f"<pre><code>{_html.escape(text)}</code></pre>"
 
     # 2) Mermaid blocks: <pre><code class=\"language-mermaid\">...</code></pre> -> <div class=\"mermaid\">...</div>
-    import re
-
     has_mermaid = False
 
     def _mermaid_repl(m: re.Match) -> str:
@@ -249,7 +326,12 @@ def _render_markdown(md_text: str) -> tuple[str, List[TocItem], bool]:
         has_mermaid = True
         code_inner = m.group(1) or ""
         code_inner = unescape(code_inner)
-        return f'<div class="mermaid">{code_inner}</div>'
+        return (
+            '<div class="docs-mermaid-block">'
+            '<div class="docs-code-head"><span class="docs-code-lang">Mermaid diagram</span></div>'
+            f'<div class="mermaid">{code_inner}</div>'
+            "</div>"
+        )
 
     html = re.sub(
         r"<pre><code[^>]*class=\"[^\"]*(?:language-)?mermaid[^\"]*\"[^>]*>(.*?)</code></pre>",
@@ -258,8 +340,12 @@ def _render_markdown(md_text: str) -> tuple[str, List[TocItem], bool]:
         flags=re.IGNORECASE | re.DOTALL,
     )
 
-    # 3) Sanitize + TOC
+    # 3) Code blocks: wrap fenced code in a richer shell for language labels and layout.
+    html, _has_code_blocks = _decorate_code_blocks(html)
+
+    # 4) Sanitize + TOC
     html = _sanitize_html(html)
+    html = _decode_code_payloads(html)
     toc = _extract_toc_from_html(html)
     return html, toc, has_mermaid
 @dataclass(frozen=True)

@@ -13,6 +13,7 @@ from app.extensions import db
 from app.models import ApiToken, now_utc
 from app.services.access_control import addon_enabled, can_access_addon
 from app.services.api_auth import validate_api_token
+from app.services.app_logger import get_logger, log_error, log_event, log_warning
 from app.services.api_runtime import resolve_api_public_base_url
 from app.services.audit import audit
 
@@ -24,6 +25,7 @@ bp = Blueprint(
 )
 
 _ALLOWED_PROXY_PATHS = ("/v1/", "/docs", "/openapi.json", "/redoc")
+log = get_logger(__name__)
 
 
 def _settings() -> dict[str, object]:
@@ -157,9 +159,21 @@ def _validate_path(path: str) -> str | None:
 def _proxy_api_request(*, path: str, method: str, raw_token: str | None = None, payload: str | None = None) -> tuple[int, dict[str, object]]:
     base_url = _api_public_base_url()
     if not base_url:
+        log_warning(
+            "addon.api_tester.proxy_missing_base_url",
+            "API Tester proxy requested without configured public base URL",
+            logger=log,
+            context={"path": path, "method": method},
+        )
         return 503, {"ok": False, "error": "api_public_base_url_missing"}
     safe_path = _validate_path(path)
     if safe_path is None:
+        log_warning(
+            "addon.api_tester.path_not_allowed",
+            "API Tester rejected disallowed proxy path",
+            logger=log,
+            context={"path": path, "method": method, "user_id": int(current_user.id)},
+        )
         return 400, {"ok": False, "error": "path_not_allowed", "allowed_prefixes": list(_ALLOWED_PROXY_PATHS)}
     url = f"{base_url}{safe_path}"
     body = None if method == "GET" else (payload or "{}").encode("utf-8")
@@ -173,6 +187,12 @@ def _proxy_api_request(*, path: str, method: str, raw_token: str | None = None, 
         with urlrequest.urlopen(req, timeout=_timeout_sec()) as resp:
             raw = resp.read(_max_response_bytes() + 1)
             if len(raw) > _max_response_bytes():
+                log_warning(
+                    "addon.api_tester.response_too_large",
+                    "API Tester received a response larger than the configured cap",
+                    logger=log,
+                    context={"path": safe_path, "method": method, "limit_kb": int(_max_response_bytes() / 1024)},
+                )
                 return 502, {"ok": False, "error": "response_too_large", "limit_kb": int(_max_response_bytes() / 1024)}
             text = raw.decode("utf-8", errors="replace")
             try:
@@ -187,8 +207,21 @@ def _proxy_api_request(*, path: str, method: str, raw_token: str | None = None, 
             parsed = json.loads(text)
         except json.JSONDecodeError:
             parsed = {"raw": text}
+        log_warning(
+            "addon.api_tester.proxy_http_error",
+            "API Tester upstream request returned an HTTP error",
+            logger=log,
+            context={"path": safe_path, "method": method, "status": int(ex.code), "user_id": int(current_user.id)},
+        )
         return int(ex.code), {"ok": False, "status": int(ex.code), "url": url, "payload": parsed}
     except Exception as ex:
+        log_error(
+            "addon.api_tester.proxy_failed",
+            "API Tester upstream request failed",
+            logger=log,
+            context={"path": safe_path, "method": method, "user_id": int(current_user.id)},
+            exc_info=(type(ex), ex, ex.__traceback__),
+        )
         return 502, {"ok": False, "error": "proxy_failed", "detail": str(ex)[:240], "url": url}
 
 
@@ -215,6 +248,13 @@ def _status_payload() -> dict[str, object]:
 def index():
     if not addon_enabled("api_tester") or not can_access_addon("api_tester", current_user):
         abort(403)
+    log_event(
+        "INFO",
+        "addon.api_tester.page_view",
+        "Rendered API Tester user page",
+        logger=log,
+        context={"user_id": int(current_user.id), "role": str(getattr(current_user, "role", "") or "user")},
+    )
     audit("page.view", "Viewed API Tester (addon)")
     return render_template(
         "addons/api_tester/index.html",
@@ -236,6 +276,13 @@ def admin():
         abort(404)
     if not getattr(current_user, "is_admin", lambda: False)():
         abort(403)
+    log_event(
+        "INFO",
+        "addon.api_tester.admin_page_view",
+        "Rendered API Tester admin page",
+        logger=log,
+        context={"user_id": int(current_user.id), "role": str(getattr(current_user, "role", "") or "")},
+    )
     audit("page.view", "Viewed API Tester admin (addon)")
     return render_template(
         "addons/api_tester/index.html",
@@ -264,6 +311,13 @@ def mint_token():
     if not addon_enabled("api_tester") or not can_access_addon("api_tester", current_user):
         return jsonify({"ok": False, "error": "forbidden"}), 403
     token, raw = _mint_api_tester_token()
+    log_event(
+        "INFO",
+        "addon.api_tester.token_minted",
+        "Minted temporary API Tester token",
+        logger=log,
+        context={"user_id": int(current_user.id), "token_id": int(token.id), "token_prefix": str(token.token_prefix or "")},
+    )
     audit("addon.api_tester_token_minted", "Minted API Tester token", context={"uid": int(current_user.id), "token_id": int(token.id)})
     return jsonify(
         {
@@ -294,18 +348,49 @@ def run_request():
     data = request.get_json(silent=True) or {}
     path = _validate_path(data.get("path", "/v1/health"))
     if path is None:
+        log_warning(
+            "addon.api_tester.path_not_allowed",
+            "API Tester rejected request for unsupported path",
+            logger=log,
+            context={"user_id": int(current_user.id), "path": str(data.get("path", "")), "method": str(data.get("method", "GET")).upper()},
+        )
         return jsonify({"ok": False, "error": "path_not_allowed", "allowed_prefixes": list(_ALLOWED_PROXY_PATHS)}), 400
     method = str(data.get("method", "GET")).strip().upper()
     if method not in {"GET", "POST"}:
+        log_warning(
+            "addon.api_tester.unsupported_method",
+            "API Tester rejected unsupported HTTP method",
+            logger=log,
+            context={"user_id": int(current_user.id), "path": path, "method": method},
+        )
         return jsonify({"ok": False, "error": "unsupported_method"}), 400
     raw_token = str(data.get("token", "") or "").strip()
     if raw_token:
         token_row = validate_api_token(raw_token)
         if token_row is None:
+            log_warning(
+                "addon.api_tester.invalid_token",
+                "API Tester rejected invalid bearer token",
+                logger=log,
+                context={"user_id": int(current_user.id), "path": path, "method": method},
+            )
             return jsonify({"ok": False, "error": "invalid_token"}), 401
         if int(token_row.user_id) != int(current_user.id):
+            log_warning(
+                "addon.api_tester.token_not_owned",
+                "API Tester rejected bearer token owned by another user",
+                logger=log,
+                context={"user_id": int(current_user.id), "token_owner_id": int(token_row.user_id), "path": path, "method": method},
+            )
             return jsonify({"ok": False, "error": "token_not_owned_by_current_user"}), 403
     payload = data.get("payload")
     payload_text = payload if isinstance(payload, str) else json.dumps(payload or {})
     status, result = _proxy_api_request(path=path, method=method, raw_token=raw_token or None, payload=payload_text)
+    log_event(
+        "INFO" if status < 400 else "WARNING",
+        "addon.api_tester.request_completed",
+        "API Tester proxy request completed",
+        logger=log,
+        context={"user_id": int(current_user.id), "path": path, "method": method, "status": status, "token_supplied": bool(raw_token)},
+    )
     return jsonify({"ok": status < 400, "proxy_status": status, "result": result, **_meta_payload()}), status

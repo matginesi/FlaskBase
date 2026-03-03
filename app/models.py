@@ -70,7 +70,7 @@ class User(db.Model, UserMixin, TimestampMixin):
     company = db.Column(db.String(120), nullable=True)
     department = db.Column(db.String(120), nullable=True)
     job_title = db.Column(db.String(120), nullable=True)
-    locale = db.Column(db.String(16), nullable=True, default="it-IT")
+    locale = db.Column(db.String(16), nullable=True, default="en")
     timezone = db.Column(db.String(64), nullable=True, default="Europe/Rome")
     country = db.Column(db.String(80), nullable=True)
     city = db.Column(db.String(120), nullable=True)

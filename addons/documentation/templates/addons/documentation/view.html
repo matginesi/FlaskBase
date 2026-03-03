@@ -9,6 +9,12 @@
 /* Documentation add-on — editorial reading surface aligned to the app shell */
 .docs-layout{align-items:start}
 .docs-nav-card,.docs-reader-card,.docs-toc-card{border-radius:.95rem !important}
+.docs-sidebar-stack{display:flex;flex-direction:column;gap:1rem}
+.docs-intro-copy{font-size:.8rem}
+.docs-section-label{
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
 .docs-nav-search{border-bottom:1px solid var(--card-border);padding:.7rem .8rem;background:rgba(148,163,184,.04)}
 .docs-nav-meta{display:flex;align-items:center;justify-content:space-between;gap:.5rem;padding:.65rem .8rem;border-bottom:1px solid var(--card-border);font-size:.74rem;color:var(--text-muted)}
 .docs-nav-card .list-group-item{
@@ -81,8 +87,8 @@
   font-family: "Source Serif 4", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
   color: #111827;
   line-height: 1.62;
-  font-size: .88rem;
-  max-width: 72ch;
+  font-size: .92rem;
+  max-width: 92ch;
 }
 .docs-md > *:first-child{margin-top:0}
 .docs-md > *:last-child{margin-bottom:0}
@@ -104,6 +110,11 @@
 .docs-md em{color:#334155}
 .docs-md a{color:var(--accent);text-decoration:none}
 .docs-md a:hover{text-decoration:underline}
+.docs-md .task-list-item{list-style:none}
+.docs-md .task-list-item input[type="checkbox"]{
+  margin-right:.45rem;
+  transform:translateY(1px);
+}
 .docs-md ul,.docs-md ol{margin:0 0 .88rem;padding-left:1.28rem}
 .docs-md li{margin:.16rem 0;line-height:1.5}
 .docs-md hr{border:none;border-top:1px solid #e5e7eb;margin:1.2rem 0}
@@ -126,28 +137,79 @@
   border-radius: .45rem;
   color: #0f172a;
 }
-.docs-md pre{
-  background: #f4f7fb;
+.docs-code-block{
+  margin: 0 0 1rem;
   border: 1px solid #dbe4ee;
-  border-radius: .82rem;
-  padding: .8rem .9rem;
+  border-radius: .9rem;
+  overflow: hidden;
+  background: linear-gradient(180deg,#f8fbff 0%,#f4f7fb 100%);
+  box-shadow: 0 8px 18px rgba(15,23,42,.06);
+}
+.docs-code-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:.6rem;
+  padding:.52rem .82rem;
+  background: linear-gradient(180deg, rgba(255,255,255,.92) 0%, rgba(241,245,249,.95) 100%);
+  border-bottom: 1px solid #dbe4ee;
+}
+.docs-code-lang{
+  font-family: var(--font-base);
+  font-size:.68rem;
+  font-weight:800;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#64748b;
+}
+.docs-md pre,
+.docs-code-pre{
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: .9rem 1rem;
   overflow-x: auto;
-  margin: 0 0 .95rem;
-  line-height: 1.48;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,.78);
+  margin: 0;
+  line-height: 1.56;
+  box-shadow: none;
 }
 .docs-md pre code{
   background: none !important;
   border: none !important;
   padding: 0 !important;
   color: inherit;
-  font-size: .78rem;
+  display:block;
+  min-width:max-content;
+  font-size: .8rem;
   white-space: pre;
 }
-.docs-md .hljs{
+.docs-md .hljs,
+.docs-code-pre .hljs{
   background: transparent !important;
   padding: 0 !important;
 }
+.docs-md .hljs-comment,
+.docs-code-pre .hljs-comment{color:#64748b}
+.docs-md .hljs-keyword,
+.docs-md .hljs-selector-tag,
+.docs-md .hljs-built_in,
+.docs-code-pre .hljs-keyword,
+.docs-code-pre .hljs-selector-tag,
+.docs-code-pre .hljs-built_in{color:#7c3aed}
+.docs-md .hljs-string,
+.docs-md .hljs-title,
+.docs-md .hljs-section,
+.docs-code-pre .hljs-string,
+.docs-code-pre .hljs-title,
+.docs-code-pre .hljs-section{color:#0f766e}
+.docs-md .hljs-number,
+.docs-md .hljs-literal,
+.docs-code-pre .hljs-number,
+.docs-code-pre .hljs-literal{color:#b45309}
+.docs-md .hljs-meta,
+.docs-md .hljs-attr,
+.docs-code-pre .hljs-meta,
+.docs-code-pre .hljs-attr{color:#1d4ed8}
 
 /* Tables */
 .docs-md table{width:100%;border-collapse:collapse;margin:0 0 .95rem;font-size:.8rem}
@@ -180,15 +242,24 @@
 .docs-toc a.lvl-5{padding-left:2.4rem;font-size:.78rem}
 
 /* Mermaid */
+.docs-mermaid-block{
+  margin: 0 0 1.1rem;
+  border: 1px solid #dbe4ee;
+  border-radius: .95rem;
+  overflow: hidden;
+  background: linear-gradient(180deg,#f8fbff 0%,#fcfdff 100%);
+  box-shadow: 0 8px 18px rgba(15,23,42,.05);
+}
+.docs-mermaid-block .docs-code-head{
+  background: linear-gradient(180deg, rgba(255,255,255,.94) 0%, rgba(241,245,249,.96) 100%);
+}
 .mermaid{
   background:
     radial-gradient(circle at top right, rgba(37,99,235,.035), transparent 30%),
     #fcfdff;
-  border: 1px solid #dbe4ee;
-  border-radius: .95rem;
   padding: 1rem;
   overflow-x: auto;
-  margin: 0 0 1.1rem;
+  margin: 0;
   box-shadow: inset 0 1px 0 rgba(255,255,255,.85);
 }
 .docs-md img{max-width:100%;height:auto;border-radius:.8rem;border:1px solid #e2e8f0}
@@ -200,6 +271,10 @@
 .docs-pager-label{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:#64748b}
 .docs-pager-title{font-size:.82rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .docs-empty{padding:.85rem .9rem;font-size:.8rem;color:var(--text-muted)}
+@media (min-width: 1200px) {
+  .docs-reader-col{flex:0 0 auto;width:72%}
+  .docs-sidebar-col{flex:0 0 auto;width:28%}
+}
 @media (max-width: 991.98px) {.docs-surface{padding:.9rem;}}
 @media (max-width: 767.98px) {
   .docs-reader-card .card-header{padding:.72rem .82rem}
@@ -212,13 +287,49 @@
 </style>
 
 
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github.min.css">
-<script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/highlight.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/styles/github.min.css">
+<script src="https://cdn.jsdelivr.net/npm/@highlightjs/cdn-assets@11.9.0/highlight.min.js"></script>
 <script nonce="{{ g.csp_nonce }}">
   document.addEventListener('DOMContentLoaded', () => {
     try {
       if (!window.hljs) return;
+      const languageAliases = {
+        py: 'python',
+        python: 'python',
+        js: 'javascript',
+        javascript: 'javascript',
+        ts: 'typescript',
+        typescript: 'typescript',
+        html: 'xml',
+        xml: 'xml',
+        css: 'css',
+        scss: 'scss',
+        sql: 'sql',
+        sh: 'bash',
+        shell: 'bash',
+        zsh: 'bash',
+        bash: 'bash',
+        md: 'markdown',
+        markdown: 'markdown',
+        yml: 'yaml',
+        yaml: 'yaml',
+        json: 'json',
+        toml: 'toml',
+        ini: 'ini'
+      };
       document.querySelectorAll('.docs-md pre code').forEach((block) => {
+        const languageClass = Array.from(block.classList).find((value) => value.indexOf('language-') === 0) || '';
+        const rawLanguage = languageClass.replace(/^language-/, '').trim().toLowerCase();
+        const language = languageAliases[rawLanguage] || rawLanguage;
+        if (language) {
+          block.classList.remove(languageClass);
+          block.classList.add('language-' + language);
+        }
+        if (language && window.hljs.getLanguage(language)) {
+          block.innerHTML = window.hljs.highlight(block.textContent || '', { language: language, ignoreIllegals: true }).value;
+          block.classList.add('hljs');
+          return;
+        }
         window.hljs.highlightElement(block);
       });
     } catch (e) {}
@@ -228,9 +339,15 @@
 {% if has_mermaid %}
 <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
 <script nonce="{{ g.csp_nonce }}">
-  try {
-    mermaid.initialize({ startOnLoad: true, securityLevel: 'strict', theme: 'default' });
-  } catch (e) { console && console.warn && console.warn('Mermaid init failed', e); }
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      if (!window.mermaid) return;
+      mermaid.initialize({ startOnLoad: false, securityLevel: 'strict', theme: 'default' });
+      const blocks = document.querySelectorAll('.docs-md .mermaid');
+      if (!blocks.length) return;
+      await mermaid.run({ nodes: blocks });
+    } catch (e) { console && console.warn && console.warn('Mermaid init failed', e); }
+  });
 </script>
 {% endif %}
 {% endblock %}
@@ -240,7 +357,7 @@
 <div class="page-header">
   <div class="page-breadcrumb"><i class="bi bi-journal-text me-1"></i>Add-on</div>
   <h1>Documentation</h1>
-  <p class="text-muted" style="font-size:.8rem;">Compact in-app documentation viewer with Markdown, syntax-highlighted code blocks, and Mermaid support.</p>
+  <p class="text-muted docs-intro-copy">Compact in-app documentation viewer with Markdown, syntax-highlighted code blocks, and Mermaid support.</p>
 </div>
 
 <div class="d-flex align-items-center gap-2 mb-3 flex-wrap">
@@ -274,7 +391,7 @@
   <div class="offcanvas-body">
     <div class="card docs-nav-card">
       <div class="card-header">
-        <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;">Navigation</span>
+        <span class="small text-muted fw-bold docs-section-label">Navigation</span>
       </div>
       <div class="docs-nav-search">
         <form method="get" action="{{ admin_url if view_mode == 'admin' else '/addons/documentation/' }}">
@@ -306,41 +423,55 @@
 
 <div class="row g-3 docs-layout">
   {# Desktop left nav #}
-  <div class="col-lg-3 d-none d-lg-block">
-    <div class="card docs-nav-card">
-      <div class="card-header d-flex align-items-center justify-content-between">
-        <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;">Documents</span>
-        <span class="badge text-bg-light">MD</span>
+  <div class="col-lg-4 col-xl-3 d-none d-lg-block docs-sidebar-col">
+    <div class="docs-sidebar-stack">
+      <div class="card docs-nav-card">
+        <div class="card-header d-flex align-items-center justify-content-between">
+          <span class="small text-muted fw-bold docs-section-label">Documents</span>
+          <span class="badge text-bg-light">MD</span>
+        </div>
+        <div class="docs-nav-search">
+          <form method="get" action="{{ admin_url if view_mode == 'admin' else '/addons/documentation/' }}">
+            {% if view_mode == 'admin' and active_file %}
+            <input type="hidden" name="file" value="{{ active_file }}">
+            {% endif %}
+            <div class="input-group input-group-sm">
+              <span class="input-group-text"><i class="bi bi-search"></i></span>
+              <input class="form-control" type="search" name="q" value="{{ nav_query or '' }}" placeholder="Filter docs">
+            </div>
+          </form>
+        </div>
+        <div class="docs-nav-meta">
+          <span>{{ total_docs }} docs</span>
+          <span>{{ heading_count }} headings</span>
+        </div>
+        <div class="list-group list-group-flush">
+          {% for item in nav_items %}
+            <a class="list-group-item {{ 'active' if item.active else '' }}" href="{{ item.url }}">
+              <i class="bi bi-{{ 'house-fill' if item.kind == 'readme' else 'markdown' }}"></i> {{ item.title }}
+            </a>
+          {% else %}
+            <div class="docs-empty">No documents match the current filter.</div>
+          {% endfor %}
+        </div>
       </div>
-      <div class="docs-nav-search">
-        <form method="get" action="{{ admin_url if view_mode == 'admin' else '/addons/documentation/' }}">
-          {% if view_mode == 'admin' and active_file %}
-          <input type="hidden" name="file" value="{{ active_file }}">
-          {% endif %}
-          <div class="input-group input-group-sm">
-            <span class="input-group-text"><i class="bi bi-search"></i></span>
-            <input class="form-control" type="search" name="q" value="{{ nav_query or '' }}" placeholder="Filter docs">
-          </div>
-        </form>
+      {% if toc and toc|length %}
+      <div class="card docs-toc-card">
+        <div class="card-header">
+          <span class="small text-muted fw-bold docs-section-label"><i class="bi bi-list-ul me-1"></i>Outline</span>
+        </div>
+        <div class="card-body docs-toc">
+          {% for item in toc %}
+            <a class="lvl-{{ item.level }}" href="#{{ item.slug }}">{{ item.title }}</a>
+          {% endfor %}
+        </div>
       </div>
-      <div class="docs-nav-meta">
-        <span>{{ total_docs }} docs</span>
-        <span>{{ heading_count }} headings</span>
-      </div>
-      <div class="list-group list-group-flush">
-        {% for item in nav_items %}
-          <a class="list-group-item {{ 'active' if item.active else '' }}" href="{{ item.url }}">
-            <i class="bi bi-{{ 'house-fill' if item.kind == 'readme' else 'markdown' }}"></i> {{ item.title }}
-          </a>
-        {% else %}
-          <div class="docs-empty">No documents match the current filter.</div>
-        {% endfor %}
-      </div>
+      {% endif %}
     </div>
   </div>
 
   {# Main content #}
-  <div class="col-12 col-lg-9 col-xl-7">
+  <div class="col-12 col-lg-8 col-xl-9 docs-reader-col">
     <div class="card docs-reader-card">
       <div class="card-header">
         <div class="docs-docbar">
@@ -401,21 +532,6 @@
     </div>
   </div>
 
-  {# Right TOC (only XL) #}
-  <div class="col-xl-2 d-none d-xl-block">
-    {% if toc and toc|length %}
-      <div class="card docs-toc-card">
-        <div class="card-header">
-          <span class="small text-muted fw-bold" style="letter-spacing:.08em;text-transform:uppercase;"><i class="bi bi-list-ul me-1"></i>Outline</span>
-        </div>
-        <div class="card-body docs-toc">
-          {% for item in toc %}
-            <a class="lvl-{{ item.level }}" href="#{{ item.slug }}">{{ item.title }}</a>
-          {% endfor %}
-        </div>
-      </div>
-    {% endif %}
-  </div>
 </div>
 
 {% endblock %}
